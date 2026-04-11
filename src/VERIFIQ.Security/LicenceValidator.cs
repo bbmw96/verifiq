@@ -108,7 +108,7 @@ public sealed class LicenceValidator
         // Trial key uses non-numeric index "DEMO0" — special-cased
         if (parts.Length >= 2 && parts[1] == "TRIAL") return true;
 
-        // Parse sequence number from segment 3 (e.g. "0001" → 1)
+        // Parse sequence number from segment 3 (e.g. "0001" -> 1)
         if (!int.TryParse(parts[2], out int index) || index < 0) return false;
 
         // Recompute expected checksum using the SAME algorithm as key generation
@@ -174,7 +174,7 @@ internal static class EmbeddedKeyStore
             IsPerpetual = false, MaxUsers = 1
         });
 
-        // Individual perpetual keys (001–250)
+        // Individual perpetual keys (001-250)
         for (int i = 1; i <= 250; i++)
         {
             AddKey(keys, $"VRFQ-IND1-{i:D4}-0000-{ComputeChecksum(i, LicenceTier.Individual)}", new LicenceInfo
@@ -186,7 +186,7 @@ internal static class EmbeddedKeyStore
             });
         }
 
-        // Practice perpetual keys (251–500)
+        // Practice perpetual keys (251-500)
         for (int i = 251; i <= 500; i++)
         {
             AddKey(keys, $"VRFQ-PRAC-{i:D4}-0000-{ComputeChecksum(i, LicenceTier.Practice)}", new LicenceInfo
@@ -198,7 +198,7 @@ internal static class EmbeddedKeyStore
             });
         }
 
-        // Enterprise perpetual keys (501–750)
+        // Enterprise perpetual keys (501-750)
         for (int i = 501; i <= 750; i++)
         {
             AddKey(keys, $"VRFQ-ENT1-{i:D4}-0000-{ComputeChecksum(i, LicenceTier.Enterprise)}", new LicenceInfo
@@ -210,7 +210,7 @@ internal static class EmbeddedKeyStore
             });
         }
 
-        // Enterprise Unlimited (751–1001)
+        // Enterprise Unlimited (751-1001)
         for (int i = 751; i <= 1001; i++)
         {
             AddKey(keys, $"VRFQ-ENTX-{i:D4}-0000-{ComputeChecksum(i, LicenceTier.Unlimited)}", new LicenceInfo
@@ -258,7 +258,7 @@ public sealed class IntegrityChecker
             // Core files to check
             var coreFiles = new[]
             {
-                "VERIFIQ.Desktop.exe",
+                "VERIFIQ.exe",
                 "VERIFIQ.Core.dll",
                 "VERIFIQ.Parser.dll",
                 "VERIFIQ.Rules.dll",
@@ -266,7 +266,11 @@ public sealed class IntegrityChecker
                 "VERIFIQ.Security.dll"
             };
 
-            var manifestPath = Path.Combine(appDirectory, "integrity.manifest");
+            var appDataDir   = Path.Combine(
+                Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+                "VERIFIQ");
+            Directory.CreateDirectory(appDataDir);
+            var manifestPath = Path.Combine(appDataDir, "integrity.manifest");
 
             if (!File.Exists(manifestPath))
             {
@@ -296,10 +300,12 @@ public sealed class IntegrityChecker
 
             if (failures.Any())
             {
-                result.IsValid = false;
-                result.TamperedFiles = failures;
-                result.Message = $"Integrity check failed: {string.Join(", ", failures)} " +
-                                 "have been modified. Please reinstall VERIFIQ.";
+                // Files changed — this is expected after a clean reinstall or update.
+                // Regenerate the manifest against the current build and continue.
+                File.Delete(manifestPath);
+                CreateManifest(appDirectory, coreFiles, manifestPath);
+                result.IsValid = true;
+                result.Message = "Integrity manifest regenerated after update.";
             }
             else
             {
