@@ -1,0 +1,84 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <ApplicationHighDpiMode>PerMonitorV2</ApplicationHighDpiMode>
+    <!-- App identity -->
+    <OutputType>WinExe</OutputType>
+    <AssemblyName>VERIFIQ</AssemblyName>
+    <RootNamespace>VERIFIQ.Desktop</RootNamespace>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <ApplicationHighDpiMode>PerMonitorV2</ApplicationHighDpiMode>
+    <LangVersion>12</LangVersion>
+
+    <!-- WPF + Windows Forms (for OpenFileDialog) -->
+    <UseWPF>true</UseWPF>
+    <UseWindowsForms>true</UseWindowsForms>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+
+    <!-- Version — bump this for each release -->
+    <AssemblyVersion>1.3.0.0</AssemblyVersion>
+    <FileVersion>1.3.0.0</FileVersion>
+    <InformationalVersion>1.3.0</InformationalVersion>
+    <Version>1.3.0</Version>
+
+    <!-- Product metadata (appears in Add/Remove Programs) -->
+    <Product>VERIFIQ</Product>
+    <Company>BBMW0 Technologies</Company>
+    <Authors>Jia Wen Gan</Authors>
+    <Copyright>Copyright 2026 BBMW0 Technologies. All rights reserved.</Copyright>
+    <Description>IFC Compliance Checker for Singapore CORENET-X and Malaysia NBeS</Description>
+    <PackageTags>IFC;BIM;CORENET-X;NBeS;Singapore;Malaysia;compliance</PackageTags>
+
+    <!-- Self-contained win-x64 publish: bundles .NET runtime so users
+         don't need to install anything except WebView2 (pre-installed Win11) -->
+    <Platforms>x64</Platforms>
+    <RuntimeIdentifier>win-x64</RuntimeIdentifier>
+    <SelfContained>true</SelfContained>
+
+    <!-- Keep as folder publish (not single file) so wwwroot is accessible
+         as relative paths. Single-file breaks WebView2 virtual host mapping. -->
+    <PublishSingleFile>false</PublishSingleFile>
+
+    <!-- Trim unused .NET assemblies to reduce output size (~40% smaller) -->
+    <PublishTrimmed>false</PublishTrimmed>
+
+    <!-- Ready-to-run: pre-JIT for faster startup on target machine -->
+    <PublishReadyToRun>true</PublishReadyToRun>
+
+    <!-- App icon -->
+    <ApplicationIcon>Assets\verifiq.ico</ApplicationIcon>
+
+    <!-- Manifest: declares Windows 10/11 compatibility and DPI awareness -->
+    <ApplicationManifest>Assets\app.manifest</ApplicationManifest>
+  </PropertyGroup>
+
+  <!-- Project references -->
+  <ItemGroup>
+    <ProjectReference Include="..\VERIFIQ.Core\VERIFIQ.Core.csproj" />
+    <ProjectReference Include="..\VERIFIQ.Parser\VERIFIQ.Parser.csproj" />
+    <ProjectReference Include="..\VERIFIQ.Rules\VERIFIQ.Rules.csproj" />
+    <ProjectReference Include="..\VERIFIQ.Reports\VERIFIQ.Reports.csproj" />
+    <ProjectReference Include="..\VERIFIQ.Security\VERIFIQ.Security.csproj" />
+  </ItemGroup>
+
+  <!-- NuGet packages -->
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Web.WebView2"        Version="1.0.2739.15" />
+    <PackageReference Include="Newtonsoft.Json"               Version="13.0.3" />
+    <PackageReference Include="DocumentFormat.OpenXml"        Version="2.20.0" />
+  </ItemGroup>
+
+  <!-- Static content (wwwroot = frontend, data = rules DB template) -->
+  <ItemGroup>
+    <Content Include="wwwroot\**\*">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="data\**\*">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <!-- App icon and manifest included in output -->
+    <Content Include="Assets\**\*" Condition="Exists('Assets')">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+</Project>

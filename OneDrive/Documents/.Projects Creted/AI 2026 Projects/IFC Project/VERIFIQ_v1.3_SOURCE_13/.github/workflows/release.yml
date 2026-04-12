@@ -1,0 +1,87 @@
+name: VERIFIQ Release Build
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to release (e.g. 1.2.0)'
+        required: true
+        default: '1.2.0'
+
+env:
+  DOTNET_VERSION: '8.0.x'
+  PROJECT_PATH:   'VERIFIQ/src/VERIFIQ.Desktop/VERIFIQ.Desktop.csproj'
+  OUTPUT_PATH:    'publish'
+
+jobs:
+  build-and-release:
+    runs-on: windows-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up .NET ${{ env.DOTNET_VERSION }}
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Restore NuGet packages
+        run: dotnet restore ${{ env.PROJECT_PATH }}
+
+      - name: Build Release
+        run: |
+          dotnet publish ${{ env.PROJECT_PATH }} `
+            --configuration Release `
+            --runtime win-x64 `
+            --self-contained false `
+            --output ${{ env.OUTPUT_PATH }} `
+            -p:PublishSingleFile=false `
+            -p:AssemblyVersion=${{ github.ref_name || inputs.version }} `
+            -p:FileVersion=${{ github.ref_name || inputs.version }}
+
+      - name: Create release archive
+        run: |
+          $version = "${{ github.ref_name }}".TrimStart('v')
+          if (-not $version) { $version = "${{ inputs.version }}" }
+          Compress-Archive -Path "${{ env.OUTPUT_PATH }}/*" -DestinationPath "VERIFIQ-v$version-win-x64.zip"
+          echo "RELEASE_ZIP=VERIFIQ-v$version-win-x64.zip" >> $env:GITHUB_ENV
+          echo "RELEASE_VERSION=$version" >> $env:GITHUB_ENV
+        shell: pwsh
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          name: "VERIFIQ v${{ env.RELEASE_VERSION }}"
+          tag_name: ${{ github.ref_name }}
+          draft: false
+          prerelease: false
+          generate_release_notes: false
+          body: |
+            ## VERIFIQ v${{ env.RELEASE_VERSION }}
+
+            IFC Compliance Checker for Singapore CORENET-X (IFC+SG 2025) and Malaysia NBeS (UBBL 1984).
+
+            ### Requirements
+            - Windows 10/11
+            - [.NET 8 Desktop Runtime](https://dotnet.microsoft.com/download/dotnet/8)
+            - [WebView2 Runtime](https://developer.microsoft.com/en-us/microsoft-edge/webview2/)
+
+            ### Licence Keys
+            | Tier | Example Key |
+            |---|---|
+            | Trial | `VRFQ-TRIAL-DEMO0-0000-00000001` |
+            | Individual | `VRFQ-IND1-0001-0000-6C6A84BB` |
+
+            Purchase full licence: **bbmw0@hotmail.com**
+
+            ---
+            © 2026 BBMW0 Technologies · [bbmw0.com](https://bbmw0.com)
+          files: |
+            ${{ env.RELEASE_ZIP }}
