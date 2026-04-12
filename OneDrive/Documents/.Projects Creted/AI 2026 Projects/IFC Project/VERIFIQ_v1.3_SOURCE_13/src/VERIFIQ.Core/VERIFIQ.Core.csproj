@@ -1,0 +1,11 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <LangVersion>12</LangVersion>
+    <Company>BBMW0 Technologies</Company>
+    <Authors>Jia Wen Gan</Authors>
+    <Copyright>Copyright 2026 BBMW0 Technologies</Copyright>
+  </PropertyGroup>
+</Project>

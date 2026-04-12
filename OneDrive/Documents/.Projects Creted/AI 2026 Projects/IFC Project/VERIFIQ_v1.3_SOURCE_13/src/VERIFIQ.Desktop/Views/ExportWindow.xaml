@@ -1,0 +1,163 @@
+<Window x:Class="VERIFIQ.Desktop.ExportWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Export Compliance Report"
+        Height="680" Width="560"
+        WindowStartupLocation="CenterOwner"
+        ResizeMode="NoResize"
+        Background="#F4F6FA">
+    <Grid Margin="24">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>  <!-- Title -->
+            <RowDefinition Height="Auto"/>  <!-- Template section -->
+            <RowDefinition Height="Auto"/>  <!-- Format section -->
+            <RowDefinition Height="Auto"/>  <!-- Select All -->
+            <RowDefinition Height="Auto"/>  <!-- Progress -->
+            <RowDefinition Height="Auto"/>  <!-- Buttons -->
+        </Grid.RowDefinitions>
+
+        <!-- Title -->
+        <StackPanel Grid.Row="0" Margin="0,0,0,18">
+            <TextBlock Text="Export Compliance Report"
+                       FontFamily="Segoe UI,Arial" FontSize="18" FontWeight="Bold"
+                       Foreground="#0B1F45" Margin="0,0,0,4"/>
+            <TextBlock Text="Choose a report template and the file formats you want to export."
+                       FontFamily="Segoe UI,Arial" FontSize="12" Foreground="#64748B"
+                       TextWrapping="Wrap"/>
+        </StackPanel>
+
+        <!-- Template selector -->
+        <StackPanel Grid.Row="1" Margin="0,0,0,18">
+            <TextBlock Text="📋  Report Template"
+                       FontFamily="Segoe UI,Arial" FontSize="13" FontWeight="700"
+                       Foreground="#0B1F45" Margin="0,0,0,8"/>
+            <Border Background="White" CornerRadius="8" BorderBrush="#E2E8F0" BorderThickness="1" Padding="14">
+                <StackPanel>
+                    <!-- Row 1 -->
+                    <Grid Margin="0,0,0,8">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="8"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="8"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="8"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <RadioButton x:Name="TmplProfessional" Checked="Template_Checked" Grid.Column="0" GroupName="Template" IsChecked="True"
+                                     Content="Professional" Tag="Professional" Cursor="Hand"
+                                     FontFamily="Segoe UI,Arial" FontSize="11" FontWeight="600"
+                                     Foreground="#0B1F45" VerticalContentAlignment="Center"/>
+                        <RadioButton x:Name="TmplExecutive" Checked="Template_Checked"    Grid.Column="2" GroupName="Template"
+                                     Content="Executive Summary" Tag="ExecutiveSummary" Cursor="Hand"
+                                     FontFamily="Segoe UI,Arial" FontSize="11" FontWeight="600"
+                                     Foreground="#1D4ED8" VerticalContentAlignment="Center"/>
+                        <RadioButton x:Name="TmplBca" Checked="Template_Checked"          Grid.Column="4" GroupName="Template"
+                                     Content="BCA Format (SG)" Tag="BcaFormat" Cursor="Hand"
+                                     FontFamily="Segoe UI,Arial" FontSize="11" FontWeight="600"
+                                     Foreground="#1D4ED8" VerticalContentAlignment="Center"/>
+                        <RadioButton x:Name="TmplScdf" Checked="Template_Checked"         Grid.Column="6" GroupName="Template"
+                                     Content="SCDF Format (SG)" Tag="ScdfFormat" Cursor="Hand"
+                                     FontFamily="Segoe UI,Arial" FontSize="11" FontWeight="600"
+                                     Foreground="#B91C1C" VerticalContentAlignment="Center"/>
+                    </Grid>
+                    <!-- Row 2 -->
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="8"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="8"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="8"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <RadioButton x:Name="TmplNbes" Checked="Template_Checked"         Grid.Column="0" GroupName="Template"
+                                     Content="NBeS Format (MY)" Tag="NbesFormat" Cursor="Hand"
+                                     FontFamily="Segoe UI,Arial" FontSize="11" FontWeight="600"
+                                     Foreground="#9B1C1C" VerticalContentAlignment="Center"/>
+                        <RadioButton x:Name="TmplMinimal" Checked="Template_Checked"      Grid.Column="2" GroupName="Template"
+                                     Content="Minimal (Print)" Tag="Minimal" Cursor="Hand"
+                                     FontFamily="Segoe UI,Arial" FontSize="11" FontWeight="600"
+                                     Foreground="#374151" VerticalContentAlignment="Center"/>
+                        <RadioButton x:Name="TmplTechnical" Checked="Template_Checked"    Grid.Column="4" GroupName="Template"
+                                     Content="Technical" Tag="Technical" Cursor="Hand"
+                                     FontFamily="Segoe UI,Arial" FontSize="11" FontWeight="600"
+                                     Foreground="#374151" VerticalContentAlignment="Center"/>
+                        <RadioButton x:Name="TmplAudit" Checked="Template_Checked"        Grid.Column="6" GroupName="Template"
+                                     Content="Audit Trail" Tag="AuditTrail" Cursor="Hand"
+                                     FontFamily="Segoe UI,Arial" FontSize="11" FontWeight="600"
+                                     Foreground="#065F46" VerticalContentAlignment="Center"/>
+                    </Grid>
+                    <!-- Description -->
+                    <TextBlock x:Name="TemplateDesc"
+                               Text="Full branded VERIFIQ layout with all sections, agency breakdown, design code findings, and detailed remediation guidance."
+                               FontFamily="Segoe UI,Arial" FontSize="11" Foreground="#64748B"
+                               TextWrapping="Wrap" Margin="0,10,0,0" LineHeight="16"/>
+                </StackPanel>
+            </Border>
+        </StackPanel>
+
+        <!-- Format checkboxes -->
+        <StackPanel Grid.Row="2" Margin="0,0,0,6">
+            <TextBlock Text="📁  File Formats"
+                       FontFamily="Segoe UI,Arial" FontSize="13" FontWeight="700"
+                       Foreground="#0B1F45" Margin="0,0,0,8"/>
+            <Border Background="White" CornerRadius="8" BorderBrush="#E2E8F0" BorderThickness="1" Padding="14">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <StackPanel Grid.Column="0">
+                        <CheckBox x:Name="ChkWord"     Content="📝  Word (.docx)"    IsChecked="True"  FontFamily="Segoe UI,Arial" FontSize="12" Margin="0,0,0,8" Cursor="Hand"/>
+                        <CheckBox x:Name="ChkPdf"      Content="📄  PDF (.html)"     IsChecked="True"  FontFamily="Segoe UI,Arial" FontSize="12" Margin="0,0,0,8" Cursor="Hand"/>
+                        <CheckBox x:Name="ChkExcel"    Content="📊  Excel (.xlsx)"   IsChecked="True"  FontFamily="Segoe UI,Arial" FontSize="12" Margin="0,0,0,8" Cursor="Hand"/>
+                        <CheckBox x:Name="ChkCsv"      Content="📋  CSV (.csv)"      IsChecked="False" FontFamily="Segoe UI,Arial" FontSize="12" Margin="0,0,0,8" Cursor="Hand"/>
+                        <CheckBox x:Name="ChkHtml"     Content="🌐  HTML (.html)"    IsChecked="False" FontFamily="Segoe UI,Arial" FontSize="12" Cursor="Hand"/>
+                    </StackPanel>
+                    <StackPanel Grid.Column="1">
+                        <CheckBox x:Name="ChkJson"     Content="{}{} JSON (.json)"   IsChecked="False" FontFamily="Segoe UI,Arial" FontSize="12" Margin="0,0,0,8" Cursor="Hand"/>
+                        <CheckBox x:Name="ChkXml"      Content="&lt;/&gt;  XML (.xml)"     IsChecked="False" FontFamily="Segoe UI,Arial" FontSize="12" Margin="0,0,0,8" Cursor="Hand"/>
+                        <CheckBox x:Name="ChkMarkdown" Content="📃  Markdown (.md)"  IsChecked="False" FontFamily="Segoe UI,Arial" FontSize="12" Margin="0,0,0,8" Cursor="Hand"/>
+                        <CheckBox x:Name="ChkText"     Content="📝  Text (.txt)"     IsChecked="False" FontFamily="Segoe UI,Arial" FontSize="12" Margin="0,0,0,8" Cursor="Hand"/>
+                        <CheckBox x:Name="ChkBcf"      Content="🏗  BCF (.bcf)"      IsChecked="False" FontFamily="Segoe UI,Arial" FontSize="12" Cursor="Hand"/>
+                    </StackPanel>
+                </Grid>
+            </Border>
+        </StackPanel>
+
+        <!-- Select all -->
+        <Button Grid.Row="3" Content="Select All Formats"
+                Background="Transparent" Foreground="#0E7C86" BorderThickness="0"
+                HorizontalAlignment="Left" FontFamily="Segoe UI,Arial" FontSize="12"
+                Cursor="Hand" Margin="0,4,0,0"
+                Click="CheckAll_Click"/>
+
+        <!-- Progress -->
+        <StackPanel Grid.Row="4">
+            <ProgressBar x:Name="ExportProgress" Height="4" Margin="0,12,0,0"
+                         Background="#E2E8F0" Foreground="#0E7C86" Visibility="Collapsed"/>
+            <TextBlock x:Name="ExportStatusLabel" Text="" FontFamily="Segoe UI,Arial" FontSize="11"
+                       Foreground="#64748B" Margin="0,6,0,0"/>
+        </StackPanel>
+
+        <!-- Buttons -->
+        <StackPanel Grid.Row="5" Orientation="Horizontal"
+                    HorizontalAlignment="Right" Margin="0,14,0,0">
+            <Button x:Name="BtnCancel" Content="Cancel"
+                    Width="90" Padding="0,9"
+                    Background="Transparent" Foreground="#555555"
+                    BorderBrush="#CBD5E1" BorderThickness="1"
+                    FontFamily="Segoe UI,Arial" FontSize="13"
+                    Cursor="Hand" Margin="0,0,10,0"
+                    Click="BtnCancel_Click"/>
+            <Button x:Name="BtnExport" Content="📤  Export"
+                    Width="120" Padding="0,9"
+                    Background="#0B1F45" Foreground="White"
+                    BorderThickness="0" FontFamily="Segoe UI,Arial"
+                    FontSize="13" FontWeight="Bold"
+                    Cursor="Hand" Click="Export_Click"/>
+        </StackPanel>
+    </Grid>
+</Window>
