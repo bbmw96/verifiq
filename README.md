@@ -24,21 +24,21 @@ Windows 10 (64-bit) or later. WebView2 Runtime included in installer.
 ## Features
 
 ### Compliance Checking
-- **20 Check Levels** — IFC entity class, PredefinedType, ObjectType, classification reference, classification edition, mandatory Pset_, Singapore SGPset_, property values, data types, enumerations, spatial containment, storey elevations, georeferencing (SVY21 / GDM2000), site hierarchy, GUID uniqueness, material assignment, space boundary, geometry validity, IFC schema version, file header completeness
-- **Singapore CORENET-X** — IFC+SG COP 3.1 (December 2025), 196 classification codes, 8 regulatory agencies (BCA, SCDF, URA, NEA, PUB, SLA, LTA, JTC), 4 submission gateways (G1 Outline, G1.5 Piling, G2 Structural, G3 Construction)
-- **Malaysia NBeS** — NBeS IFC Mapping 2024 (CIDB 2nd Edition), UBBL 1984, 8 Purpose Groups, MS 1184:2014 accessibility, MS 1525:2019 thermal
-- **Design Code Engine** — URA room dimension checks, BCA accessibility (door widths, ramp gradients), SCDF travel distances and exit widths, NEA ventilation rates, PUB sanitary fitting ratios, BCA Green Mark thermal values
+- **20 Check Levels** IFC entity class, PredefinedType, ObjectType, classification reference, classification edition, mandatory Pset_, Singapore SGPset_, property values, data types, enumerations, spatial containment, storey elevations, georeferencing (SVY21 / GDM2000), site hierarchy, GUID uniqueness, material assignment, space boundary, geometry validity, IFC schema version, file header completeness
+- **Singapore CORENET-X** IFC+SG COP 3.1 (December 2025), 196 classification codes, 8 regulatory agencies (BCA, SCDF, URA, NEA, PUB, SLA, LTA, JTC), 4 submission gateways (G1 Outline, G1.5 Piling, G2 Structural, G3 Construction)
+- **Malaysia NBeS** NBeS IFC Mapping 2024 (CIDB 2nd Edition), UBBL 1984, 8 Purpose Groups, MS 1184:2014 accessibility, MS 1525:2019 thermal
+- **Design Code Engine** URA room dimension checks, BCA accessibility (door widths, ramp gradients), SCDF travel distances and exit widths, NEA ventilation rates, PUB sanitary fitting ratios, BCA Green Mark thermal values
 
 ### Results and Findings
 - Compliance score with colour-coded severity (Critical / Error / Warning / Pass)
 - 7 filter dimensions: Severity, Discipline, IFC Entity, Agency, Storey, Gateway, Check Type
 - Every finding references the exact property set, property name, actual value, required value, and the regulation clause
-- Platform Guide — fix instructions for Revit, ArchiCAD, Tekla, and Bentley per finding
+- Platform Guide fix instructions for Revit, ArchiCAD, Tekla, and Bentley per finding
 
 ### Fix and Export
-- **Property Editor** — fix missing or wrong property values without returning to BIM software. Writes a corrected IFC alongside the original
-- **Export Reports** — Word (.docx), Excel (.xlsx), PDF, CSV, JSON, HTML, Markdown, BCF across 8 templates (Professional, Executive Summary, BCA Submission, SCDF Submission, NBeS Submission, Technical, Audit, Minimal)
-- **COBie Export** — Facility, Floor, Space, Component, Type, Attribute, Document data
+- **Property Editor** fix missing or wrong property values without returning to BIM software. Writes a corrected IFC alongside the original
+- **Export Reports** Word (.docx), Excel (.xlsx), PDF, CSV, JSON, HTML, Markdown, BCF across 8 templates (Professional, Executive Summary, BCA Submission, SCDF Submission, NBeS Submission, Technical, Audit, Minimal)
+- **COBie Export** Facility, Floor, Space, Component, Type, Attribute, Document data
 
 ### 3D Viewer
 - Compliance colour overlay (red = Critical, orange = Error, yellow = Warning, green = Pass)
@@ -50,16 +50,16 @@ Windows 10 (64-bit) or later. WebView2 Runtime included in installer.
 - Element selection with properties panel
 
 ### Tools
-- **IDS Checker** — validate against Information Delivery Specification files (ISO 21597)
-- **IFC Merge** — federate multiple discipline models for combined validation
-- **Search and Select** — search elements by name, GUID, IFC class, classification code, or storey
-- **Import Mapping** — import latest BCA IFC+SG Industry Mapping Excel from go.gov.sg/ifcsg
+- **IDS Checker** validate against Information Delivery Specification files (ISO 21597)
+- **IFC Merge** federate multiple discipline models for combined validation
+- **Search and Select** search elements by name, GUID, IFC class, classification code, or storey
+- **Import Mapping** import latest BCA IFC+SG Industry Mapping Excel from go.gov.sg/ifcsg
 
 ### Auto-Update System
 - Daily check against GitHub Releases and bbmw0.com/verifiq/version.json
 - Silent background download with progress bar in the update banner
-- Auto Install — runs installer with admin elevation, closes VERIFIQ automatically
-- Defer to Close — installer runs automatically on next app exit
+- Auto Install runs installer with admin elevation, closes VERIFIQ automatically
+- Defer to Close installer runs automatically on next app exit
 - Mandatory update flag for organisation deployments
 
 ---
