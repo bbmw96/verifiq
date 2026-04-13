@@ -1120,8 +1120,18 @@ public partial class MainWindow : Window
             case "checkForUpdates":
                 _ = Task.Run(async () =>
                 {
-                    var checker = new Services.UpdateChecker();
-                    await checker.CheckAsync(forceCheck: true);
+                    var checker  = new Services.UpdateChecker();
+                    var result   = await checker.CheckAsync(forceCheck: true);
+                    if (result == null)
+                    {
+                        // No update found - tell the UI
+                        SendToFrontend("noUpdateFound", new
+                        {
+                            current = Services.AppVersion.Current,
+                            message = $"VERIFIQ {Services.AppVersion.Current} is up to date."
+                        });
+                    }
+                    // If result != null, UpdateAvailable event already fired the banner
                 });
                 break;
 

@@ -173,6 +173,30 @@ const Bridge = (() => {
         })();
         break;
 
+      case 'noUpdateFound':
+        // Show brief "up to date" message in settings if open
+        (function() {
+          var btn = document.getElementById('update-check-btn');
+          if (btn) {
+            btn.textContent = '✓ Up to date (v' + (data.current||'') + ')';
+            btn.style.background = '#22c55e';
+            btn.style.color = '#000';
+            btn.disabled = false;
+            setTimeout(function(){
+              btn.textContent = '🔄 Check for Updates';
+              btn.style.background = '';
+              btn.style.color = '';
+            }, 4000);
+          }
+          // Also show a brief banner at bottom of screen
+          var msg = document.createElement('div');
+          msg.style.cssText = 'position:fixed;bottom:24px;right:24px;z-index:99999;background:#052e16;border:1px solid #22c55e;border-radius:8px;padding:10px 16px;font-size:12px;color:#86efac;box-shadow:0 8px 24px rgba(0,0,0,.5)';
+          msg.textContent = '✓ ' + (data.message || 'VERIFIQ is up to date.');
+          document.body.appendChild(msg);
+          setTimeout(function(){ if(msg.parentNode) msg.parentNode.removeChild(msg); }, 4000);
+        })();
+        break;
+
       case 'updateDeferred':
         (function() {
           const el = document.getElementById('update-banner');
