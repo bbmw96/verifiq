@@ -1,4 +1,4 @@
-// VERIFIQ v1.3 - Dashboard with Check All (Singapore) + Director's Report
+// VERIFIQ v2.0 - Dashboard with Check All (Singapore) + Director's Report
 // Copyright 2026 BBMW0 Technologies. All rights reserved.
 
 'use strict';
@@ -12,7 +12,7 @@ const DashboardPage = (() => {
     const state    = VState.get();
     const session  = state.session;
     const mode     = state.countryMode;
-    const modeInfo = VUtils.countryDisplay(mode);
+    const modeInfo = VUtils.countryDisplay(mode || 'Singapore');
     const files    = state.filesLoaded || [];
 
     return `<div>
@@ -68,7 +68,7 @@ const DashboardPage = (() => {
       <div class="card">
         <div class="card-header">
           <span class="card-title">⚡ What VERIFIQ Checks</span>
-          <span style="font-size:11px;color:var(--mid-grey)">v1.3.0 - IFC+SG 2025.1 (COP3) · NBeS 2024.1</span>
+          <span style="font-size:11px;color:var(--mid-grey)">v2.0.0 - IFC+SG 2025.1 (COP3.1) · All 81 Components · NBeS 2024.1</span>
         </div>
         <div class="three-col">
           ${capCard('20 IFC Data Levels + 128 Codes','20 IFC data levels (entity class → classification → SGPset_ → property values → georeferencing → geometry) PLUS 128 embedded IFC+SG classification codes with exact SGPset_ requirements per code per agency','var(--teal)')}

@@ -5,7 +5,7 @@
 //
 // Complete IFC+SG and NBeS parameter mappings for Singapore and Malaysia.
 //
-// SINGAPORE - IFC+SG CORENET-X (COP 3rd Edition, October 2025)
+// SINGAPORE - IFC+SG CORENET-X (COP 3.1 Edition, December 2025)
 //   Agencies : BCA, URA, LTA, NEA, NParks, PUB, SCDF, SLA
 //   Gateways : Design, Piling, Construction, Completion, DirectSubmission (DSP)
 //   Standards: IFC+SG Industry Mapping 2025, IFC4 Reference View ADD2 TC1
@@ -74,7 +74,7 @@ public sealed class SqliteRulesDatabase : IRulesDatabase, IDisposable
     public string GetRequiredClassificationSystem(string ifcClass, CountryMode mode) =>
         mode switch
         {
-            CountryMode.Singapore => "IFC+SG Classification System (BCA/GovTech) - CORENET-X COP 3rd Ed.",
+            CountryMode.Singapore => "IFC+SG Classification System (BCA/GovTech) - CORENET-X COP 3.1 Edition (December 2025)",
             CountryMode.Malaysia  => "NBeS Classification System (CIDB/JBPM) - NBeS IFC Mapping 2024",
             _                     => "IFC+SG / NBeS Classification System"
         };
@@ -82,8 +82,8 @@ public sealed class SqliteRulesDatabase : IRulesDatabase, IDisposable
     public string GetCurrentClassificationEdition(CountryMode mode) =>
         mode switch
         {
-            CountryMode.Singapore => "IFC+SG Industry Mapping 2025 (COP 3rd Edition, October 2025)",
-            CountryMode.Malaysia  => "NBeS IFC Mapping 2024 (CIDB - 2nd Edition)",
+            CountryMode.Singapore => "IFC+SG Industry Mapping December 2025 (COP 3.1 Edition, 833 rows, 81 components)",
+            CountryMode.Malaysia  => "NBeS IFC Mapping 2024 (CIDB Malaysia - 2nd Edition, UBBL 1984 compliance)",
             _                     => string.Empty
         };
 
@@ -119,7 +119,7 @@ public sealed class SqliteRulesDatabase : IRulesDatabase, IDisposable
 
     public string  GetRulesDbVersion(CountryMode mode) => mode switch
     {
-        CountryMode.Singapore => "IFC+SG 2025.1 (COP3, Oct 2025)",
+        CountryMode.Singapore => "IFC+SG 2025.1 (COP3.1, December 2025)",
         CountryMode.Malaysia  => "NBeS 2024.1 (CIDB, 2nd Ed.)",
         _ => "2025.1"
     };
@@ -290,6 +290,56 @@ public sealed class SqliteRulesDatabase : IRulesDatabase, IDisposable
             P("Pset_OpeningElementCommon",   true,  false, SgAgency.BCA,  Both, "IFC4"),
             P("SGPset_OpeningFireDamper",    false, true,  SgAgency.SCDF, SG,   "SCDF - opening fire protection")
         ),
+        ["IFCTRANSPORTELEMENT"] = Psets(
+            P("SGPset_LiftCommon",    true,  true,  SgAgency.BCA,  SG,   "IFC+SG COP3.1 - Lift/Escalator"),
+            P("Pset_TransportElementCommon", false, false, SgAgency.BCA, Both, "IFC4")),
+
+        ["IFCVALVE"] = Psets(
+            P("SGPset_System",         true,  true,  SgAgency.PUB,  SG,   "IFC+SG COP3.1 p.430 - Valve")),
+
+        ["IFCFIRESUPPRESSIONTERMINAL"] = Psets(
+            P("SGPset_FireSuppressionTerminal", true, true, SgAgency.SCDF, SG, "IFC+SG COP3.1 p.264 - Fire Suppression"),
+            P("SGPset_System",         true,  true,  SgAgency.SCDF, SG,   "IFC+SG COP3.1 - System Type")),
+
+        ["IFCALARM"] = Psets(
+            P("SGPset_Alarm",          true,  true,  SgAgency.SCDF, SG,   "IFC+SG COP3.1 - Fire Alarm"),
+            P("Pset_AlarmCommon",      false, false, SgAgency.SCDF, Both, "IFC4")),
+
+        ["IFCDISTRIBUTIONCHAMBERELEMENT"] = Psets(
+            P("SGPset_DistribChamber", true,  true,  SgAgency.PUB,  SG,   "IFC+SG COP3.1 p.276 - Inspection Chamber/Manhole"),
+            P("SGPset_System",         true,  true,  SgAgency.PUB,  SG,   "IFC+SG COP3.1 - System")),
+
+        ["IFCGEOGRAPHICELEMENT"] = Psets(
+            P("SGPset_PlantCommon",    true,  true,  SgAgency.NParks, SG, "IFC+SG COP3.1 p.309 - Landscape Plants")),
+
+        ["IFCCIVILELEMENT"] = Psets(
+            P("SGPset_CivilElement",   true,  true,  SgAgency.LTA,  SG,   "IFC+SG COP3.1 p.272 - Culverts/Drains"),
+            P("SGPset_System",         false, true,  SgAgency.PUB,  SG,   "IFC+SG COP3.1 - System Type")),
+
+        ["IFCTANK"] = Psets(
+            P("SGPset_TankCommon",     true,  true,  SgAgency.PUB,  SG,   "IFC+SG COP3.1 p.428 - Tank"),
+            P("Pset_TankCommon",       false, false, SgAgency.PUB,  Both, "IFC4")),
+
+        ["IFCPUMP"] = Psets(
+            P("SGPset_System",         true,  true,  SgAgency.PUB,  SG,   "IFC+SG COP3.1 - Pump System"),
+            P("Pset_PumpTypeCommon",   false, false, SgAgency.PUB,  Both, "IFC4")),
+
+        ["IFCWASTETERMINAL"] = Psets(
+            P("SGPset_WasteTerminal",  true,  true,  SgAgency.PUB,  SG,   "IFC+SG COP3.1 p.437 - Waste Terminal"),
+            P("SGPset_System",         true,  true,  SgAgency.PUB,  SG,   "IFC+SG COP3.1 - System")),
+
+        ["IFCFLOWMETER"] = Psets(
+            P("SGPset_WaterMeter",     true,  true,  SgAgency.PUB,  SG,   "IFC+SG COP3.1 p.438 - Water Meter"),
+            P("SGPset_System",         false, true,  SgAgency.PUB,  SG,   "IFC+SG COP3.1 - System")),
+
+        ["IFCDAMPER"] = Psets(
+            P("SGPset_DamperFireSafety", true, true, SgAgency.SCDF, SG,  "IFC+SG COP3.1 p.274 - Fire/Smoke Damper"),
+            P("Pset_DamperTypeCommon", false, false, SgAgency.SCDF, Both, "IFC4")),
+
+        ["IFCINTERCEPTOR"] = Psets(
+            P("SGPset_System",         true,  true,  SgAgency.NEA,  SG,   "IFC+SG COP3.1 - Grease/Oil Interceptor"),
+            P("Pset_InterceptorCommon", false, false, SgAgency.NEA, Both, "IFC4")),
+
         ["IFCBUILDINGELEMENTPROXY"] = Psets(
             // Proxy elements get no property set requirements - they are already flagged at Level 1.
             // Any property sets present are noted but not mandated.
@@ -460,7 +510,7 @@ public sealed class SqliteRulesDatabase : IRulesDatabase, IDisposable
         R.Add(Req("IFCSITE","Pset_SiteCommon","SiteID",               false, SgAgency.SLA, GDes, PGAll, SG,
             "Singapore Land Authority site lot number e.g. 'MK22-01234X'",
             "SLA uses the site lot number to verify the submission is for the correct site.",
-            "SLA Land Registry / CORENET-X COP 3rd Edition - Site Identification"));
+            "SLA Land Registry / CORENET-X COP 3.1 Edition - Site Identification"));
 
         R.Add(Req("IFCSITE","Pset_SiteCommon","RefElevation",         false, SgAgency.SLA, GDes, PGAll, SG,
             "Site datum elevation in Singapore Height Datum (SHD) metres",
@@ -1071,7 +1121,7 @@ public sealed class SqliteRulesDatabase : IRulesDatabase, IDisposable
 
     private sealed class ExtendedPropertyRequirement : PropertyRequirement
     {
-        public string IfcClass { get; set; } = string.Empty;
+        public new string IfcClass { get; set; } = string.Empty;
         public bool AppliesTo(string ifcClass) =>
             string.IsNullOrWhiteSpace(IfcClass) ||
             IfcClass.Equals(ifcClass, StringComparison.OrdinalIgnoreCase);

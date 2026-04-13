@@ -1,67 +1,19 @@
+﻿# Ignore everything outside the project
+../../../../../../*
+../../../../../*
+../../../../*
+../../../*
+../../*
+../*
+
+# Build output
+**/bin/
+**/obj/
+
 # Visual Studio
 .vs/
 *.user
-*.suo
-*.userosscache
-*.sln.docstates
-*.DotSettings.user
-*.DotSettings
 
-# Build outputs
-[Bb]in/
-[Oo]bj/
-[Ll]og/
-[Ll]ogs/
-*.FrameworkVersion
-*.PublishSettings
-
-# NuGet
-packages/
-*.nupkg
-*.snupkg
-project.lock.json
-project.fragment.lock.json
-artifacts/
-.nuget/
-
-# .NET
-*.dll
-*.exe
-*.pdb
-*.mdb
-*.cache
-*.ilk
-*.meta
-
-# WebView2 user data
-AppData/
-EBWebView/
-WebView2/
-
-# App data
-verifiq_rules.db
-settings.json
-integrity.manifest
-
-# Sensitive
-*.pfx
-*.p12
-*.cer
-*.key
-
-# OS
-.DS_Store
-Thumbs.db
-desktop.ini
+# Temp/personal files
 *.tmp
-*.temp
-
-# IDE
-.idea/
-*.swp
-*.swo
-
-# Zip / release
-*.zip
-*.7z
-VERIFIQ_v*.zip
+*.log

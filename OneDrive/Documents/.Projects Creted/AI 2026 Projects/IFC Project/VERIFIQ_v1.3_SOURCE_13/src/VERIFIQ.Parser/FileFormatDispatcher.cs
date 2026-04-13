@@ -43,9 +43,9 @@ public sealed class FileFormatDispatcher
 
             // Native BIM formats - metadata only
             InputFileFormat.RVT   => HandleNativeBimMetadata(filePath, format, "Autodesk Revit",
-                "Export to IFC+SG from Revit using the CORENET-X IFC+SG Shared Parameters and Export Settings from info.corenet.gov.sg"),
+                "Export to IFC+SG from Revit using the CORENET-X IFC+SG Shared Parameters and Export Settings from go.gov.sg/ifcsg"),
             InputFileFormat.PLN   => HandleNativeBimMetadata(filePath, format, "Graphisoft ArchiCAD",
-                "Export to IFC+SG from ArchiCAD using the Graphisoft IFC+SG Export Translator from info.corenet.gov.sg or graphisoft.com/sg"),
+                "Export to IFC+SG from ArchiCAD using the Graphisoft IFC+SG Export Translator from go.gov.sg/ifcsg or graphisoft.com/sg"),
             InputFileFormat.SKP   => HandleNativeBimMetadata(filePath, format, "SketchUp",
                 "Export to IFC from SketchUp using the IFC-Manager plugin, then validate the IFC file in VERIFIQ."),
             InputFileFormat.BIMX  => HandleNativeBimMetadata(filePath, format, "ArchiCAD BIMx",

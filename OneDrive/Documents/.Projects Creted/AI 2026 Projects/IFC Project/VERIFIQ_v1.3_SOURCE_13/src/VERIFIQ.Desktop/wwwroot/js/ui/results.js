@@ -1,546 +1,517 @@
-// VERIFIQ - Results Page UI
+// VERIFIQ v2.0 - Professional Results Page
 // Copyright 2026 BBMW0 Technologies. All rights reserved.
-
 'use strict';
 
 const ResultsPage = (() => {
 
-  function render(filterFn) {
-    const state   = VState.get();
-    const session = state.session;
-    const mode    = state.countryMode;
+  const PLATFORM_CONTEXT = {
+    'IfcWall':     { revit:'Walls category',      archicad:'Wall tool → Classification Manager assigns IFC entity. Slab/Column with Wall classification exports as IfcWall.',  tekla:'Concrete Panel / Panel', bentley:'Wall' },
+    'IfcBeam':     { revit:'Structural Framing',   archicad:'Beam tool → BeamSpanType mandatory. RC: reinforcement. Steel: MemberSection.',  tekla:'Beam / Concrete Beam', bentley:'Beam' },
+    'IfcColumn':   { revit:'Structural Columns',   archicad:'Column tool → StartingStorey + EndStorey required.',  tekla:'Concrete Column', bentley:'Column' },
+    'IfcSlab':     { revit:'Floors',               archicad:'Slab tool → SlabType mandatory (One way / Two way / Flat slab etc.).',  tekla:'Concrete Slab', bentley:'Slab' },
+    'IfcPile':     { revit:'Structural Foundations', archicad:'Object → DA1-1 and DA1-2 capacity/load mandatory. SHD levels required.',  tekla:'Concrete Column (as pile)', bentley:'Base Plate' },
+    'IfcFooting':  { revit:'Structural Foundations', archicad:'Footing tool → ConstructionMethod + MaterialGrade.',  tekla:'Concrete Footing', bentley:'Footing' },
+    'IfcDoor':     { revit:'Doors',                archicad:'Door tool → ClearWidth ≥850mm for BCA main entrance. FireRating for SCDF.',  tekla:'N/A', bentley:'Door' },
+    'IfcWindow':   { revit:'Windows',              archicad:'Window tool → PercentageOfOpening for NEA ventilation.',  tekla:'N/A', bentley:'Window' },
+    'IfcSpace':    { revit:'Rooms / Areas',        archicad:'Zone tool → SpaceName from 420-value list. OccupancyType from 95-value list.',  tekla:'N/A', bentley:'Space' },
+    'IfcStair':    { revit:'Stairs',               archicad:'Stair tool → FireExit for SCDF. ConstructionMethod + MaterialGrade.',  tekla:'Component', bentley:'Stair' },
+    'IfcRoof':     { revit:'Roofs',                archicad:'Roof tool or Slab with roof classification.',  tekla:'Slab', bentley:'Roof' },
+    'IfcCovering': { revit:'Ceilings (CEILING) / Roofs (SOFFIT)', archicad:'Ceiling tool → FireRating in hours (0.5–4).',  tekla:'N/A', bentley:'Slab' },
+    'IfcCurtainWall': { revit:'Curtain Systems',  archicad:'Curtain Wall tool → No IFC+SG properties required (COP3.1).',  tekla:'N/A', bentley:'Curtain Wall' },
+    'IfcRailing':  { revit:'Railings',             archicad:'Railing tool.',  tekla:'Component', bentley:'Railing' },
+    'IfcTransportElement': { revit:'Specialty Equipment / Parking', archicad:'Object / Transport Element → LIFT: BarrierFreeAccessibility + clear dimensions.',  tekla:'N/A', bentley:'Equipment' },
+    'IfcPipeSegment': { revit:'Pipes',             archicad:'Pipe from MEP Modeler → InnerDiameter + Gradient + SystemType.',  tekla:'N/A', bentley:'Pipe Accessory' },
+    'IfcDuctSegment': { revit:'Ducts',             archicad:'Duct from MEP Modeler → SystemType required.',  tekla:'N/A', bentley:'Duct Accessory' },
+    'IfcValve':    { revit:'Pipe Accessories',     archicad:'Pipe In-line Flow Device → SystemType + SystemName.',  tekla:'N/A', bentley:'Valve' },
+    'IfcSanitaryTerminal': { revit:'Plumbing Fixtures', archicad:'Pipe Flow Terminal → WaterUsagePerMonth in m3/month.',  tekla:'N/A', bentley:'Fixture' },
+    'IfcFireSuppressionTerminal': { revit:'Plumbing Fixtures', archicad:'Pipe Flow Terminal → Part of fire suppression system.',  tekla:'N/A', bentley:'Fire Protection' },
+    'IfcAlarm':    { revit:'Fire Alarm Devices',   archicad:'Object → Fire system component.',  tekla:'N/A', bentley:'Solid' },
+    'IfcDistributionChamberElement': { revit:'Plumbing Fixtures / Generic Models', archicad:'Flow Equipment → InvertLevel and TopLevel in SHD.',  tekla:'N/A', bentley:'Equipment' },
+    'IfcGeographicElement': { revit:'Planting',    archicad:'Object → Species, Girth, Height, Status for NParks.',  tekla:'N/A', bentley:'Object' },
+    'IfcBuildingElementProxy': { revit:'Generic Models', archicad:'Object → Classification code defines IfcObjectType (CARLOT, SITECOVERAGE etc.).',  tekla:'N/A', bentley:'Object' },
+    'IfcCivilElement': { revit:'Generic Models',   archicad:'Object → SystemType: Rainwater, Drainage.',  tekla:'Slab/Panel', bentley:'Drains & Basins' },
+    'IfcTank':     { revit:'Mechanical Equipment', archicad:'Object → IsPotable mandatory for domestic water tanks.',  tekla:'N/A', bentley:'Object' },
+    'IfcBuildingElementProxy': {
+      revit:    'Generic Models or Specialty Equipment category. For parking: Parking category.',
+      archicad: 'Object tool. Classification code sets IfcObjectType (e.g. CARLOT, SITECOVERAGE). Assign correct IFC+SG classification in Classification Manager.',
+      tekla:    'N/A - not applicable for structural modelling in Tekla.',
+      bentley:  'Object. Assign correct element type through Properties.'
+    },
+    'IfcInterceptor': { revit:'Plumbing Fixtures', archicad:'Flow Equipment → SystemType required.',  tekla:'N/A', bentley:'Equipment' },
+    'IfcFlowMeter': { revit:'Pipe Accessories',    archicad:'Pipe In-line Flow Device → WaterUsagePerMonth in m3/month.',  tekla:'N/A', bentley:'Pipe Accessory' },
+    'IfcWasteTerminal': { revit:'Pipe Accessories', archicad:'Pipe Flow Terminal → TradeEffluent for NEA.',  tekla:'N/A', bentley:'Fixture' },
+    'IfcPump':     { revit:'Mechanical Equipment', archicad:'Flow Equipment → Capacity in L/s.',  tekla:'N/A', bentley:'Pump' },
+    'IfcDamper':   { revit:'Duct Accessories',     archicad:'Object → FireRating in hours.',  tekla:'N/A', bentley:'Object' },
+    'IfcSensor':   { revit:'Mechanical Equipment', archicad:'Object → SystemType.',  tekla:'N/A', bentley:'Object' },
+    'IfcLightFixture': { revit:'Lighting Fixtures', archicad:'Object / Lighting.',  tekla:'N/A', bentley:'Object' },
+    'IfcBuildingStorey': { revit:'Levels',         archicad:'Storey → SVY21 z-value for georeferencing.',  tekla:'N/A', bentley:'Floor' },
+    'IfcSite':     { revit:'Project Information',  archicad:'IFC Project Manager → Block name, SVY21 coordinates.',  tekla:'N/A', bentley:'Floor Manager' },
+    'IfcBuilding': { revit:'Project Information',  archicad:'IFC Project Manager → Building properties.',  tekla:'N/A', bentley:'Floor Manager' },
+  };
 
-    const isCritical = filterFn !== undefined;
-    const pageTitle  = isCritical ? 'Critical Issues' : 'All Compliance Findings';
+  const DISC_MAP = {
+    MEP: ['IfcPipeSegment','IfcPipeFitting','IfcDuctSegment','IfcDuctFitting','IfcValve','IfcPump','IfcTank','IfcSanitaryTerminal','IfcWasteTerminal','IfcFlowMeter','IfcFireSuppressionTerminal','IfcAlarm','IfcSensor','IfcDamper','IfcAirTerminal','IfcLightFixture','IfcSwitchingDevice','IfcOutlet','IfcUnitaryEquipment','IfcUnitaryControlElement','IfcInterceptor','IfcDistributionChamberElement'],
+    STR: ['IfcColumn','IfcBeam','IfcSlab','IfcFooting','IfcPile','IfcStairFlight','IfcRailing'],
+    EXT: ['IfcGeographicElement'],
+    CIV: ['IfcCivilElement'],
+  };
 
-    if (!session || !session.findings) {
-      const emptyMsg = isCritical
-        ? 'Run validation on a loaded IFC file to see critical issues and errors.'
-        : 'Run validation on a loaded IFC file to see all compliance findings.';
-      const emptyIcon = isCritical ? '🚨' : '📋';
-      const emptyTitle = isCritical ? 'No critical issues yet' : 'No results yet';
-      return `
-        <div>
-          <h1>${pageTitle}</h1>
-          <p style="color:var(--mid-grey);font-size:13px;margin-bottom:16px">
-            ${isCritical
-              ? 'Critical and Error findings causing CORENET-X / NBeS rejection. Click ✏️ Fix on any property finding to queue it in the IFC Property Editor.'
-              : 'All findings across 20 IFC data levels + 128 classification code rules + 89 SG + 60 MY design code rules. Click ✏️ Fix on any property set finding to open the Property Editor.'}
-          </p>
-          ${VUtils.emptyState(emptyIcon, emptyTitle, emptyMsg,
-              '<button class="btn btn-primary" style="margin-top:16px" onclick="VBridge.openFile()">📂 Open IFC File</button>')}
-        </div>`;
-    }
-
-    const findings = filterFn
-      ? session.findings.filter(filterFn)
-      : session.findings;
-
-    const title = isCritical
-      ? `Critical Issues (${findings.length})`
-      : `All Compliance Findings (${findings.length})`;
-
-    // Unique agencies for filter (Singapore only)
-    const agencies = mode !== 'Malaysia'
-      ? [...new Set(findings.map(f => f.agency).filter(a => a && a !== 'None'))]
-      : [];
-
-    // Unique check levels
-    const checks = [...new Set(findings.map(f => f.check))].sort();
-
-    const rows = findings.map(f => `
-      <tr class="${VUtils.rowClass(f.severity)}"
-          data-severity="${VUtils.esc(f.severity)}"
-          data-agency="${VUtils.esc(f.agency)}"
-          data-check="${VUtils.esc(f.check)}">
-        <td>${VUtils.severityBadge(f.severity)}</td>
-        <td style="font-size:11px;white-space:nowrap">${VUtils.esc(f.check)}</td>
-        <td>
-          <strong>${VUtils.esc(f.name)}</strong>
-          <div style="font-size:11px;color:var(--mid-grey)">${VUtils.esc(f.cls)}</div>
-        </td>
-        <td class="guid" title="${VUtils.esc(f.guid)}">${VUtils.shortGuid(f.guid)}</td>
-        <td style="font-size:11px">${VUtils.esc(f.storey)}</td>
-        <td>${VUtils.agencyBadge(f.agency)}</td>
-        <td style="font-family:monospace;font-size:11px">
-          ${f.pset ? `${VUtils.esc(f.pset)}.<br>${VUtils.esc(f.prop)}` : '-'}
-        </td>
-        <td style="max-width:220px;font-size:12px">${VUtils.esc(f.message)}</td>
-        <td class="cell-wrap" style="font-size:12px;color:var(--teal)">${VUtils.esc(f.fix)}</td>
-        <td>
-          ${f.pset && f.prop && f.severity !== 'Pass' ? `
-          <button class="btn btn-ghost" style="font-size:10px;padding:2px 8px;white-space:nowrap;color:var(--teal);border-color:var(--teal)"
-            onclick="PropertyEditor.addToQueue(${JSON.stringify({
-              stepId: f.stepId||0,
-              pset: f.pset, prop: f.prop, guid: f.guid,
-              message: f.message, fix: f.fix, severity: f.severity
-            }).replace(/"/g,'&quot;')});PropertyEditor.showPanel();App.navigate('propertyeditor')">
-            ✏️ Fix
-          </button>` : ''}
-        </td>
-      </tr>`).join('');
-
-    const agencyOptions = agencies.map(a =>
-      `<option value="${VUtils.esc(a)}">${VUtils.esc(a)}</option>`
-    ).join('');
-
-    const checkOptions = checks.map(c =>
-      `<option value="${VUtils.esc(c)}">${VUtils.esc(c)}</option>`
-    ).join('');
-
-    return `
-      <div>
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
-          <h1>${title}</h1>
-          <button class="btn btn-outline" onclick="VBridge.send('export',{})">📤 Export</button>
-        </div>
-
-        <!-- Filter bar -->
-        <div class="filter-bar">
-          <select id="sev-filter" onchange="ResultsPage.applyFilters()">
-            <option value="">All Severities</option>
-            <option value="Critical">Critical</option>
-            <option value="Error">Error</option>
-            <option value="Warning">Warning</option>
-            <option value="Pass">Pass</option>
-          </select>
-          ${agencies.length > 0 ? `
-          <select id="agency-filter" onchange="ResultsPage.applyFilters()">
-            <option value="">All Agencies</option>
-            ${agencyOptions}
-          </select>` : ''}
-          <select id="check-filter" onchange="ResultsPage.applyFilters()">
-            <option value="">All Check Levels</option>
-            ${checkOptions}
-          </select>
-          <input id="search-filter" placeholder="Search element name, GUID, message..."
-                 oninput="ResultsPage.applySearch()"/>
-          <button class="btn btn-ghost" onclick="ResultsPage.clearFilters()">Clear</button>
-        </div>
-
-        <!-- Results table -->
-        <div class="table-wrap">
-          <table id="findings-table">
-            <thead><tr>
-              <th>Severity</th>
-              <th>Check Level</th>
-              <th>Element</th>
-              <th>GUID</th>
-              <th>Storey</th>
-              ${mode !== 'Malaysia' ? '<th>Agency</th>' : ''}
-              <th>Property</th>
-              <th>Issue</th>
-              <th>Remediation</th>
-            </tr></thead>
-            <tbody>${rows}</tbody>
-          </table>
-        </div>
-
-        <div style="margin-top:10px;font-size:11px;color:var(--light-grey)">
-          Showing first ${findings.length} findings.
-          ${session.findings.length > findings.length
-            ? `${session.findings.length - findings.length} additional findings not shown.`
-            : ''}
-          Export reports for the complete dataset.
-        </div>
-      </div>`;
+  function disc(ifcType) {
+    if (!ifcType) return 'ARC';
+    for (const [d, arr] of Object.entries(DISC_MAP))
+      if (arr.some(e => ifcType.toUpperCase().includes(e.toUpperCase()))) return d;
+    return 'ARC';
   }
 
-  function applyFilters() {
-    const sev    = (document.getElementById('sev-filter')?.value    || '').toLowerCase();
-    const agency = (document.getElementById('agency-filter')?.value || '').toLowerCase();
-    const check  = (document.getElementById('check-filter')?.value  || '').toLowerCase();
+  const DISC_STYLE = {
+    ARC: 'background:#1e3a5f;color:#60A5FA;',
+    STR: 'background:#2d1a00;color:#F97316;',
+    MEP: 'background:#0a2e1a;color:#22C55E;',
+    EXT: 'background:#1e1040;color:#A78BFA;',
+    CIV: 'background:#2d2000;color:#FBBF24;',
+  };
 
-    document.querySelectorAll('#findings-table tbody tr').forEach(row => {
-      const rowSev    = (row.dataset.severity || '').toLowerCase();
-      const rowAgency = (row.dataset.agency   || '').toLowerCase();
-      const rowCheck  = (row.dataset.check    || '').toLowerCase();
+  function getIfcEntity(f)  { return (f.cls||'').split('|')[0]||''; }
+  function getSubType(f)    { return (f.cls||'').split('|')[2]||''; }
+  function getClsCode(f)    { return (f.cls||'').split('|')[1]||''; }
 
-      const ok = (!sev    || rowSev    === sev)
-              && (!agency || rowAgency === agency)
-              && (!check  || rowCheck  === check);
+  let _filters = { sev:'', disc:'', ifc:'', agency:'', storey:'', gw:'', check:'', search:'' };
 
-      row.style.display = ok ? '' : 'none';
+  function _filtered(all) {
+    return all.filter(f => {
+      const e = getIfcEntity(f), d = disc(e);
+      if (_filters.sev    && f.severity !== _filters.sev)    return false;
+      if (_filters.disc   && d          !== _filters.disc)   return false;
+      if (_filters.ifc    && e          !== _filters.ifc)    return false;
+      if (_filters.agency && f.agency   !== _filters.agency) return false;
+      if (_filters.storey && f.storey   !== _filters.storey) return false;
+      if (_filters.check  && f.check    !== _filters.check)  return false;
+      if (_filters.search) {
+        const q = _filters.search.toLowerCase();
+        if (![f.guid,f.name,f.cls,f.check,f.message,f.pset,f.prop,f.fix,f.agency,f.storey]
+              .join(' ').toLowerCase().includes(q)) return false;
+      }
+      return true;
     });
   }
 
-  function applySearch() {
-    const q = (document.getElementById('search-filter')?.value || '').toLowerCase();
-    VUtils.searchTable('findings-table', q);
+  // ── SEVERITY CONFIG ──────────────────────────────────────────────────────────
+  // Softer row tints with good contrast ratios
+  const SEV = {
+    Critical:{ bg:'rgba(239,68,68,0.08)',  border:'#ef4444', text:'#fca5a5', badge:'#ef4444', badgeTxt:'#fff' },
+    Error:   { bg:'rgba(249,115,22,0.07)', border:'#f97316', text:'#fdba74', badge:'#f97316', badgeTxt:'#fff' },
+    Warning: { bg:'rgba(234,179,8,0.07)',  border:'#eab308', text:'#fbbf24', badge:'#eab308', badgeTxt:'#000' },
+    Pass:    { bg:'rgba(34,197,94,0.06)',  border:'#22c55e', text:'#86efac', badge:'#22c55e', badgeTxt:'#fff' },
+    NoCheck: { bg:'rgba(107,114,128,0.05)',border:'#374151', text:'#9ca3af', badge:'#4b5563', badgeTxt:'#fff' },
+  };
+  function sevCfg(s) { return SEV[s] || SEV.NoCheck; }
+
+  // ── MAIN RENDER ──────────────────────────────────────────────────────────────
+  function render(filterFn) {
+    const state = VState.get();
+    const sess  = state.session;
+    const isCrit = filterFn !== undefined;
+
+    if (!sess?.findings) return _renderEmpty(isCrit);
+
+    const raw  = filterFn ? sess.findings.filter(filterFn) : sess.findings;
+    const shown = _filtered(raw);
+
+    // Build unique option sets
+    const opts = {
+      ifc:    [...new Set(raw.map(getIfcEntity).filter(Boolean))].sort(),
+      agency: [...new Set(raw.map(f=>f.agency).filter(a=>a&&a!=='None'))].sort(),
+      storey: [...new Set(raw.map(f=>f.storey).filter(Boolean))].sort(),
+      check:  [...new Set(raw.map(f=>f.check).filter(Boolean))].sort(),
+    };
+
+    // Summary counts
+    const counts = raw.reduce((a,f)=>{ a[f.severity]=(a[f.severity]||0)+1; return a; },{});
+
+    return `
+<div style="height:100%;display:flex;flex-direction:column;overflow:hidden">
+
+  <!-- ── PAGE HEADER ── -->
+  <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 16px 8px;border-bottom:1px solid var(--border);flex-shrink:0">
+    <div style="display:flex;align-items:center;gap:12px">
+      <h1 style="margin:0;font-size:15px;font-weight:700">${isCrit?'Critical Issues':'All Compliance Findings'}</h1>
+      <span style="background:#1a2840;border:1px solid var(--border);border-radius:100px;padding:2px 10px;font-size:12px;font-weight:600;color:var(--teal)">${shown.length} <span style="color:var(--mid-grey);font-weight:400">/ ${raw.length}</span></span>
+      <!-- Severity pill summary -->
+      ${Object.entries(counts).map(([s,n])=>{
+        const c=sevCfg(s);
+        return `<span style="background:${c.bg};border:1px solid ${c.border};border-radius:100px;padding:2px 8px;font-size:11px;font-weight:700;color:${c.badge}">${s[0]} ${n}</span>`;
+      }).join('')}
+    </div>
+    <div style="display:flex;gap:6px">
+      <button class="btn btn-ghost" style="height:28px;padding:0 10px;font-size:12px" onclick="ResultsPage.togglePlatform()" id="plat-toggle">🔧 Platform</button>
+      <button class="btn btn-ghost" style="height:28px;padding:0 10px;font-size:12px" onclick="ResultsPage.toggleGrouped()" id="group-toggle">⊞ Group</button>
+      <button class="btn btn-outline" style="height:28px;padding:0 10px;font-size:12px" onclick="VBridge.send('export',{})">📤 Export</button>
+    </div>
+  </div>
+
+  <!-- ── COMPACT FILTER ROW ── -->
+  <div style="display:flex;align-items:center;gap:6px;padding:7px 16px;background:#06111f;border-bottom:1px solid #162843;flex-shrink:0;flex-wrap:wrap">
+    ${_sel('sev-f','Severity',['Critical','Error','Warning','Pass'],'ResultsPage.af()')}
+    ${_sel('disc-f','Discipline',['ARC','STR','MEP','EXT','CIV'],'ResultsPage.af()')}
+    ${_sel('ifc-f','IFC Entity',opts.ifc,'ResultsPage.af()')}
+    ${_sel('agency-f','Agency',opts.agency,'ResultsPage.af()')}
+    ${_sel('storey-f','Storey',opts.storey,'ResultsPage.af()')}
+    ${_sel('gw-f','Gateway',['G1 Design','G1.5 Piling','G2 Construction','G3 Completion'],'ResultsPage.af()')}
+    ${_sel('check-f','Check Type',opts.check.slice(0,30),'ResultsPage.af()')}
+    <input id="srch-f" type="text" placeholder="🔍 Search…" oninput="ResultsPage.as()"
+      style="height:26px;padding:0 8px;font-size:12px;border:1px solid var(--border);border-radius:5px;background:var(--card);color:var(--white);min-width:160px;flex:1">
+    <button onclick="ResultsPage.cf()" style="height:26px;padding:0 8px;font-size:11px;border:1px solid var(--border);border-radius:5px;background:transparent;color:var(--mid-grey);cursor:pointer;white-space:nowrap">✕ Clear</button>
+  </div>
+
+  <!-- ── PLATFORM PANEL (hidden by default) ── -->
+  <div id="plat-panel" style="display:none;padding:10px 16px;background:#071525;border-bottom:1px solid var(--border);font-size:12px;flex-shrink:0">
+    <div id="plat-content" style="color:var(--mid-grey)">
+      Click the 🔧 button on any row to see how to fix that element in Revit, ArchiCAD, Tekla, and Bentley.
+    </div>
+  </div>
+
+  <!-- ── RESULTS TABLE ── -->
+  <div style="flex:1;overflow-y:auto;overflow-x:auto">
+    <table id="results-table" style="width:100%;border-collapse:collapse;font-size:12px;min-width:1200px">
+      <thead style="position:sticky;top:0;z-index:10;background:#0a1628">
+        <tr style="border-bottom:2px solid var(--border)">
+          <th style="${TH}width:80px">Severity</th>
+          <th style="${TH}width:160px">Check</th>
+          <th style="${TH}width:80px">Disc.</th>
+          <th style="${TH}min-width:140px">IFC Entity</th>
+          <th style="${TH}min-width:100px">IFC SubType</th>
+          <th style="${TH}min-width:140px">Classification</th>
+          <th style="${TH}min-width:180px">Element Name</th>
+          <th style="${TH}width:90px">GUID</th>
+          <th style="${TH}width:80px">Storey</th>
+          <th style="${TH}width:60px">Agency</th>
+          <th style="${TH}min-width:160px">Property Set → Property</th>
+          <th style="${TH}min-width:240px">Finding Detail</th>
+          <th style="${TH}min-width:180px">How to Fix</th>
+          <th style="${TH}width:70px">Actions</th>
+        </tr>
+      </thead>
+      <tbody id="rtbody">
+        ${_rows(shown)}
+      </tbody>
+    </table>
+    ${shown.length===0?`<div style="text-align:center;padding:48px;color:var(--mid-grey)"><div style="font-size:28px;margin-bottom:10px">🔍</div><div style="font-weight:600">No findings match filters</div><button class="btn btn-ghost" style="margin-top:12px" onclick="ResultsPage.cf()">Clear all filters</button></div>`:''}
+  </div>
+</div>`;
   }
 
-  function clearFilters() {
-    ['sev-filter','agency-filter','check-filter','search-filter']
-      .forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
-    document.querySelectorAll('#findings-table tbody tr')
-      .forEach(row => { row.style.display = ''; });
+  const TH = 'padding:8px 10px;text-align:left;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:#5b7fa6;white-space:nowrap;border-right:1px solid #0f1e30;';
+
+  function _sel(id, label, opts, onchange) {
+    return `<select id="${id}" onchange="${onchange}"
+      style="height:26px;padding:0 6px;font-size:11px;border:1px solid #2d4a6e;border-radius:5px;background:#0a1628;color:#e2e8f0;max-width:130px">
+      <option value="">All ${label}s</option>
+      ${opts.map(o=>`<option>${VUtils.esc(o)}</option>`).join('')}
+    </select>`;
   }
 
-  // Critical issues view - pre-filtered to Critical+Error only
+  function _rows(findings) {
+    return findings.map(f => {
+      const e   = getIfcEntity(f);
+      const sub = getSubType(f);
+      const cls = getClsCode(f);
+      const d   = disc(e);
+      const s   = sevCfg(f.severity);
+      const ds  = DISC_STYLE[d]||DISC_STYLE.ARC;
+      const hasFix = f.pset && f.prop && f.severity !== 'Pass';
+      const fp = hasFix ? JSON.stringify({stepId:f.stepId||0,pset:f.pset,prop:f.prop,guid:f.guid,message:f.message,fix:f.fix,severity:f.severity}).replace(/"/g,'&quot;') : '';
+
+      return `<tr style="background:${s.bg};border-bottom:1px solid #0f1e30;transition:background .15s" onmouseenter="this.style.filter='brightness(1.15)'" onmouseleave="this.style.filter=''">
+        <td style="padding:8px 10px;border-right:1px solid #0f1e30;vertical-align:top;white-space:nowrap">
+          <span style="display:inline-block;padding:2px 8px;border-radius:100px;font-size:10px;font-weight:700;background:${s.badge};color:${s.badgeTxt}">${VUtils.esc(f.severity)}</span>
+        </td>
+        <td style="padding:8px 10px;border-right:1px solid #0f1e30;vertical-align:top;font-size:11px;color:${s.text};line-height:1.4">${VUtils.esc(f.check)}</td>
+        <td style="padding:8px 10px;border-right:1px solid #0f1e30;vertical-align:top">
+          <span style="display:inline-block;padding:2px 6px;border-radius:4px;font-size:10px;font-weight:700;${ds}">${d}</span>
+        </td>
+        <td style="padding:8px 10px;border-right:1px solid #0f1e30;vertical-align:top">
+          ${e?`<code style="font-size:11px;background:rgba(0,196,160,.12);color:#00c4a0;padding:2px 6px;border-radius:4px;display:inline-block">${VUtils.esc(e)}</code>`:'<span style="color:#374151">-</span>'}
+        </td>
+        <td style="padding:8px 10px;border-right:1px solid #0f1e30;vertical-align:top">
+          ${sub?`<code style="font-size:10px;background:rgba(96,165,250,.1);color:#60A5FA;padding:2px 6px;border-radius:4px;display:inline-block">${VUtils.esc(sub)}</code>`:'<span style="color:#374151;font-size:10px">N.A.</span>'}
+        </td>
+        <td style="padding:8px 10px;border-right:1px solid #0f1e30;vertical-align:top">
+          ${cls?`<code style="font-size:10px;background:rgba(167,139,250,.1);color:#A78BFA;padding:2px 6px;border-radius:4px;display:inline-block">${VUtils.esc(cls)}</code>`:'<span style="color:#374151;font-size:10px"> - </span>'}
+        </td>
+        <td style="padding:8px 10px;border-right:1px solid #0f1e30;vertical-align:top;max-width:180px">
+          <div style="font-weight:600;color:${s.text};font-size:12px;word-break:break-word;line-height:1.4">${VUtils.esc(f.name||'')}</div>
+        </td>
+        <td style="padding:8px 10px;border-right:1px solid #0f1e30;vertical-align:top" title="${VUtils.esc(f.guid||'')}">
+          <code style="font-size:10px;color:#4b5563">${VUtils.shortGuid(f.guid)}</code>
+        </td>
+        <td style="padding:8px 10px;border-right:1px solid #0f1e30;vertical-align:top;font-size:11px;color:${s.text};white-space:nowrap">${VUtils.esc(f.storey||' - ')}</td>
+        <td style="padding:8px 10px;border-right:1px solid #0f1e30;vertical-align:top">${VUtils.agencyBadge(f.agency)}</td>
+        <td style="padding:8px 10px;border-right:1px solid #0f1e30;vertical-align:top;min-width:160px">
+          ${f.pset?`
+            <div style="font-family:monospace;font-size:10px;color:#00c4a0;font-weight:600;word-break:break-all">${VUtils.esc(f.pset)}</div>
+            <div style="font-family:monospace;font-size:10px;color:#8aaac8;margin-top:2px">\u21B3 ${VUtils.esc(f.prop||'')}</div>
+            ${f.expected?`<div style="font-size:9px;color:#374151;margin-top:3px">Expected: <span style="color:#fbbf24">${VUtils.esc(f.expected)}</span></div>`:''}
+            ${f.actual&&f.actual!==f.expected?`<div style="font-size:9px;color:#374151">Actual: <span style="color:#f87171">${VUtils.esc(String(f.actual||''))}</span></div>`:''}
+          `:'<span style="color:#374151;font-size:11px">-</span>'}
+        </td>
+        <td style="padding:8px 10px;border-right:1px solid #0f1e30;vertical-align:top;min-width:240px">
+          <div style="color:${s.text};font-size:12px;line-height:1.5">${VUtils.esc(f.message||'')}</div>
+          ${f.ruleRef?`<div style="font-size:10px;color:#374151;margin-top:3px;font-family:monospace">${VUtils.esc(f.ruleRef)}</div>`:''}
+        </td>
+        <td style="padding:8px 10px;border-right:1px solid #0f1e30;vertical-align:top;min-width:180px">
+          <div style="color:#22c55e;font-size:11px;line-height:1.5">${VUtils.esc(f.fix||'')}</div>
+        </td>
+        <td style="padding:8px 10px;vertical-align:top">
+          <div style="display:flex;flex-direction:column;gap:4px">
+            ${hasFix?`<button class="btn btn-ghost" style="font-size:10px;padding:2px 6px;color:var(--teal);border-color:var(--teal);white-space:nowrap"
+              onclick="PropertyEditor.addToQueue(${fp});PropertyEditor.showPanel();App.navigate('propertyeditor')">✏️ Fix</button>`:''}
+            ${e?`<button style="font-size:10px;padding:2px 6px;border:1px solid #1d3354;border-radius:4px;background:transparent;color:#5b7fa6;cursor:pointer;white-space:nowrap"
+              onclick="ResultsPage.showPlatform('${VUtils.esc(e)}')">🔧 Guide</button>`:''}
+            <button style="font-size:10px;padding:2px 6px;border:1px solid #1d3354;border-radius:4px;background:transparent;color:#5b7fa6;cursor:pointer;white-space:nowrap"
+              onclick="ResultsPage.goto3D('${VUtils.esc(f.guid||'')}')">🧊 3D</button>
+          </div>
+        </td>
+      </tr>`;
+    }).join('');
+  }
+
+  function _renderEmpty(isCrit) {
+    return `<div style="padding:16px">
+      <h1>${isCrit?'Critical Issues':'All Compliance Findings'}</h1>
+      <p style="color:var(--mid-grey);font-size:13px;margin-bottom:16px">
+        ${isCrit?'Critical and Error findings causing CORENET-X or NBeS submission rejection.':'All findings across 20 IFC data levels, 128 classification codes (COP3.1), 89 SG rules, 60 MY rules.'}
+      </p>
+      ${VUtils.emptyState('📋','No results yet','Run validation on a loaded IFC file.',
+        '<button class="btn btn-primary" style="margin-top:16px" onclick="VBridge.openFile()">📂 Open IFC File</button>')}
+    </div>`;
+  }
+
+  // ── PLATFORM PANEL ───────────────────────────────────────────────────────────
+  let _platVisible = false;
+  function togglePlatform() {
+    _platVisible = !_platVisible;
+    const p = document.getElementById('plat-panel');
+    const b = document.getElementById('plat-toggle');
+    if (p) p.style.display = _platVisible ? 'block' : 'none';
+    if (b) b.style.background = _platVisible ? 'var(--teal)' : '';
+    if (b) b.style.color = _platVisible ? 'var(--navy)' : '';
+  }
+
+  function showPlatform(ifcEntity) {
+    const ctx = PLATFORM_CONTEXT[ifcEntity];
+    const panel = document.getElementById('plat-panel');
+    const content = document.getElementById('plat-content');
+    if (!panel || !content) return;
+
+    if (!ctx) {
+      content.innerHTML = `<b>${VUtils.esc(ifcEntity)}</b>: No platform guidance available. Check <a href="#" style="color:var(--teal)" onclick="VBridge.send('openUrl',{url:'https://go.gov.sg/ifcsg'})">go.gov.sg/ifcsg</a> for IFC+SG configuration files.`;
+    } else {
+      content.innerHTML = `
+        <div style="font-weight:700;color:var(--white);margin-bottom:8px;font-size:13px">${VUtils.esc(ifcEntity)}  -  Fix Guidance per BIM Platform</div>
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:8px">
+          ${[['Revit','#3b82f6',ctx.revit],['ArchiCAD','#00c4a0',ctx.archicad],['Tekla','#f97316',ctx.tekla],['Bentley','#a78bfa',ctx.bentley]].map(([name,col,val])=>`
+          <div style="background:rgba(0,0,0,.3);border:1px solid ${col}44;border-radius:6px;padding:8px">
+            <div style="font-size:10px;font-weight:700;color:${col};margin-bottom:4px;text-transform:uppercase">${name}</div>
+            <div style="font-size:11px;color:#cbd5e1;line-height:1.5">${VUtils.esc(val)}</div>
+          </div>`).join('')}
+        </div>
+        <div style="font-size:11px;color:#475569">
+          📖 Resource Kit: <a href="#" style="color:var(--teal)" onclick="VBridge.send('openUrl',{url:'https://go.gov.sg/ifcsg'})">go.gov.sg/ifcsg</a> &nbsp;|&nbsp;
+          COP3.1: <a href="#" style="color:var(--teal)" onclick="VBridge.send('openUrl',{url:'https://go.gov.sg/cxcop'})">go.gov.sg/cxcop</a>
+        </div>`;
+    }
+    if (!_platVisible) togglePlatform();
+  }
+
+  // ── GROUPED VIEW ─────────────────────────────────────────────────────────────
+  let _grouped = false;
+  function toggleGrouped() {
+    _grouped = !_grouped;
+    const b = document.getElementById('group-toggle');
+    if (b) { b.style.background = _grouped ? 'var(--teal)' : ''; b.style.color = _grouped ? 'var(--navy)' : ''; }
+    _rerender();
+  }
+
+  // ── FILTER CONTROLS ──────────────────────────────────────────────────────────
+  function af() {
+    _filters.sev    = document.getElementById('sev-f')?.value||'';
+    _filters.disc   = document.getElementById('disc-f')?.value||'';
+    _filters.ifc    = document.getElementById('ifc-f')?.value||'';
+    _filters.agency = document.getElementById('agency-f')?.value||'';
+    _filters.storey = document.getElementById('storey-f')?.value||'';
+    _filters.gw     = document.getElementById('gw-f')?.value||'';
+    _filters.check  = document.getElementById('check-f')?.value||'';
+    _rerender();
+  }
+
+  function as() {
+    _filters.search = document.getElementById('srch-f')?.value||'';
+    _rerender();
+  }
+
+  function cf() {
+    _filters = { sev:'', disc:'', ifc:'', agency:'', storey:'', gw:'', check:'', search:'' };
+    ['sev-f','disc-f','ifc-f','agency-f','storey-f','gw-f','check-f','srch-f']
+      .forEach(id => { const e=document.getElementById(id); if(e) e.value=''; });
+    _rerender();
+  }
+
+  function _rerender() {
+    const tbody = document.getElementById('rtbody');
+    if (!tbody) return;
+    const state = VState.get();
+    const sess  = state.session;
+    if (!sess?.findings) return;
+    const shown = _filtered(sess.findings);
+    tbody.innerHTML = _rows(shown);
+    // update count badge
+    const badge = document.querySelector('#results-table')?.closest('[style*="flex-direction:column"]')?.querySelector('[style*="border-radius:100px"]');
+  }
+
+  function goto3D(guid) {
+    VState.set({ filterGuid: guid });
+    App.navigate('3d');
+  }
+
+  function applyFilters()       { af(); }
+  function applySearch()        { as(); }
+  function clearFilters()       { cf(); }
+  function applyDesignFilters() { af(); }
+  function clearDesignFilters() { cf(); }
+
   function renderCritical() {
     return render(f => f.severity === 'Critical' || f.severity === 'Error');
   }
 
-  // ── DESIGN CODE RESULTS PAGE ───────────────────────────────────────────────
-
   function renderDesignCode() {
     const state   = VState.get();
     const session = state.session;
+    const ds      = session?.designStats;
 
-    if (!session || !session.designStats) return `
-      <div>
-        <h1>Design Code Compliance</h1>
-        ${VUtils.emptyState('📐', 'No design code results yet',
-          'Run validation to check actual dimensions, areas and distances against regulatory requirements.',
-          '<button class="btn btn-teal" style="margin-top:16px" onclick="VBridge.runValidation()">▶ Run Validation</button>')}
-      </div>`;
+    if (!session) return `<div>
+      <h1>Design Code Compliance</h1>
+      ${VUtils.emptyState('📐','No results yet','Run validation to check design code compliance.',
+        '<button class="btn btn-teal" style="margin-top:14px" onclick="VBridge.runValidation()">▶ Run Validation</button>')}
+    </div>`;
 
-    const dc       = session.designStats;
+    if (!ds) return `<div>
+      <h1>Design Code Compliance</h1>
+      <div class="card" style="padding:20px">
+        <div style="font-size:13px;color:var(--mid-grey);text-align:center;padding:20px">
+          <div style="font-size:28px;margin-bottom:10px">📐</div>
+          <div style="font-weight:700;color:var(--white);margin-bottom:6px">No Design Code Results</div>
+          <p style="margin-bottom:16px">Design Code checks require a loaded IFC model with space and element geometry.<br>
+          Ensure your model has IfcSpace elements with GrossPlannedArea properties populated.</p>
+          <button class="btn btn-teal" onclick="VBridge.runValidation()">▶ Re-run Validation</button>
+        </div>
+      </div>
+    </div>`;
+
+    const mode   = state.countryMode || 'Singapore';
+    const score  = ds.score || 0;
+    const col    = score>=95?'#22c55e':score>=80?'#eab308':'#ef4444';
     const findings = session.designFindings || [];
-    const mode     = state.countryMode;
 
-    // Unique categories and severities
-    const categories = [...new Set(findings.map(f => f.category).filter(Boolean))].sort();
-    const catOptions  = categories.map(c =>
-      `<option value="${VUtils.esc(c)}">${VUtils.esc(c.replace(/([A-Z])/g,' $1').trim())}</option>`
-    ).join('');
-
-    // Group failures by code reference for the code-grouped view
-    const byCode = {};
-    findings.filter(f => !f.complies).forEach(f => {
-      if (!byCode[f.codeRef]) byCode[f.codeRef] = [];
-      byCode[f.codeRef].push(f);
+    const catGroups = {};
+    findings.forEach(f => {
+      const cat = f.category || (f.ruleId ? f.ruleId.split('-').slice(0,3).join(' ') : 'Other');
+      if (!catGroups[cat]) catGroups[cat] = [];
+      catGroups[cat].push(f);
     });
 
-    const rows = findings.map(f => `
-      <tr class="${f.complies ? '' : f.severity === 'Critical' ? 'row-critical' : 'row-error'}"
-          data-sev="${VUtils.esc(f.severity)}" data-complies="${f.complies}"
-          data-cat="${VUtils.esc(f.category || '')}"
-          data-search="${VUtils.esc((f.ruleId + ' ' + f.name + ' ' + f.codeRef).toLowerCase())}">
-        <td>${VUtils.severityBadge(f.complies ? 'Pass' : f.severity)}</td>
-        <td class="guid" style="font-size:11px">${VUtils.esc(f.ruleId)}</td>
-        <td style="font-size:11px;max-width:200px">${VUtils.esc(f.ruleName)}</td>
-        <td style="font-size:11px;max-width:180px;color:var(--mid-grey)">${VUtils.esc(f.codeRef)}</td>
-        <td><strong>${VUtils.esc(f.name)}</strong><br><small class="grey">${VUtils.esc(f.cls)}</small></td>
-        <td><span style="font-family:monospace;font-size:12px;font-weight:600;color:${f.complies?'var(--green)':'var(--red)'}">${VUtils.esc(f.actual)}</span></td>
-        <td><span style="font-family:monospace;font-size:11px">${VUtils.esc(f.required)}</span></td>
-        <td style="font-family:monospace;font-size:10px;color:var(--mid-grey)">${VUtils.esc(f.formula)}</td>
-        <td style="font-family:monospace;font-size:10px;font-weight:600;color:${f.complies?'var(--green)':'var(--red)'}">${VUtils.esc(f.result)}</td>
-        <td style="font-size:11px;color:var(--teal)">${f.complies ? '-' : VUtils.esc(f.fix)}</td>
-      </tr>`).join('');
+    const findingRows = findings.slice(0,200).map(f => {
+      const sev = f.severity || (f.passed ? 'Pass' : 'Error');
+      const sevCol = {Critical:'#ef4444',Error:'#f97316',Warning:'#eab308',Pass:'#22c55e'}[sev]||'#6b7280';
+      return `<tr style="border-bottom:1px solid var(--border)">
+        <td style="padding:7px 10px">
+          <span style="background:${sevCol}22;color:${sevCol};border:1px solid ${sevCol}44;border-radius:3px;padding:1px 7px;font-size:10px;font-weight:700">${VUtils.esc(sev)}</span>
+        </td>
+        <td style="padding:7px 10px;font-size:11px;font-weight:600;color:var(--teal)">${VUtils.esc(f.ruleId||f.rule||'-')}</td>
+        <td style="padding:7px 10px;font-size:11px">${VUtils.esc(f.category||'-')}</td>
+        <td style="padding:7px 10px;font-size:12px;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${VUtils.esc(f.name || f.elementName||'')}">
+          ${VUtils.esc((f.name || f.elementName||'-').substring(0,40))}
+        </td>
+        <td style="padding:7px 10px;font-size:11px;color:var(--mid-grey)">${VUtils.esc(f.actual||'-')}</td>
+        <td style="padding:7px 10px;font-size:11px;color:var(--teal)">${VUtils.esc(f.required||f.expected||'-')}</td>
+        <td style="padding:7px 10px;font-size:11px;color:var(--mid-grey);max-width:250px">${VUtils.esc((f.message||'-').substring(0,80))}</td>
+        <td style="padding:7px 10px;font-size:10px;color:#64748b">${VUtils.esc(f.codeRef||f.reference||'-')}</td>
+      </tr>`;
+    }).join('');
 
     return `<div>
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
-        <h1>Design Code Compliance</h1>
-        <button class="btn btn-outline" onclick="VBridge.send('export',{})">📤 Export</button>
-      </div>
-
-      <!-- Score formula -->
-      <div class="card" style="margin-bottom:16px">
-        <div style="font-family:'Courier New',monospace;font-size:12px;background:#F0F9FF;padding:12px 16px;border-radius:6px;border:1px solid #BAE6FD;line-height:2">
-          <b>Design Score</b> = (${VUtils.fmt(dc.passed)} Passed ÷ ${VUtils.fmt(dc.total)} Total Checks) × 100
-          = <b style="font-size:20px;color:var(--${VUtils.scoreColour(dc.score) === 'green' ? 'green' : VUtils.scoreColour(dc.score) === 'amber' ? 'amber' : 'red'})">${VUtils.pct(dc.score)}</b>
-          &nbsp; | &nbsp; ${VUtils.fmt(dc.failed)} failures &nbsp; | &nbsp; ${VUtils.fmt(dc.critical)} critical
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px">
+        <h1 style="margin:0">Design Code Compliance</h1>
+        <div style="display:flex;gap:8px;align-items:center">
+          <span style="font-size:22px;font-weight:900;color:${col}">${score.toFixed(1)}%</span>
+          <span style="font-size:12px;color:var(--mid-grey)">design score</span>
+          <button class="btn btn-ghost" style="font-size:11px" onclick="App.navigate('export')">📤 Export</button>
         </div>
       </div>
 
-      <!-- Stat cards -->
-      <div class="stat-grid" style="margin-bottom:16px">
-        ${VUtils.statCard(VUtils.pct(dc.score),     'Design Score',   VUtils.scoreColour(dc.score))}
-        ${VUtils.statCard(VUtils.fmt(dc.total),     'Total Checks')}
-        ${VUtils.statCard(VUtils.fmt(dc.passed),    'Passed',         'green')}
-        ${VUtils.statCard(VUtils.fmt(dc.failed),    'Failed',         'amber')}
-        ${VUtils.statCard(VUtils.fmt(dc.critical),  'Critical',       'red')}
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px">
+        ${[
+          ['Total Checks', ds.total||0, '#60a5fa'],
+          ['Passed', ds.passed||0, '#22c55e'],
+          ['Failed', ds.failed||0, '#f97316'],
+          ['Critical', ds.critical||0, '#ef4444'],
+        ].map(([label,val,col2])=>`
+          <div class="card" style="padding:14px;text-align:center">
+            <div style="font-size:22px;font-weight:900;color:${col2}">${VUtils.fmt(val)}</div>
+            <div style="font-size:11px;color:var(--mid-grey);margin-top:3px">${label}</div>
+          </div>`).join('')}
       </div>
 
-      <!-- Code-grouped failures summary -->
-      ${Object.keys(byCode).length > 0 ? `
-      <div class="card" style="margin-bottom:16px">
-        <div class="card-header"><span class="card-title">Failures by Code Reference</span></div>
-        <div class="table-wrap"><table><thead><tr>
-          <th>Code Reference</th><th>Failures</th><th>Sample Element</th>
-        </tr></thead><tbody>
-        ${Object.entries(byCode).sort((a,b) => b[1].length - a[1].length).map(([code, items]) => `
-          <tr>
-            <td style="font-size:11px;font-weight:600">${VUtils.esc(code)}</td>
-            <td style="font-weight:700;color:var(--red)">${items.length}</td>
-            <td style="font-size:11px">${VUtils.esc(items[0].name)} - ${VUtils.esc(items[0].message)}</td>
-          </tr>`).join('')}
-        </tbody></table></div>
+      ${Object.entries(catGroups).map(([cat, items]) => `
+        <div class="card" style="margin-bottom:12px;overflow:hidden">
+          <div style="padding:10px 16px;background:var(--navy-dark);display:flex;align-items:center;justify-content:space-between">
+            <span style="font-weight:700;font-size:12px">${VUtils.esc(cat)}</span>
+            <span style="font-size:11px;color:var(--mid-grey)">${items.length} check${items.length!==1?'s':''}</span>
+          </div>
+          <div style="overflow-x:auto">
+            <table style="width:100%;border-collapse:collapse">
+              <thead><tr style="background:#060d1b">
+                <th style="padding:6px 10px;font-size:10px;color:var(--mid-grey);text-align:left">Sev</th>
+                <th style="padding:6px 10px;font-size:10px;color:var(--mid-grey);text-align:left">Rule ID</th>
+                <th style="padding:6px 10px;font-size:10px;color:var(--mid-grey);text-align:left">Category</th>
+                <th style="padding:6px 10px;font-size:10px;color:var(--mid-grey);text-align:left">Element</th>
+                <th style="padding:6px 10px;font-size:10px;color:var(--mid-grey);text-align:left">Actual</th>
+                <th style="padding:6px 10px;font-size:10px;color:var(--mid-grey);text-align:left">Required</th>
+                <th style="padding:6px 10px;font-size:10px;color:var(--mid-grey);text-align:left">Issue</th>
+                <th style="padding:6px 10px;font-size:10px;color:var(--mid-grey);text-align:left">Regulation</th>
+              </tr></thead>
+              <tbody>
+                ${items.slice(0,50).map(f => {
+                  const sev2 = f.severity||(f.passed?'Pass':'Error');
+                  const sc2 = {Critical:'#ef4444',Error:'#f97316',Warning:'#eab308',Pass:'#22c55e'}[sev2]||'#6b7280';
+                  return `<tr style="border-bottom:1px solid var(--border)">
+                    <td style="padding:6px 10px"><span style="background:${sc2}22;color:${sc2};border:1px solid ${sc2}44;border-radius:3px;padding:1px 6px;font-size:10px;font-weight:700">${VUtils.esc(sev2)}</span></td>
+                    <td style="padding:6px 10px;font-size:10px;color:var(--teal)">${VUtils.esc(f.ruleId||'-')}</td>
+                    <td style="padding:6px 10px;font-size:10px">${VUtils.esc(f.category||'-')}</td>
+                    <td style="padding:6px 10px;font-size:11px">${VUtils.esc((f.name || f.elementName||'-').substring(0,30))}</td>
+                    <td style="padding:6px 10px;font-size:11px;color:#f97316">${VUtils.esc(f.actual||'-')}</td>
+                    <td style="padding:6px 10px;font-size:11px;color:#22c55e">${VUtils.esc(f.required||f.expected||'-')}</td>
+                    <td style="padding:6px 10px;font-size:11px;color:var(--mid-grey);max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${VUtils.esc((f.message||'-').substring(0,60))}</td>
+                    <td style="padding:6px 10px;font-size:10px;color:#64748b">${VUtils.esc(f.codeRef||'-')}</td>
+                  </tr>`;
+                }).join('')}
+              </tbody>
+            </table>
+          </div>
+        </div>`).join('')}
+
+      ${findings.length===0 ? `<div class="card" style="padding:20px;text-align:center;color:var(--mid-grey)">
+        <div style="font-size:28px;margin-bottom:8px">✓</div>
+        <div style="font-weight:700;color:var(--white);margin-bottom:4px">All design code checks passed!</div>
+        <p>No violations found against ${VUtils.esc(mode)} design code requirements.</p>
       </div>` : ''}
-
-      <!-- Full findings table -->
-      <h2>All Design Code Checks</h2>
-      <div class="filter-bar">
-        <select id="dc-sev-f" onchange="ResultsPage.applyDesignFilters()">
-          <option value="">All Results</option>
-          <option value="false">Failures Only</option>
-          <option value="true">Passes Only</option>
-        </select>
-        <select id="dc-sev-s" onchange="ResultsPage.applyDesignFilters()">
-          <option value="">All Severities</option>
-          <option>Critical</option><option>Error</option><option>Warning</option><option>Pass</option>
-        </select>
-        ${catOptions ? `<select id="dc-cat-f" onchange="ResultsPage.applyDesignFilters()">
-          <option value="">All Categories</option>${catOptions}
-        </select>` : ''}
-        <input id="dc-search-f" placeholder="Rule ID, element, code reference..."
-               oninput="ResultsPage.applyDesignFilters()"/>
-        <button class="btn btn-ghost" onclick="ResultsPage.clearDesignFilters()">Clear</button>
-      </div>
-
-      <div class="table-wrap">
-        <table id="design-table">
-          <thead><tr>
-            <th>Result</th><th>Rule ID</th><th>Rule Name</th><th>Code Reference</th>
-            <th>Element</th><th>Actual Value</th><th>Required</th>
-            <th>Formula</th><th>Formula Result</th><th>Remediation</th>
-          </tr></thead>
-          <tbody>${rows}</tbody>
-        </table>
-      </div>
-      <div style="margin-top:10px;font-size:11px;color:var(--light-grey)">
-        Showing ${findings.length} checks. Export for full dataset.
-      </div>
     </div>`;
   }
 
-  function applyDesignFilters() {
-    const sev     = (document.getElementById('dc-sev-s')?.value || '').toLowerCase();
-    const comp    = document.getElementById('dc-sev-f')?.value || '';
-    const cat     = (document.getElementById('dc-cat-f')?.value || '').toLowerCase();
-    const q       = (document.getElementById('dc-search-f')?.value || '').toLowerCase();
-    document.querySelectorAll('#design-table tbody tr').forEach(row => {
-      const ok = (!sev  || (row.dataset.sev  || '').toLowerCase() === sev)
-              && (!comp || (row.dataset.complies || '') === comp)
-              && (!cat  || (row.dataset.cat  || '').toLowerCase().includes(cat))
-              && (!q    || (row.dataset.search || '').includes(q));
-      row.style.display = ok ? '' : 'none';
-    });
-  }
-
-  function clearDesignFilters() {
-    ['dc-sev-f','dc-sev-s','dc-cat-f','dc-search-f']
-      .forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
-    document.querySelectorAll('#design-table tbody tr').forEach(r => { r.style.display = ''; });
-  }
-
-  return { render, renderCritical, renderDesignCode, applyFilters, applySearch, clearFilters, applyDesignFilters, clearDesignFilters };
+  return {
+    render, renderCritical, renderDesignCode,
+    applyFilters, applySearch, clearFilters,
+    applyDesignFilters, clearDesignFilters,
+    af, as, cf,
+    showPlatform, togglePlatform, toggleGrouped, goto3D,
+  };
 })();
-
-window.ResultsPage = ResultsPage;
-
-// ─── IFC PROPERTY EDITOR ──────────────────────────────────────────────────────
-// Allows fixing missing or incorrect IFC property values directly in VERIFIQ
-// without returning to ArchiCAD, Revit, or Tekla.
-// The corrected model is saved as a new file next to the original.
-
-const PropertyEditor = (() => {
-
-  // Current edit queue - list of {stepId, psetName, propName, dataType, newValue, guid, display}
-  let _queue = [];
-  let _visible = false;
-
-  // ── Public API ────────────────────────────────────────────────────────────
-
-  function addToQueue(finding) {
-    // finding must have: pset, prop, guid, message, fix
-    if (!finding.pset || !finding.prop) return;
-    const key = `${finding.guid}|${finding.pset}|${finding.prop}`;
-    if (_queue.find(e => e.key === key)) return;  // already in queue
-    _queue.push({
-      key,
-      stepId:   finding.stepId || 0,
-      psetName: finding.pset,
-      propName: finding.prop,
-      dataType: inferDataType(finding.prop),
-      newValue: '',
-      guid:     finding.guid || '',
-      display:  `${finding.pset}.${finding.prop}`,
-      fix:      finding.fix || ''
-    });
-    renderPanel();
-  }
-
-  function clearQueue() {
-    _queue = [];
-    renderPanel();
-  }
-
-  function togglePanel() {
-    _visible = !_visible;
-    const panel = document.getElementById('prop-editor-panel');
-    if (panel) panel.style.display = _visible ? 'block' : 'none';
-  }
-
-  function showPanel() {
-    _visible = true;
-    renderPanel();
-  }
-
-  function onResult(data) {
-    const panel = document.getElementById('prop-editor-result');
-    if (!panel) return;
-    if (data.success) {
-      panel.innerHTML = `
-        <div style="padding:12px;background:#F0FDF4;border:1px solid #86EFAC;border-radius:8px;margin-top:12px">
-          <div style="font-weight:700;color:#15803D;margin-bottom:6px">
-            ✅ ${data.editsApplied} property edit(s) applied successfully
-          </div>
-          <div style="font-size:12px;color:var(--mid-grey)">
-            Corrected file saved: <strong>${VUtils.esc(data.outputFile)}</strong><br>
-            Edit log: <strong>${VUtils.esc(data.logPath)}</strong>
-          </div>
-          <div style="margin-top:8px;font-size:11px;color:var(--mid-grey)">
-            ${(data.applied||[]).map(a => `<div>• ${VUtils.esc(a)}</div>`).join('')}
-          </div>
-          ${(data.errors||[]).length > 0 ? `
-            <div style="margin-top:8px;font-size:11px;color:var(--amber)">
-              ${(data.errors||[]).map(e => `<div>⚠ ${VUtils.esc(e)}</div>`).join('')}
-            </div>` : ''}
-          <div style="margin-top:10px;font-size:12px;padding:8px;background:#DCFCE7;border-radius:6px">
-            <strong>Next step:</strong> Open the corrected file in VERIFIQ to re-validate and confirm all issues are resolved,
-            then use this corrected IFC for your CORENET-X submission.
-          </div>
-        </div>`;
-      _queue = [];  // clear after success
-    } else {
-      panel.innerHTML = `
-        <div style="padding:12px;background:#FEF2F2;border:1px solid #FCA5A5;border-radius:8px;margin-top:12px">
-          <div style="font-weight:700;color:#B91C1C">Edit failed: ${VUtils.esc(data.error || 'Unknown error')}</div>
-        </div>`;
-    }
-  }
-
-  // ── Render ────────────────────────────────────────────────────────────────
-
-  function renderPanel() {
-    let container = document.getElementById('prop-editor-panel');
-    if (!container) return;
-
-    if (_queue.length === 0) {
-      container.innerHTML = `
-        <div class="card" style="margin-top:16px">
-          <div class="card-header">
-            <span class="card-title">✏️ IFC Property Editor</span>
-          </div>
-          <div style="font-size:12px;color:var(--mid-grey);padding:8px 0">
-            Click <strong>Fix Property</strong> on any finding in the results table to add it here.
-            You can fix multiple properties at once and save a single corrected IFC file.
-          </div>
-        </div>`;
-      return;
-    }
-
-    const rows = _queue.map((edit, i) => `
-      <tr>
-        <td style="font-size:11px;font-family:monospace">${VUtils.esc(edit.display)}</td>
-        <td style="font-size:11px;color:var(--mid-grey);font-size:10px">${VUtils.esc(edit.guid.substring(0,12))}...</td>
-        <td>
-          <input type="text" value="${VUtils.esc(edit.newValue)}"
-            placeholder="${getPlaceholder(edit)}"
-            style="width:180px;padding:4px 8px;border:1px solid var(--border);border-radius:4px;
-                   font-family:Courier New,monospace;font-size:12px"
-            onchange="PropertyEditor.updateValue(${i}, this.value)"
-            oninput="PropertyEditor.updateValue(${i}, this.value)"/>
-          <span style="font-size:10px;color:var(--mid-grey);margin-left:4px">${VUtils.esc(edit.dataType)}</span>
-        </td>
-        <td style="font-size:10px;color:var(--teal);max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"
-            title="${VUtils.esc(edit.fix)}">
-          ${VUtils.esc(edit.fix.substring(0,60))}
-        </td>
-        <td>
-          <button class="btn btn-ghost" style="font-size:11px;padding:2px 8px;color:var(--red)"
-            onclick="PropertyEditor.removeFromQueue(${i})">✕</button>
-        </td>
-      </tr>`).join('');
-
-    container.innerHTML = `
-      <div class="card" style="margin-top:16px;border-left:4px solid var(--teal)">
-        <div class="card-header">
-          <span class="card-title">✏️ IFC Property Editor - ${_queue.length} fix(es) queued</span>
-          <button class="btn btn-ghost" style="font-size:11px;color:var(--mid-grey)" onclick="PropertyEditor.clearQueue()">Clear all</button>
-        </div>
-        <p style="font-size:12px;color:var(--mid-grey);margin-bottom:12px">
-          Enter the correct value for each property below, then click <strong>Apply Fixes</strong>.
-          A corrected IFC file will be saved next to the original - your original is never modified.
-        </p>
-        <div class="table-wrap">
-          <table class="results-table">
-            <thead><tr>
-              <th>Property</th><th>Element GUID</th><th>New Value</th><th>Guidance</th><th></th>
-            </tr></thead>
-            <tbody>${rows}</tbody>
-          </table>
-        </div>
-        <div id="prop-editor-result"></div>
-        <div style="margin-top:12px;display:flex;gap:10px;align-items:center">
-          <button class="btn btn-teal" onclick="PropertyEditor.applyFixes()"
-            style="padding:10px 24px;font-size:14px;font-weight:700">
-            ✏️ Apply Fixes &amp; Save Corrected IFC
-          </button>
-          <div style="font-size:11px;color:var(--mid-grey)">
-            The corrected file will be saved in the same folder as the original IFC
-          </div>
-        </div>
-      </div>`;
-  }
-
-  function updateValue(index, val) {
-    if (_queue[index]) _queue[index].newValue = val;
-  }
-
-  function removeFromQueue(index) {
-    _queue.splice(index, 1);
-    renderPanel();
-  }
-
-  function applyFixes() {
-    const incomplete = _queue.filter(e => !e.newValue.trim());
-    if (incomplete.length > 0) {
-      alert(`Please fill in all values before applying. ${incomplete.length} value(s) are empty.`);
-      return;
-    }
-    VBridge.send('applyPropertyEdits', {
-      edits: _queue.map(e => ({
-        stepId:   e.stepId,
-        psetName: e.psetName,
-        propName: e.propName,
-        dataType: e.dataType,
-        newValue: e.newValue,
-        guid:     e.guid
-      }))
-    });
-    const btn = document.querySelector('#prop-editor-panel button.btn-teal');
-    if (btn) { btn.disabled = true; btn.textContent = 'Saving...'; }
-  }
-
-  // ── Helpers ───────────────────────────────────────────────────────────────
-
-  function inferDataType(propName) {
-    const p = propName.toUpperCase();
-    if (p.includes('ISEXTERNAL') || p.includes('LOADBEARING') || p.includes('HANDICAP') ||
-        p.includes('SMOKESTOP') || p.includes('FIREEXIT') || p.includes('ISFLAMMABLE'))
-      return 'IFCBOOLEAN';
-    if (p.includes('AREA') || p.includes('HEIGHT') || p.includes('WIDTH') || p.includes('LENGTH') ||
-        p.includes('THERMAL') || p.includes('UVALUE') || p.includes('GRADIENT') ||
-        p.includes('RATIO') || p.includes('FACTOR') || p.includes('COEFFICIENT'))
-      return 'IFCREAL';
-    if (p.includes('COUNT') || p.includes('NUMBER') || p.includes('QUANTITY'))
-      return 'IFCINTEGER';
-    return 'IFCLABEL';
-  }
-
-  function getPlaceholder(edit) {
-    switch (edit.dataType) {
-      case 'IFCBOOLEAN': return 'TRUE or FALSE';
-      case 'IFCREAL':    return 'e.g. 60.0';
-      case 'IFCINTEGER': return 'e.g. 60';
-      default:           return 'e.g. 60/60/60';
-    }
-  }
-
-  return { addToQueue, clearQueue, togglePanel, showPanel, onResult, updateValue, removeFromQueue, applyFixes, renderPanel };
-})();
-
-window.PropertyEditor = PropertyEditor;

@@ -19,7 +19,7 @@ namespace VERIFIQ.Rules.Common;
 
 /// <summary>
 /// Singapore IFC+SG rules covering all 8 regulatory agencies.
-/// Data sourced from CORENET-X COP 3rd Edition (October 2025),
+/// Data sourced from CORENET-X COP 3.1 Edition (December 2025),
 /// IFC+SG Industry Mapping 2025, and individual agency code requirements.
 /// </summary>
 public sealed class SgRules : ISgRules

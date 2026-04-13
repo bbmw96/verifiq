@@ -321,7 +321,7 @@ public sealed class ExcelReportBuilderFull
             (CheckLevel.ClassificationReference,  "Is IfcClassificationReference present and populated?",            "Assign classification from IFC+SG Industry Mapping in BIM software"),
             (CheckLevel.ClassificationEdition,    "Is classification referencing the current edition?",             "Update classification system reference to 2025 edition"),
             (CheckLevel.MandatoryPropertySets,    "Are all required Pset_ property sets present?",                  "Configure Pset_ property sets in ArchiCAD/Revit IFC export settings"),
-            (CheckLevel.SgPropertySets,           "Are all required SGPset_ property sets present? (SG only)",       "Load IFC+SG Export Translator/Shared Parameters from info.corenet.gov.sg"),
+            (CheckLevel.SgPropertySets,           "Are all required SGPset_ property sets present? (SG only)",       "Load IFC+SG Export Translator/Shared Parameters from go.gov.sg/ifcsg"),
             (CheckLevel.PropertyValuesPopulated,  "Are all mandatory property values filled (not empty/NOTDEFINED)?","Populate all mandatory fields in property sets before export"),
             (CheckLevel.PropertyValueDataType,    "Do values match required data types (BOOLEAN, REAL, STRING)?",   "Check value format: IsExternal must be TRUE/FALSE, not 'Yes'/'No'"),
             (CheckLevel.PropertyValueEnumeration, "Do enumerated values match the permitted list?",                  "Use exact permitted values from IFC+SG mapping; check capitalisation"),
@@ -388,7 +388,7 @@ public sealed class ExcelReportBuilderFull
         int headerRow = 5;
         string[] headers = {
             "Rule ID", "Rule Name", "Code Reference", "Element GUID",
-            "Element Name", "IFC Class", "Actual Value", "Required", "Formula", "Result", "Severity", "Fix"
+            "Element Name", "IFC Entity / SubType / Classification", "Actual Value", "Required", "Formula", "Result", "Severity", "Fix"
         };
         int[] widths = { 16, 38, 40, 36, 30, 26, 16, 20, 40, 28, 12, 50 };
 
@@ -555,7 +555,11 @@ public sealed class ExcelReportBuilderFull
         {
             ws.Cell(row, 1).Value = r.CheckLevel.ToString();
             ws.Cell(row, 2).Value = r.ElementName;
-            ws.Cell(row, 3).Value = r.IfcClass;
+            ws.Cell(row, 3).Value = string.IsNullOrEmpty(r.PredefinedType)
+                    ? r.IfcClass
+                    : $"{r.IfcClass} ({r.PredefinedType})";
+                if (!string.IsNullOrEmpty(r.ClassificationCode))
+                    ws.Cell(row, 3).GetComment().AddText(r.ClassificationCode);
             ws.Cell(row, 4).Value = r.ElementGuid;
             ws.Cell(row, 5).Value = r.AffectedAgency != SgAgency.None ? r.AffectedAgency.ToString() : "-";
             ws.Cell(row, 6).Value = r.Message;
@@ -719,8 +723,8 @@ public sealed class ExcelReportBuilderFull
         if (_s.CountryMode is CountryMode.Singapore or CountryMode.Combined)
         {
             refs.Add(("── SINGAPORE ──", ""));
-            refs.Add(("CORENET-X COP 3rd Ed.", "Code of Practice for BIM e-Submission, 3rd Edition, September 2025 (BCA/GovTech)"));
-            refs.Add(("IFC+SG Industry Mapping", "IFC+SG Industry Mapping 2025  -  500+ parameters, all 8 agencies (BCA/GovTech), info.corenet.gov.sg"));
+            refs.Add(("CORENET-X COP 3rd Ed.", "Code of Practice for BIM e-Submission, COP 3.1 Edition, December 2025 (BCA/GovTech)"));
+            refs.Add(("IFC+SG Industry Mapping", "IFC+SG Industry Mapping 2025  -  500+ parameters, all 8 agencies (BCA/GovTech), go.gov.sg/ifcsg"));
             refs.Add(("BCA Building Control Act", "Building Control Act (Cap 29, 2000 Rev) and Building Control Regulations 2003 (Rev 2021)"));
             refs.Add(("BCA Code on Accessibility", "Code on Accessibility in the Built Environment 2025  -  Universal design requirements"));
             refs.Add(("SCDF Fire Code",             "Singapore Fire Code 2018 (2023 Amendment) - SCDF - escape routes, compartmentation, fire ratings"));

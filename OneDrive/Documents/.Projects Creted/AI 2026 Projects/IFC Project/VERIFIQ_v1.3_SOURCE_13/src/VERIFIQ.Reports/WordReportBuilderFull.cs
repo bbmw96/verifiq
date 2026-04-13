@@ -577,8 +577,8 @@ public sealed class WordReportBuilder
             var sgRefs = new[]
             {
                 ("BCA Building Control Act",          "Building Control Act (Cap 29, Rev 2000); Building Control Regulations 2003"),
-                ("CORENET-X COP",                     "Code of Practice for BIM e-Submission (3rd Edition, September 2025)"),
-                ("IFC+SG Industry Mapping",           "IFC+SG Industry Mapping 2025 (BCA/GovTech)"),
+                ("CORENET-X COP",                     "Code of Practice for BIM e-Submission (COP 3.1, December 2025)"),
+                ("IFC+SG Industry Mapping",           "IFC+SG Industry Mapping December 2025 COP3.1 (BCA/GovTech)"),
                 ("BCA Code on Accessibility 2025",    "Code on Accessibility in the Built Environment 2025 (BCA)"),
                 ("SCDF Fire Code",                    "Singapore Fire Code 2018 (2023 Edition) - SCDF"),
                 ("BCA Green Mark 2021",               "BCA Green Mark for Residences 2021 / Green Mark for Non-Residences 2021"),

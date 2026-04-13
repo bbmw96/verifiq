@@ -329,9 +329,12 @@ public sealed class IfcGeoreference
 /// </summary>
 public sealed class ValidationResult
 {
+    public int          StepId          { get; set; }      // IFC STEP line number for Property Editor
     public string       ElementGuid     { get; set; } = string.Empty;
     public string       ElementName     { get; set; } = string.Empty;
     public string       IfcClass        { get; set; } = string.Empty;
+    public string       PredefinedType  { get; set; } = string.Empty;  // IFC SubType (e.g. PARAPET, FLOOR)
+    public string       ClassificationCode { get; set; } = string.Empty; // IFC+SG code (e.g. A-WAL-EXW-01)
     public string       StoreyName      { get; set; } = string.Empty;
 
     public CheckLevel   CheckLevel      { get; set; }
@@ -356,6 +359,13 @@ public sealed class ValidationResult
     // IFC+SG / NBeS rule reference
     public string       RuleReference   { get; set; } = string.Empty;
     public string       RuleSource      { get; set; } = string.Empty;  // e.g. "IFC+SG Industry Mapping v2025"
+
+    /// <summary>
+    /// Composite classification string for the JS front-end: "IfcClass|ClassificationCode|PredefinedType"
+    /// e.g. "IfcWall|A-WAL-EXW-01|PARAPET"  -  the JS results/viewer parses this with split('|')
+    /// </summary>
+    public string ClsForJs =>
+        $"{IfcClass}|{ClassificationCode}|{PredefinedType}";
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════

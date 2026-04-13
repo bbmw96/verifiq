@@ -161,6 +161,26 @@ public sealed class ValidationEngine
         // LEVEL 18  -  Geometry validity
         results.AddRange(Check_Level18_GeometryValidity(element));
 
+        // ── Stamp common fields on every result so the JS front-end receives
+        //    the full cls="IfcClass|ClassificationCode|PredefinedType" string.
+        //    These fields are cheap to compute once here rather than in every
+        //    individual check method.
+        var clsCode = element.Classifications
+                          .FirstOrDefault(c => c.IsPopulated)?.ItemReference
+                          ?? string.Empty;
+        var predType = element.PredefinedType ?? string.Empty;
+
+        foreach (var r in results)
+        {
+            if (string.IsNullOrEmpty(r.ElementGuid))   r.ElementGuid   = element.GlobalId;
+            if (string.IsNullOrEmpty(r.ElementName))   r.ElementName   = element.Name;
+            if (string.IsNullOrEmpty(r.IfcClass))      r.IfcClass      = element.IfcClass;
+            if (string.IsNullOrEmpty(r.StoreyName))    r.StoreyName    = element.StoreyName;
+            if (r.StepId == 0)                         r.StepId        = element.StepId;
+            if (string.IsNullOrEmpty(r.PredefinedType)) r.PredefinedType = predType;
+            if (string.IsNullOrEmpty(r.ClassificationCode)) r.ClassificationCode = clsCode;
+        }
+
         return results;
     }
 
@@ -319,7 +339,7 @@ public sealed class ValidationEngine
                     "In ArchiCAD: use the Classification Manager and assign the IFC+SG classification. " +
                     "In Revit: use the IFC+SG shared parameters to assign the classification code.",
                 RuleSource = mode == CountryMode.Singapore
-                    ? "IFC+SG Industry Mapping / CORENET-X COP 3rd Edition"
+                    ? "IFC+SG Industry Mapping / CORENET-X COP 3.1 Edition (December 2025)"
                     : "NBeS IFC Classification Mapping / UBBL 1984"
             });
         }
@@ -453,8 +473,8 @@ public sealed class ValidationEngine
                     ActualValue      = "(not present)",
                     RemediationGuidance =
                         $"Add SGPset_ property set '{req.Name}' using your BIM software's IFC+SG configuration files " +
-                        "from info.corenet.gov.sg.",
-                    RuleSource       = "IFC+SG Industry Mapping / CORENET-X COP 3rd Edition"
+                        "from go.gov.sg/ifcsg.",
+                    RuleSource       = "IFC+SG Industry Mapping / CORENET-X COP 3.1 Edition (December 2025)"
                 });
             }
         }
@@ -830,7 +850,7 @@ public sealed class ValidationEngine
                     "In ArchiCAD: Project Location > Coordinate System > use IfcMapConversion. " +
                     "In Revit: Manage > Location and Shared Coordinates with IFC+SG export settings. " +
                     "Reference the CORENET-X COP Section on Georeferencing for SVY21 datum values.",
-                RuleSource = "CORENET-X COP 3rd Edition  -  Georeferencing Requirements"
+                RuleSource = "CORENET-X COP 3.1 Edition (December 2025)  -  Georeferencing Requirements"
             });
         }
         else if (!file.Georeference.IsValidForSingapore)

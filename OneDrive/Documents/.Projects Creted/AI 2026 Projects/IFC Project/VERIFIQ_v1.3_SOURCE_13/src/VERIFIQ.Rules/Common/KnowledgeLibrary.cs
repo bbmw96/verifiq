@@ -6,7 +6,7 @@
 //
 // Content (embedded, no internet connection required):
 //   • IFC+SG 2025 Industry Mapping - all 500+ required parameters
-//   • CORENET-X COP 3rd Edition - all 5 gateways, 8 agencies, all element types
+//   • CORENET-X COP 3.1 Edition - all 5 gateways, 8 agencies, all element types
 //   • UBBL 1984 - all 9 Purpose Groups, all Parts I–IX, all By-Laws
 //   • BCA Code on Accessibility 2025 - all dimension requirements
 //   • SCDF Fire Code 2018 + 2023 Amendment - compartment sizes, travel distances
@@ -205,7 +205,7 @@ public static class KnowledgeLibrary
     };
 
     // ─── IFC+SG REQUIRED PSET PARAMETERS (all 500+, abridged to key elements) ──
-    // Complete list: see IFC+SG Industry Mapping Excel from info.corenet.gov.sg
+    // Complete list: see IFC+SG Industry Mapping Excel from go.gov.sg/ifcsg
     public static readonly Dictionary<string, List<string>> SgRequiredParams =
         new(StringComparer.OrdinalIgnoreCase)
     {
@@ -275,7 +275,7 @@ public static class KnowledgeLibrary
                    "Roof slabs: FRR 30 minimum (non-sprinklered residential).",
             _   => $"Add the required property '{propName}' to property set '{psetName}' " +
                    $"on all {ifcClass} elements. Refer to the IFC+SG Industry Mapping " +
-                   "Excel from info.corenet.gov.sg for the complete parameter list and permitted values."
+                   "Excel from go.gov.sg/ifcsg for the complete parameter list and permitted values."
         };
 
     /// <summary>Get UBBL remediation guidance specific to the failing parameter.</summary>

@@ -34,8 +34,22 @@ public sealed class EntityClassRules : IEntityClassRules
             "FLOOR","ROOF","LANDING","BASESLAB","APPROACH_SLAB",
             "PAVING","WEARING","SIDEWALK","USERDEFINED","NOTDEFINED"
         },
-        ["IFCDOOR"] = new() { "DOOR","GATE","TRAPDOOR","USERDEFINED","NOTDEFINED" },
-        ["IFCWINDOW"] = new() { "WINDOW","SKYLIGHT","LIGHTDOME","USERDEFINED","NOTDEFINED" },
+        ["IFCDOOR"] = new()
+        {
+            // IFC4 standard
+            "DOOR","GATE","TRAPDOOR",
+            // IFC+SG COP3.1 Section 4 p.278
+            "BLASTDOOR","ROLLERSHUTTER",
+            "USERDEFINED","NOTDEFINED"
+        },
+        ["IFCWINDOW"] = new()
+        {
+            // IFC4 standard
+            "WINDOW","SKYLIGHT","LIGHTDOME",
+            // IFC+SG COP3.1 Section 4 p.439
+            "BAYWINDOW","VENTILATIONSLEEVE","LOUVRE",
+            "USERDEFINED","NOTDEFINED"
+        },
         ["IFCROOF"] = new()
         {
             "FLAT_ROOF","SHED_ROOF","GABLE_ROOF","HIP_ROOF","HIPPED_GABLE_ROOF",
@@ -75,8 +89,11 @@ public sealed class EntityClassRules : IEntityClassRules
         },
         ["IFCPILE"] = new()
         {
-            "BORED","DRIVEN","JETGROUTING","COHESION","FRICTION",
-            "SUPPORT","USERDEFINED","NOTDEFINED"
+            // IFC4 standard
+            "BORED","DRIVEN","JETGROUTING","COHESION","FRICTION","SUPPORT",
+            // IFC+SG COP3.1 pile types
+            "COHESION","FRICTION","SUPPORT",
+            "USERDEFINED","NOTDEFINED"
         },
         ["IFCPLATE"] = new()
         {
@@ -96,7 +113,11 @@ public sealed class EntityClassRules : IEntityClassRules
         ["IFCCURTAINWALL"] = new() { "NOTDEFINED","USERDEFINED" },
         ["IFCSPACE"] = new()
         {
-            "SPACE","PARKING","GFA","INTERNAL","EXTERNAL","USERDEFINED","NOTDEFINED"
+            // IFC4 standard
+            "SPACE","PARKING","GFA","INTERNAL","EXTERNAL",
+            // IFC+SG COP3.1 specific area subtypes
+            "AREA_GFA","AREA_LANDSCAPE","AREA_STRATA","AREA_CONNECTIVITY",
+            "USERDEFINED","NOTDEFINED"
         },
 
         // ── MEP / BUILDING SERVICES ───────────────────────────────────────────
@@ -125,8 +146,12 @@ public sealed class EntityClassRules : IEntityClassRules
         ["IFCFLOWSTORAGDEVICE"] = new() { "USERDEFINED","NOTDEFINED" },
         ["IFCSANITARYTERMINAL"] = new()
         {
+            // IFC4 standard
             "BATH","BIDET","CISTERN","SHOWER","SINK","SANITARYFOUNTAIN",
-            "TOILETPAN","URINAL","WASHHANDBASIN","WCSEAT","USERDEFINED","NOTDEFINED"
+            "TOILETPAN","URINAL","WASHHANDBASIN","WCSEAT",
+            // IFC+SG COP3.1 specific
+            "WATERCLOSET","SPRINKLER",
+            "USERDEFINED","NOTDEFINED"
         },
         ["IFCLIGHTFIXTURE"] = new()
         {
@@ -143,9 +168,108 @@ public sealed class EntityClassRules : IEntityClassRules
             "CHAIR","DESK","FILECABINET","SHELF","SOFA","BED","TABLE",
             "TECHNICALCABINET","USERDEFINED","NOTDEFINED"
         },
+        // ── IFC+SG COP3.1 additions ─────────────────────────────────────────
+
+        // ── IFC+SG COP3.1 MEP ENTITIES ──────────────────────────────────────
+        ["IFCVALVE"] = new()
+        {
+            "AIRRELEASE","ANTIVACUUM","CHANGEOVER","CHECK","COMMISSIONING","DIVERTING",
+            "DRAWOFFCOCK","DOUBLECHECK","DOUBLEREGULATING","FLUSHING","GASCOCK",
+            "GLANDCOCK","ISOLATING","MIXING","PRESSUREREDUCING","PRESSURERELIEF",
+            "STOPCOCK","AIRCONTROL","AIRFLOW","SINGLEBLOCKING","SLUICE","DRAINOFFCOCK",
+            // IFC+SG COP3.1 p.430
+            "LANDINGVALVE","SPRINKLERCONTROL","FAUCET","AIRADMITTANCE",
+            "USERDEFINED","NOTDEFINED"
+        },
+        ["IFCFIRESUPPRESSIONTERMINAL"] = new()
+        {
+            // IFC+SG COP3.1 fire system subtypes
+            "BREECHINGINLET","SPRINKLERHEAD","FIREALARMBELL","HOSEREEL","LANDINGVALVE",
+            "DRENCHER","FIREALARMBELL","FOAM","WATERSPRAY","USERDEFINED","NOTDEFINED"
+        },
+        ["IFCALARM"] = new()
+        {
+            // IFC4 + IFC+SG COP3.1
+            "BELL","BREAKGLASSBUTTON","LIGHT","MANUALPULLBOX","SIREN","WHISTLE",
+            "SMOKEALARM","FIREALARM","MULTISENSOR","HEATDETECTOR",
+            "USERDEFINED","NOTDEFINED"
+        },
+        ["IFCDISTRIBUTIONCHAMBERELEMENT"] = new()
+        {
+            // IFC4 + IFC+SG COP3.1 p.276
+            "FORMEDDUCT","INSPECTIONCHAMBER","INSPECTIONPIT","MANHOLE",
+            "METERCHAMBER","SUMP","TRENCH","VALVECHAMBER",
+            "PWCSINSPECTIONCHAMBER","PWCSMANHOLE","SCREENCHAMBER","SAMPLINGSUMP",
+            "METERCHAMBER",
+            "USERDEFINED","NOTDEFINED"
+        },
+        ["IFCGEOGRAPHICELEMENT"] = new()
+        {
+            // IFC4 + IFC+SG COP3.1 NParks
+            "TERRAIN","SOFTSURFACE","HARDSURFACE","PATHWAY","WATERWAY","VEGETATION",
+            // IFC+SG COP3.1 p.309
+            "LANDSCAPE_TREE","LANDSCAPE_PALM","LANDSCAPE_HEDGE",
+            "USERDEFINED","NOTDEFINED"
+        },
+        ["IFCCIVILELEMENT"] = new()
+        {
+            // IFC4 CivilElement subtypes
+            "USERDEFINED","NOTDEFINED",
+            // IFC+SG COP3.1 p.272
+            "COMMONDRAIN","CROSSCULVERT","CULVERT","ENTRANCECULVERT",
+            "EXTERNALDRAIN","INTERNALDRAIN","OUTLETDRAIN","ROADSIDEDRAIN","TRENCH"
+        },
+        ["IFCTANK"] = new()
+        {
+            // IFC4 + IFC+SG COP3.1 p.428
+            "BASIN","BREAKPRESSURE","BUTT","CISTERN","EXPANSION","FEEDANDEXPANSION",
+            "PRESSUREVESSEL","STORAGE","VESSEL",
+            "DETENTIONTANK","RAINWATERHARVESTINGTANK","IRRIGATIONTANK",
+            "SPRINKLERTANK","BALANCINGTANK","SECTIONAL","RECHARGEWELL",
+            "USERDEFINED","NOTDEFINED"
+        },
+        ["IFCPUMP"] = new()
+        {
+            // IFC4 + IFC+SG COP3.1 p.328
+            "CIRCULATOR","ENDSUCTION","SPLITCASE","SUBMERSIBLEPUMP",
+            "SUMPPUMP","VERTICALINLINE","VERTITURBINE",
+            "USERDEFINED","NOTDEFINED"
+        },
+        ["IFCWASTETERMINAL"] = new()
+        {
+            // IFC4 + IFC+SG COP3.1 p.437
+            "FLOORTRAP","FLOORTROUGH","FLOORWASTE","GULLYSUMP","GULLYTRAP",
+            "ROOFDRAIN","TUBETRAP","WASTEDISPOSALUNIT","WASTETRAP","WASTESUMP",
+            "USERDEFINED","NOTDEFINED"
+        },
+        ["IFCFLOWMETER"] = new()
+        {
+            // IFC4 + IFC+SG COP3.1 p.438
+            "ENERGYMETER","GASMETER","OILMETER","WATERMETER",
+            "USERDEFINED","NOTDEFINED"
+        },
+        ["IFCDAMPER"] = new()
+        {
+            // IFC4 + IFC+SG COP3.1 p.274
+            "BACKDRAFTDAMPER","BALANCINGDAMPER","BLASTDAMPER","CONTROLDAMPER",
+            "FIREDAMPER","FIRESMOKEDAMPER","FUMEHOODEXHAUST","GRAVITYDAMPER",
+            "GRAVITYRELIEFDAMPER","RELIEFDAMPER","SMOKEDAMPER","VOLUMETRICFLOWRATEDAMPER",
+            "USERDEFINED","NOTDEFINED"
+        },
+        ["IFCINTERCEPTOR"] = new()
+        {
+            // IFC4 + IFC+SG COP3.1
+            "CYCLONIC","GREASE","OIL","PETROL",
+            "USERDEFINED","NOTDEFINED"
+        },
+        
         ["IFCTRANSPORTELEMENT"] = new()
         {
-            "ELEVATOR","ESCALATOR","MOVINGWALKWAY","CRANEWAY","LIFTINGDEVICE","USERDEFINED","NOTDEFINED"
+            // COP3.1 Section 4: IfcTransportElement subtypes
+            "ELEVATOR","ESCALATOR","MOVINGWALKWAY","CRANEWAY","LIFTINGDEVICE",
+            // IFC+SG COP3.1 specific
+            "LIFT","CARLIFT",
+            "USERDEFINED","NOTDEFINED"
         },
     };
 

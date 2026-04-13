@@ -4,7 +4,7 @@
 // ─── IFC+SG CLASSIFICATION CODE LIBRARY ──────────────────────────────────────
 //
 // Comprehensive embedded library of IFC+SG classification codes based on:
-//   • CORENET-X COP 3rd Edition (October 2025)
+//   • CORENET-X COP 3.1 Edition (December 2025)
 //   • IFC+SG Industry Mapping 2025 (BCA/GovTech Singapore)
 //   • Singapore Standard IFC4 Reference View ADD2 TC1
 //
@@ -1035,6 +1035,743 @@ public static class ClassificationCodeLibrary
             R("Pset_MemberCommon",     "LoadBearing",          true,  SgAgency.BCA,  GCon, "TRUE",  "Structural bracing",                 "BC 1:2012"),
             R("SGPset_BeamStructural", "SteelGrade",           true,  SgAgency.BCA,  GCon, "S275",  "Steel grade",                        "BC 1:2012"),
         }));
+
+
+        // ================================================================
+        // ALL 81 IDENTIFIED COMPONENTS - IFC+SG INDUSTRY MAPPING DEC 2025
+        // Source: BCA IFC+SG Industry Mapping, COP3.1 Edition
+        // 833 property mappings, 8 agencies covered
+        // ================================================================
+
+        // Accessible Route
+        Add(E("CX-001", "Accessible Route", "IFCSPACE", "NOTDEFINED", "A", SgAgency.BCA, new[]
+        {
+            R("SGPset_SpaceDimension", "Width", true, SgAgency.BCA, GCon, "N.A", "IFC+SG: Accessible Route", "BCA Mapping Dec 2025"),
+            R("SGPset_Space", "BarrierFreeAccessibility", true, SgAgency.BCA, GCon, "TRUE/FALSE", "IFC+SG: Accessible Route", "BCA Mapping Dec 2025"),
+        }));
+
+        // Beam
+        Add(E("CX-002", "Beam", "IFCBEAM", "NOTDEFINED", "S", SgAgency.BCA, new[]
+        {
+            R("SGPset_Beam", "BeamSpanType", true, SgAgency.BCA, GCon, "Single, End, Interior, Cantilever", "IFC+SG: Beam", "BCA Mapping Dec 2025"),
+            R("SGPset_BeamReinforcement", "BottomLeft", true, SgAgency.BCA, GCon, "N.A", "IFC+SG: Beam", "BCA Mapping Dec 2025"),
+            R("SGPset_BeamReinforcement", "BottomMiddle", true, SgAgency.BCA, GCon, "N.A", "IFC+SG: Beam", "BCA Mapping Dec 2025"),
+            R("SGPset_BeamReinforcement", "BottomRight", true, SgAgency.BCA, GCon, "N.A", "IFC+SG: Beam", "BCA Mapping Dec 2025"),
+            R("SGPset_Beam", "ConstructionMethod", true, SgAgency.BCA, GCon, "CIS, PC, PT (Pre), PT (Post), PF, PPVC, Spun", "IFC+SG: Beam", "BCA Mapping Dec 2025"),
+            R("SGPset_BeamDimension", "Depth", true, SgAgency.BCA, GCon, "N.A", "IFC+SG: Beam", "BCA Mapping Dec 2025"),
+            R("SGPset_SteelConnection", "LeftConnectionDetail", true, SgAgency.BCA, GCon, "N.A", "IFC+SG: Beam", "BCA Mapping Dec 2025"),
+            R("SGPset_SteelConnection", "LeftConnectionType", true, SgAgency.BCA, GCon, "Pinned, Fixed, Free", "IFC+SG: Beam", "BCA Mapping Dec 2025"),
+            R("SGPset_BeamDimension", "Mark", true, SgAgency.BCA, GCon, "N.A", "IFC+SG: Beam", "BCA Mapping Dec 2025"),
+            R("SGPset_Material", "MaterialGrade", true, SgAgency.BCA, GCon, "C12/15, C20/25, C30/37, C32/40, C35/45, C40/50, C5", "IFC+SG: Beam", "BCA Mapping Dec 2025"),
+        }));
+
+        // Borehole
+        Add(E("CX-004", "Borehole", "IFCBUILDINGELEMENTPROXY", "NOTDEFINED", "A", SgAgency.BCA, new[]
+        {
+            R("SGPset_BuildingElementProxyDimension", "Depth", true, SgAgency.BCA, GCon, "N.A", "IFC+SG: Borehole", "BCA Mapping Dec 2025"),
+            R("SGPset_BuildingElementProxyDimension", "Mark", true, SgAgency.BCA, GCon, "N.A", "IFC+SG: Borehole", "BCA Mapping Dec 2025"),
+            R("SGPset_BuildingElementProxyDimension", "SHDLevel_SPT_MoreThan_100N", true, SgAgency.BCA, GCon, "N.A", "IFC+SG: Borehole", "BCA Mapping Dec 2025"),
+            R("SGPset_BuildingElementProxyDimension", "SHDLevel_SPT_MoreThan_60N", true, SgAgency.BCA, GCon, "N.A", "IFC+SG: Borehole", "BCA Mapping Dec 2025"),
+            R("SGPset_BuildingElementProxyDimension", "TerminationLevel", true, SgAgency.BCA, GCon, "N.A", "IFC+SG: Borehole", "BCA Mapping Dec 2025"),
+            R("SGPset_BuildingElementProxyDimension", "TopLevel", true, SgAgency.BCA, GCon, "N.A", "IFC+SG: Borehole", "BCA Mapping Dec 2025"),
+        }));
+
+        // Breeching Inlet
+        Add(E("CX-005", "Breeching Inlet", "IFCFIRESUPPRESSIONTERMINAL", "NOTDEFINED", "F", SgAgency.SCDF, new[]
+        {
+            R("SGPset_FireSuppressionTerminal", "Hose_NominalDiameter", true, SgAgency.SCDF, GCon, "N.A", "IFC+SG: Breeching Inlet", "BCA Mapping Dec 2025"),
+            R("SGPset_FireSuppressionTerminal", "ID", true, SgAgency.SCDF, GCon, "N.A", "IFC+SG: Breeching Inlet", "BCA Mapping Dec 2025"),
+            R("SGPset_FireSuppressionTerminal", "SystemName", true, SgAgency.SCDF, GCon, "N.A", "IFC+SG: Breeching Inlet", "BCA Mapping Dec 2025"),
+            R("SGPset_FireSuppressionTerminal", "SystemType", true, SgAgency.SCDF, GCon, "N.A", "IFC+SG: Breeching Inlet", "BCA Mapping Dec 2025"),
+        }));
+
+        // Ceiling
+        Add(E("CX-007", "Ceiling", "IFCCOVERING", "NOTDEFINED", "A", SgAgency.SCDF, new[]
+        {
+            R("Pset_CoveringCommon", "FireRating", true, SgAgency.SCDF, GCon, "0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4", "IFC+SG: Ceiling", "BCA Mapping Dec 2025"),
+            R("SGPset_Material", "Material", true, SgAgency.SCDF, GCon, "N.A", "IFC+SG: Ceiling", "BCA Mapping Dec 2025"),
+        }));
+
+        // Column
+        Add(E("CX-008", "Column", "IFCCOLUMN", "NOTDEFINED", "S", SgAgency.BCA, new[]
+        {
+            R("SGPset_PrecastConcreteElementGeneral", "ArrangementType", true, SgAgency.BCA, GCon, "N.A", "IFC+SG: Column", "BCA Mapping Dec 2025"),
+            R("SGPset_ColumnDimension", "Breadth", true, SgAgency.BCA, GCon, "N.A", "IFC+SG: Column", "BCA Mapping Dec 2025"),
+            R("SGPset_SteelConnection", "ConnectionDetailsBottom", true, SgAgency.BCA, GCon, "N.A", "IFC+SG: Column", "BCA Mapping Dec 2025"),
+            R("SGPset_SteelConnection", "ConnectionDetailsTop", true, SgAgency.BCA, GCon, "N.A", "IFC+SG: Column", "BCA Mapping Dec 2025"),
+            R("SGPset_SteelConnection", "ConnectionTypeBottom", true, SgAgency.BCA, GCon, "Pinned, Fixed, Free", "IFC+SG: Column", "BCA Mapping Dec 2025"),
+            R("SGPset_SteelConnection", "ConnectionTypeTop", true, SgAgency.BCA, GCon, "Pinned, Fixed, Free", "IFC+SG: Column", "BCA Mapping Dec 2025"),
+            R("SGPset_Column", "ConstructionMethod", true, SgAgency.BCA, GCon, "CIS, PC, PT (Pre), PT (Post), PF, PPVC, Spun", "IFC+SG: Column", "BCA Mapping Dec 2025"),
+            R("SGPset_ColumnDimension", "Diameter", true, SgAgency.BCA, GCon, "N.A", "IFC+SG: Column", "BCA Mapping Dec 2025"),
+            R("SGPset_ColumnDimension", "EndStorey", true, SgAgency.BCA, GCon, "N.A", "IFC+SG: Column", "BCA Mapping Dec 2025"),
+            R("SGPset_ColumnReinforcement", "MainRebar", true, SgAgency.BCA, GCon, "N.A", "IFC+SG: Column", "BCA Mapping Dec 2025"),
+        }));
+
+        // Control Element
+        Add(E("CX-009", "Control Element", "IFCUNITARYCONTROLELEMENT", "NOTDEFINED", "M", SgAgency.SCDF, new[]
+        {
+            R("SGPset_UnitaryControlElement", "PWCS_Flushing", true, SgAgency.NEA, GCon, "TRUE/FALSE", "IFC+SG: Control Element", "BCA Mapping Dec 2025"),
+            R("SGPset_UnitaryControlElement", "Purpose", true, SgAgency.SCDF, GCon, "N.A", "IFC+SG: Control Element", "BCA Mapping Dec 2025"),
+        }));
+
+        // Culvert/ Drains
+        Add(E("CX-010", "Culvert/ Drains", "IFCCIVILELEMENT", "NOTDEFINED", "C", SgAgency.BCA, new[]
+        {
+            R("Please refer to property sets below", "Please refer to properties below", true, SgAgency.BCA, GCon, "N.A", "IFC+SG: Culvert/ Drains", "BCA Mapping Dec 2025"),
+            R("SGPset_CivilElementDimension", "Diameter", true, SgAgency.PUB, GCon, "N.A", "IFC+SG: Culvert/ Drains", "BCA Mapping Dec 2025"),
+            R("SGPset_CivilElementDimension", "Gradient", true, SgAgency.PUB, GCon, "N.A", "IFC+SG: Culvert/ Drains", "BCA Mapping Dec 2025"),
+            R("SGPset_CivilElementDimension", "Height", true, SgAgency.PUB, GCon, "N.A", "IFC+SG: Culvert/ Drains", "BCA Mapping Dec 2025"),
+            R("SGPset_CivilElementDimension", "Length", true, SgAgency.PUB, GCon, "N.A", "IFC+SG: Culvert/ Drains", "BCA Mapping Dec 2025"),
+            R("SGPset_CivilElement", "LoadBearing", true, SgAgency.LTA, GCon, "TRUE/FALSE", "IFC+SG: Culvert/ Drains", "BCA Mapping Dec 2025"),
+            R("SGPset_Material", "Material", true, SgAgency.PUB, GCon, "N.A", "IFC+SG: Culvert/ Drains", "BCA Mapping Dec 2025"),
+            R("SGPset_CivilElement", "SystemName", true, SgAgency.PUB, GCon, "N.A", "IFC+SG: Culvert/ Drains", "BCA Mapping Dec 2025"),
+            R("SGPset_CivilElement", "SystemType", true, SgAgency.PUB, GCon, "N.A", "IFC+SG: Culvert/ Drains", "BCA Mapping Dec 2025"),
+            R("SGPset_CivilElementDimension", "Thickness", true, SgAgency.PUB, GCon, "N.A", "IFC+SG: Culvert/ Drains", "BCA Mapping Dec 2025"),
+        }));
+
+        // Damper
+        Add(E("CX-012", "Damper", "IFCDAMPER", "NOTDEFINED", "M", SgAgency.SCDF, new[]
+        {
+            R("SGPset_Damper", "FireRating", true, SgAgency.SCDF, GCon, "0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4", "IFC+SG: Damper", "BCA Mapping Dec 2025"),
+        }));
+
+        // Distribution Chamber
+        Add(E("CX-013", "Distribution Chamber", "IFCDISTRIBUTIONCHAMBERELEMENT", "NOTDEFINED", "P", SgAgency.BCA, new[]
+        {
+            R("Please refer to property sets below", "Please refer to properties below", true, SgAgency.PUB, GCon, "N.A", "IFC+SG: Distribution Chamber", "BCA Mapping Dec 2025"),
+            R("SGPset_DistributionChamberElementDimension", "Depth", true, SgAgency.PUB, GCon, "N.A", "IFC+SG: Distribution Chamber", "BCA Mapping Dec 2025"),
+            R("SGPset_DistributionChamberElementDimension", "Diameter", true, SgAgency.PUB, GCon, "N.A", "IFC+SG: Distribution Chamber", "BCA Mapping Dec 2025"),
+            R("SGPset_DistributionChamberElementDimension", "Height", true, SgAgency.PUB, GCon, "N.A", "IFC+SG: Distribution Chamber", "BCA Mapping Dec 2025"),
+            R("SGPset_DistributionChamberElement", "ID", true, SgAgency.PUB, GCon, "N.A", "IFC+SG: Distribution Chamber", "BCA Mapping Dec 2025"),
+            R("SGPset_DistributionChamberElementDimension", "InvertLevel", true, SgAgency.PUB, GCon, "N.A", "IFC+SG: Distribution Chamber", "BCA Mapping Dec 2025"),
+            R("SGPset_DistributionChamberElementDimension", "Length", true, SgAgency.PUB, GCon, "N.A", "IFC+SG: Distribution Chamber", "BCA Mapping Dec 2025"),
+            R("SGPset_Material", "Material", true, SgAgency.PUB, GCon, "N.A", "IFC+SG: Distribution Chamber", "BCA Mapping Dec 2025"),
+            R("SGPset_DistributionChamberElement", "Status", true, SgAgency.PUB, GCon, "Existing, Proposed, To Be Removed, Abandoned, New,", "IFC+SG: Distribution Chamber", "BCA Mapping Dec 2025"),
+            R("SGPset_DistributionChamberElement", "SystemName", true, SgAgency.PUB, GCon, "N.A", "IFC+SG: Distribution Chamber", "BCA Mapping Dec 2025"),
+        }));
+
+        // Door
+        Add(E("CX-014", "Door", "IFCDOOR", "NOTDEFINED", "A", SgAgency.BCA, new[]
+        {
+            R("Please refer to property sets below", "Please refer to properties below", true, SgAgency.SCDF, GCon, "N.A", "IFC+SG: Door", "BCA Mapping Dec 2025"),
+            R("SGPset_DoorDimension", "ClearHeight", true, SgAgency.SCDF, GCon, "N.A", "IFC+SG: Door", "BCA Mapping Dec 2025"),
+            R("SGPset_DoorDimension", "ClearWidth", true, SgAgency.SCDF, GCon, "N.A", "IFC+SG: Door", "BCA Mapping Dec 2025"),
+            R("SGPset_Door", "FireAccessOpening", true, SgAgency.SCDF, GCon, "TRUE/FALSE", "IFC+SG: Door", "BCA Mapping Dec 2025"),
+            R("Pset_DoorCommon", "FireExit", true, SgAgency.SCDF, GCon, "TRUE/FALSE", "IFC+SG: Door", "BCA Mapping Dec 2025"),
+            R("Pset_DoorCommon", "FireRating", true, SgAgency.SCDF, GCon, "0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4", "IFC+SG: Door", "BCA Mapping Dec 2025"),
+            R("SGPset_Door", "MainEntrance", true, SgAgency.NEA, GCon, "TRUE/FALSE", "IFC+SG: Door", "BCA Mapping Dec 2025"),
+            R("SGPset_Material", "Material", true, SgAgency.SCDF, GCon, "N.A", "IFC+SG: Door", "BCA Mapping Dec 2025"),
+            R("SGPset_Door", "OneWayLockingDevice", true, SgAgency.SCDF, GCon, "TRUE/FALSE", "IFC+SG: Door", "BCA Mapping Dec 2025"),
+            R("SGPset_Door", "OperationType", true, SgAgency.SCDF, GCon, "N.A", "IFC+SG: Door", "BCA Mapping Dec 2025"),
+        }));
+
+        // Earthworks
+        Add(E("CX-015", "Earthworks", "IFCGEOGRAPHICELEMENT", "NOTDEFINED", "L", SgAgency.URA, new[]
+        {
+            R("SGPset_GeographicElementDimension", "Area", true, SgAgency.URA, GCon, "N.A", "IFC+SG: Earthworks", "BCA Mapping Dec 2025"),
+            R("SGPset_GeographicElement", "Status", true, SgAgency.URA, GCon, "Existing, Proposed", "IFC+SG: Earthworks", "BCA Mapping Dec 2025"),
+        }));
+
+        // Finishes
+        Add(E("CX-019", "Finishes", "IFCCOVERING", "NOTDEFINED", "A", SgAgency.BCA, new[]
+        {
+            R("Please refer to property sets below", "Please refer to properties below", true, SgAgency.SCDF, GCon, "N.A", "IFC+SG: Finishes", "BCA Mapping Dec 2025"),
+            R("Pset_CoveringCommon", "FireRating", true, SgAgency.SCDF, GCon, "0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4", "IFC+SG: Finishes", "BCA Mapping Dec 2025"),
+            R("SGPset_Material", "Material", true, SgAgency.SCDF, GCon, "N.A", "IFC+SG: Finishes", "BCA Mapping Dec 2025"),
+        }));
+
+        // Fire Access Opening
+        Add(E("CX-020", "Fire Access Opening", "IFCDOOR", "NOTDEFINED", "A", SgAgency.SCDF, new[]
+        {
+            R("SGPset_Door", "FireAccessOpening", true, SgAgency.SCDF, GCon, "TRUE/FALSE", "IFC+SG: Fire Access Opening", "BCA Mapping Dec 2025"),
+            R("SGPset_OpeningElement", "FireAccessOpening", true, SgAgency.SCDF, GCon, "TRUE/FALSE", "IFC+SG: Fire Access Opening", "BCA Mapping Dec 2025"),
+            R("SGPset_Window", "FireAccessOpening", true, SgAgency.SCDF, GCon, "TRUE/FALSE", "IFC+SG: Fire Access Opening", "BCA Mapping Dec 2025"),
+        }));
+
+        // Fire Extinguisher
+        Add(E("CX-022", "Fire Extinguisher", "IFCBUILDINGELEMENTPROXY", "NOTDEFINED", "A", SgAgency.SCDF, new[]
+        {
+            R("SGPset_BuildingElementProxy", "FireExtinguisherRating", true, SgAgency.SCDF, GCon, "N.A", "IFC+SG: Fire Extinguisher", "BCA Mapping Dec 2025"),
+        }));
+
+        // Fire Hydrant
+        Add(E("CX-023", "Fire Hydrant", "IFCFIRESUPPRESSIONTERMINAL", "NOTDEFINED", "F", SgAgency.SCDF, new[]
+        {
+            R("SGPset_FireSuppressionTerminal", "ID", true, SgAgency.SCDF, GCon, "N.A", "IFC+SG: Fire Hydrant", "BCA Mapping Dec 2025"),
+            R("SGPset_FireSuppressionTerminal", "Private", true, SgAgency.SCDF, GCon, "TRUE/FALSE", "IFC+SG: Fire Hydrant", "BCA Mapping Dec 2025"),
+            R("SGPset_FireSuppressionTerminal", "Public", true, SgAgency.SCDF, GCon, "TRUE/FALSE", "IFC+SG: Fire Hydrant", "BCA Mapping Dec 2025"),
+        }));
+
+        // Foam Inlet / Outlet
+        Add(E("CX-024", "Foam Inlet / Outlet", "IFCFIRESUPPRESSIONTERMINAL", "NOTDEFINED", "F", SgAgency.SCDF, new[]
+        {
+            R("Please refer to property sets below", "Please refer to properties below", true, SgAgency.SCDF, GCon, "N.A", "IFC+SG: Foam Inlet / Outlet", "BCA Mapping Dec 2025"),
+            R("SGPset_FireSuppressionTerminal", "SystemName", true, SgAgency.SCDF, GCon, "N.A", "IFC+SG: Foam Inlet / Outlet", "BCA Mapping Dec 2025"),
+            R("SGPset_FireSuppressionTerminal", "SystemType", true, SgAgency.SCDF, GCon, "N.A", "IFC+SG: Foam Inlet / Outlet", "BCA Mapping Dec 2025"),
+        }));
+
+        // Footing
+        Add(E("CX-025", "Footing", "IFCFOOTING", "NOTDEFINED", "S", SgAgency.BCA, new[]
+        {
+            R("SGPset_FootingReinforcement", "BottomDistribution", true, SgAgency.BCA, GCon, "N.A", "IFC+SG: Footing", "BCA Mapping Dec 2025"),
+            R("SGPset_FootingReinforcement", "BottomMain", true, SgAgency.BCA, GCon, "N.A", "IFC+SG: Footing", "BCA Mapping Dec 2025"),
+            R("SGPset_FootingDimension", "Breadth", true, SgAgency.BCA, GCon, "N.A", "IFC+SG: Footing", "BCA Mapping Dec 2025"),
+            R("SGPset_Footing", "DA1-1_BearingCapacity", true, SgAgency.BCA, GCon, "N.A", "IFC+SG: Footing", "BCA Mapping Dec 2025"),
+            R("SGPset_Footing", "DA1-2_BearingCapacity", true, SgAgency.BCA, GCon, "N.A", "IFC+SG: Footing", "BCA Mapping Dec 2025"),
+            R("SGPset_FootingDimension", "Depth", true, SgAgency.BCA, GCon, "N.A", "IFC+SG: Footing", "BCA Mapping Dec 2025"),
+            R("SGPset_FootingDimension", "Mark", true, SgAgency.BCA, GCon, "N.A", "IFC+SG: Footing", "BCA Mapping Dec 2025"),
+            R("SGPset_Material", "MaterialGrade", true, SgAgency.BCA, GCon, "C12/15, C20/25, C30/37, C32/40, C35/45, C40/50, C5", "IFC+SG: Footing", "BCA Mapping Dec 2025"),
+            R("SGPset_Footing", "ReferTo2DDetail", true, SgAgency.BCA, GCon, "N.A", "IFC+SG: Footing", "BCA Mapping Dec 2025"),
+            R("SGPset_Footing", "ReinforcementSteelGrade", true, SgAgency.BCA, GCon, "500A, 500B, 500C, 600A, 600B, 600C", "IFC+SG: Footing", "BCA Mapping Dec 2025"),
+        }));
+
+        // Footpath
+        Add(E("CX-026", "Footpath", "IFCCIVILELEMENT", "NOTDEFINED", "C", SgAgency.BCA, new[]
+        {
+            R("SGPset_Material", "Material", true, SgAgency.BCA, GCon, "N.A", "IFC+SG: Footpath", "BCA Mapping Dec 2025"),
+            R("SGPset_CivilElementDimension", "Width", true, SgAgency.BCA, GCon, "N.A", "IFC+SG: Footpath", "BCA Mapping Dec 2025"),
+        }));
+
+        // Grating
+        Add(E("CX-027", "Grating", "IFCDISCRETEACCESSORY", "NOTDEFINED", "A", SgAgency.PUB, new[]
+        {
+            R("SGPset_DiscreteAccessory", "SystemName", true, SgAgency.PUB, GCon, "N.A", "IFC+SG: Grating", "BCA Mapping Dec 2025"),
+            R("SGPset_DiscreteAccessory", "SystemType", true, SgAgency.PUB, GCon, "N.A", "IFC+SG: Grating", "BCA Mapping Dec 2025"),
+        }));
+
+        // Green Verge
+        Add(E("CX-028", "Green Verge", "IFCGEOGRAPHICELEMENT", "NOTDEFINED", "L", SgAgency.NParks, new[]
+        {
+            R("SGPset_GeographicElement", "ApprovedSoilMixture", true, SgAgency.NParks, GCon, "TRUE/FALSE", "IFC+SG: Green Verge", "BCA Mapping Dec 2025"),
+            R("SGPset_GeographicElement", "ApprovedTurfSpecies", true, SgAgency.NParks, GCon, "TRUE/FALSE", "IFC+SG: Green Verge", "BCA Mapping Dec 2025"),
+            R("SGPset_GeographicElementDimension", "Area", true, SgAgency.NParks, GCon, "N.A", "IFC+SG: Green Verge", "BCA Mapping Dec 2025"),
+            R("SGPset_GeographicElement", "ShrubSpecies", true, SgAgency.NParks, GCon, "N.A", "IFC+SG: Green Verge", "BCA Mapping Dec 2025"),
+            R("SGPset_GeographicElement", "Status", true, SgAgency.NParks, GCon, "Existing, Proposed, To be Removed", "IFC+SG: Green Verge", "BCA Mapping Dec 2025"),
+            R("SGPset_SpaceArea_Landscape", "ALS_GreeneryFeatures", true, SgAgency.NParks, GCon, "Green Verge", "IFC+SG: Green Verge", "BCA Mapping Dec 2025"),
+            R("SGPset_SpaceArea_Landscape", "ALS_LandscapeType", true, SgAgency.NParks, GCon, "Turfing, Groundcover, Shrubs", "IFC+SG: Green Verge", "BCA Mapping Dec 2025"),
+            R("SGPset_SpaceArea_Landscape", "ALS_Status", true, SgAgency.NParks, GCon, "Existing, Proposed, To be Removed", "IFC+SG: Green Verge", "BCA Mapping Dec 2025"),
+        }));
+
+        // Gutter
+        Add(E("CX-029", "Gutter", "IFCPIPESEGMENT", "NOTDEFINED", "M", SgAgency.PUB, new[]
+        {
+            R("SGPset_PipeSegment", "SystemName", true, SgAgency.NEA, GCon, "N.A", "IFC+SG: Gutter", "BCA Mapping Dec 2025"),
+            R("SGPset_PipeSegment", "SystemType", true, SgAgency.NEA, GCon, "N.A", "IFC+SG: Gutter", "BCA Mapping Dec 2025"),
+            R("SGPset_CivilElement", "ConstructionMethod", true, SgAgency.PUB, GCon, "N.A", "IFC+SG: Gutter", "BCA Mapping Dec 2025"),
+            R("SGPset_CivilElementDimension", "Height", true, SgAgency.PUB, GCon, "N.A", "IFC+SG: Gutter", "BCA Mapping Dec 2025"),
+            R("SGPset_CivilElementDimension", "Length", true, SgAgency.PUB, GCon, "N.A", "IFC+SG: Gutter", "BCA Mapping Dec 2025"),
+            R("SGPset_CivilElement", "Public", true, SgAgency.PUB, GCon, "TRUE/FALSE", "IFC+SG: Gutter", "BCA Mapping Dec 2025"),
+            R("SGPset_CivilElementDimension", "Thickness", true, SgAgency.PUB, GCon, "N.A", "IFC+SG: Gutter", "BCA Mapping Dec 2025"),
+            R("SGPset_CivilElementDimension", "Width", true, SgAgency.PUB, GCon, "N.A", "IFC+SG: Gutter", "BCA Mapping Dec 2025"),
+            R("SGPset_CivilElementDimension", "SystemName", true, SgAgency.PUB, GCon, "N.A", "IFC+SG: Gutter", "BCA Mapping Dec 2025"),
+            R("SGPset_CivilElementDimension", "SystemType", true, SgAgency.PUB, GCon, "N.A", "IFC+SG: Gutter", "BCA Mapping Dec 2025"),
+        }));
+
+        // Hose Reel
+        Add(E("CX-030", "Hose Reel", "IFCFIRESUPPRESSIONTERMINAL", "NOTDEFINED", "F", SgAgency.SCDF, new[]
+        {
+            R("Please refer to property sets below", "Please refer to properties below", true, SgAgency.SCDF, GCon, "N.A", "IFC+SG: Hose Reel", "BCA Mapping Dec 2025"),
+            R("SGPset_FireSuppressionTerminal", "Hose_NominalDiameter", true, SgAgency.SCDF, GCon, "N.A", "IFC+SG: Hose Reel", "BCA Mapping Dec 2025"),
+        }));
+
+        // Household Shelter
+        Add(E("CX-031", "Household Shelter", "IFCSPACE", "NOTDEFINED", "A", SgAgency.BCA, new[]
+        {
+            R("SGPset_Space", "SpaceName", true, SgAgency.BCA, GCon, "Household Shelter, Setback", "IFC+SG: Household Shelter", "BCA Mapping Dec 2025"),
+            R("SGPset_Space", "ConstructionMethod", true, SgAgency.BCA, GCon, "Precast, Prefab, CIS", "IFC+SG: Household Shelter", "BCA Mapping Dec 2025"),
+            R("SGPset_SpaceDimension", "Area", true, SgAgency.BCA, GCon, "N.A", "IFC+SG: Household Shelter", "BCA Mapping Dec 2025"),
+            R("SGPset_SpaceDimension", "InternalLength", true, SgAgency.BCA, GCon, "N.A", "IFC+SG: Household Shelter", "BCA Mapping Dec 2025"),
+            R("SGPset_SpaceDimension", "InternalWidth", true, SgAgency.BCA, GCon, "N.A", "IFC+SG: Household Shelter", "BCA Mapping Dec 2025"),
+            R("SGPset_SpaceArea_GFA", "AGF_Name", true, SgAgency.BCA, GCon, "Household Shelter", "IFC+SG: Household Shelter", "BCA Mapping Dec 2025"),
+            R("SGPset_Wall", "ConstructionMethod", true, SgAgency.BCA, GCon, "CIS, PC, PT (Pre), PT (Post), PF, PPVC, Spun", "IFC+SG: Household Shelter", "BCA Mapping Dec 2025"),
+            R("SGPset_WallDimension", "Thickness", true, SgAgency.BCA, GCon, "N.A", "IFC+SG: Household Shelter", "BCA Mapping Dec 2025"),
+            R("SGPset_Wall", "ShelterUsage", true, SgAgency.BCA, GCon, "TRUE/FALSE", "IFC+SG: Household Shelter", "BCA Mapping Dec 2025"),
+        }));
+
+        // Interceptor
+        Add(E("CX-032", "Interceptor", "IFCINTERCEPTOR", "NOTDEFINED", "P", SgAgency.PUB, new[]
+        {
+            R("Please refer to property sets below", "Please refer to properties below", true, SgAgency.PUB, GCon, "N.A", "IFC+SG: Interceptor", "BCA Mapping Dec 2025"),
+            R("SGPset_Interceptor", "ComplyToPUBStandardDrawing", true, SgAgency.PUB, GCon, "TRUE/FALSE", "IFC+SG: Interceptor", "BCA Mapping Dec 2025"),
+            R("SGPset_Interceptor", "ReferToDrawingNumber", true, SgAgency.PUB, GCon, "N.A", "IFC+SG: Interceptor", "BCA Mapping Dec 2025"),
+            R("SGPset_InterceptorDimension", "InvertLevel", true, SgAgency.PUB, GCon, "N.A", "IFC+SG: Interceptor", "BCA Mapping Dec 2025"),
+            R("SGPset_InterceptorDimension", "TopLevel", true, SgAgency.PUB, GCon, "N.A", "IFC+SG: Interceptor", "BCA Mapping Dec 2025"),
+            R("SGPset_InterceptorDimension", "Diameter", true, SgAgency.PUB, GCon, "N.A", "IFC+SG: Interceptor", "BCA Mapping Dec 2025"),
+            R("SGPset_InterceptorDimension", "Height", true, SgAgency.PUB, GCon, "N.A", "IFC+SG: Interceptor", "BCA Mapping Dec 2025"),
+            R("SGPset_InterceptorDimension", "Length", true, SgAgency.PUB, GCon, "N.A", "IFC+SG: Interceptor", "BCA Mapping Dec 2025"),
+            R("SGPset_InterceptorDimension", "Width", true, SgAgency.PUB, GCon, "N.A", "IFC+SG: Interceptor", "BCA Mapping Dec 2025"),
+            R("SGPset_InterceptorDimension", "TradeEffluent", true, SgAgency.PUB, GCon, "TRUE/FALSE", "IFC+SG: Interceptor", "BCA Mapping Dec 2025"),
+        }));
+
+        // Landscape Plants
+        Add(E("CX-034", "Landscape Plants", "IFCGEOGRAPHICELEMENT", "NOTDEFINED", "L", SgAgency.NParks, new[]
+        {
+            R("Please refer to property sets below", "Please refer to properties below", true, SgAgency.NParks, GCon, "N.A", "IFC+SG: Landscape Plants", "BCA Mapping Dec 2025"),
+            R("SGPset_GeographicElementDimension", "Girth", true, SgAgency.NParks, GCon, "N.A", "IFC+SG: Landscape Plants", "BCA Mapping Dec 2025"),
+            R("SGPset_GeographicElement", "HedgeNumber", true, SgAgency.NParks, GCon, "N.A", "IFC+SG: Landscape Plants", "BCA Mapping Dec 2025"),
+            R("SGPset_GeographicElementDimension", "Height", true, SgAgency.NParks, GCon, "N.A", "IFC+SG: Landscape Plants", "BCA Mapping Dec 2025"),
+            R("SGPset_GeographicElement", "ReasonForRemoval", true, SgAgency.NParks, GCon, "N.A", "IFC+SG: Landscape Plants", "BCA Mapping Dec 2025"),
+            R("SGPset_GeographicElement", "Roadside", true, SgAgency.NParks, GCon, "TRUE/FALSE", "IFC+SG: Landscape Plants", "BCA Mapping Dec 2025"),
+            R("SGPset_GeographicElement", "SingleStem", true, SgAgency.NParks, GCon, "TRUE/FALSE", "IFC+SG: Landscape Plants", "BCA Mapping Dec 2025"),
+            R("SGPset_GeographicElement", "Species", true, SgAgency.NParks, GCon, "N.A", "IFC+SG: Landscape Plants", "BCA Mapping Dec 2025"),
+            R("SGPset_GeographicElement", "Status", true, SgAgency.NParks, GCon, "Existing, Proposed, To be Removed, To be Transplan", "IFC+SG: Landscape Plants", "BCA Mapping Dec 2025"),
+            R("SGPset_GeographicElement", "TreeNumber", true, SgAgency.NParks, GCon, "N.A", "IFC+SG: Landscape Plants", "BCA Mapping Dec 2025"),
+        }));
+
+        // Lift
+        Add(E("CX-035", "Lift", "IFCTRANSPORTELEMENT", "NOTDEFINED", "A", SgAgency.BCA, new[]
+        {
+            R("Please refer to property sets below", "Please refer to properties below", true, SgAgency.BCA, GCon, "N.A", "IFC+SG: Lift", "BCA Mapping Dec 2025"),
+            R("SGPset_TransportElement", "BarrierFreeAccessibility", true, SgAgency.BCA, GCon, "TRUE/FALSE", "IFC+SG: Lift", "BCA Mapping Dec 2025"),
+            R("SGPset_TransportElementDimension", "Length", true, SgAgency.BCA, GCon, "N.A", "IFC+SG: Lift", "BCA Mapping Dec 2025"),
+            R("SGPset_TransportElementDimension", "Width", true, SgAgency.BCA, GCon, "N.A", "IFC+SG: Lift", "BCA Mapping Dec 2025"),
+            R("SGPset_TransportElementDimension", "ClearDepth", true, SgAgency.SCDF, GCon, "N.A", "IFC+SG: Lift", "BCA Mapping Dec 2025"),
+            R("SGPset_TransportElementDimension", "ClearHeight", true, SgAgency.SCDF, GCon, "N.A", "IFC+SG: Lift", "BCA Mapping Dec 2025"),
+            R("SGPset_TransportElementDimension", "ClearWidth", true, SgAgency.SCDF, GCon, "N.A", "IFC+SG: Lift", "BCA Mapping Dec 2025"),
+            R("SGPset_TransportElement", "FireFightingLift", true, SgAgency.SCDF, GCon, "TRUE/FALSE", "IFC+SG: Lift", "BCA Mapping Dec 2025"),
+            R("SGPset_TransportElement", "LiftType", true, SgAgency.SCDF, GCon, "N.A", "IFC+SG: Lift", "BCA Mapping Dec 2025"),
+        }));
+
+        // Parking Lot
+        Add(E("CX-036", "Parking Lot", "IFCBUILDINGELEMENTPROXY", "NOTDEFINED", "A", SgAgency.BCA, new[]
+        {
+            R("Please refer to property sets below", "Please refer to properties below", true, SgAgency.LTA, GCon, "N.A", "IFC+SG: Parking Lot", "BCA Mapping Dec 2025"),
+            R("SGPset_BuildingElementProxy", "BarrierFreeAccessibility", true, SgAgency.BCA, GCon, "TRUE/FALSE", "IFC+SG: Parking Lot", "BCA Mapping Dec 2025"),
+            R("SGPset_BuildingElementProxy", "FamilyLot", true, SgAgency.BCA, GCon, "TRUE/FALSE", "IFC+SG: Parking Lot", "BCA Mapping Dec 2025"),
+            R("SGPset_BuildingElementProxyDimension", "Length", true, SgAgency.LTA, GCon, "N.A", "IFC+SG: Parking Lot", "BCA Mapping Dec 2025"),
+            R("SGPset_BuildingElementProxyDimension", "Width", true, SgAgency.LTA, GCon, "N.A", "IFC+SG: Parking Lot", "BCA Mapping Dec 2025"),
+            R("SGPset_BuildingElementProxy", "LotNumber", true, SgAgency.LTA, GCon, "N.A", "IFC+SG: Parking Lot", "BCA Mapping Dec 2025"),
+            R("SGPset_BuildingElementProxy", "CarParking_ServedByCarLift", true, SgAgency.LTA, GCon, "TRUE/FALSE", "IFC+SG: Parking Lot", "BCA Mapping Dec 2025"),
+            R("SGPset_BuildingElementProxy", "MechanisedParkingSystem", true, SgAgency.LTA, GCon, "TRUE/FALSE", "IFC+SG: Parking Lot", "BCA Mapping Dec 2025"),
+            R("SGPset_BuildingElementProxy", "Perforated", true, SgAgency.NParks, GCon, "TRUE/FALSE", "IFC+SG: Parking Lot", "BCA Mapping Dec 2025"),
+            R("SGPset_BuildingElementProxy", "OpenAtGrade", true, SgAgency.NParks, GCon, "TRUE/FALSE", "IFC+SG: Parking Lot", "BCA Mapping Dec 2025"),
+        }));
+
+        // Parking Lot (relevant elements)
+        Add(E("CX-037", "Parking Lot (relevant elements)", "IFCSPACE", "NOTDEFINED", "A", SgAgency.BCA, new[]
+        {
+            R("SGPset_Space", "SpaceName", true, SgAgency.LTA, GCon, "Parking place", "IFC+SG: Parking Lot (relevant elements)", "BCA Mapping Dec 2025"),
+            R("SGPset_Space", "VentilationMode", true, SgAgency.BCA, GCon, "Natural Ventilation, Air Conditioning, Mechanical ", "IFC+SG: Parking Lot (relevant elements)", "BCA Mapping Dec 2025"),
+            R("SGPset_SpaceDimension", "Area", true, SgAgency.BCA, GCon, "N.A", "IFC+SG: Parking Lot (relevant elements)", "BCA Mapping Dec 2025"),
+            R("SGPset_SpaceArea_GFA", "AGF_Name", true, SgAgency.URA, GCon, "Car Parking Lot (Mechanised)", "IFC+SG: Parking Lot (relevant elements)", "BCA Mapping Dec 2025"),
+            R("SGPset_BuildingElementProxyDimension", "Length", true, SgAgency.LTA, GCon, "N.A", "IFC+SG: Parking Lot (relevant elements)", "BCA Mapping Dec 2025"),
+            R("SGPset_BuildingElementProxyDimension", "Width", true, SgAgency.LTA, GCon, "N.A", "IFC+SG: Parking Lot (relevant elements)", "BCA Mapping Dec 2025"),
+        }));
+
+        // Pile
+        Add(E("CX-038", "Pile", "IFCPILE", "NOTDEFINED", "S", SgAgency.BCA, new[]
+        {
+            R("SGPset_Pile", "BoreholeRef", true, SgAgency.BCA, GCon, "N.A", "IFC+SG: Pile", "BCA Mapping Dec 2025"),
+            R("SGPset_PileDimension", "Breadth", true, SgAgency.BCA, GCon, "N.A", "IFC+SG: Pile", "BCA Mapping Dec 2025"),
+            R("SGPset_Pile", "ConstructionMethod", true, SgAgency.BCA, GCon, "CIS, PC, PT (Pre), PT (Post), PF, PPVC, Spun", "IFC+SG: Pile", "BCA Mapping Dec 2025"),
+            R("SGPset_PileDimension", "CutOffLevel_SHD", true, SgAgency.BCA, GCon, "N.A", "IFC+SG: Pile", "BCA Mapping Dec 2025"),
+            R("SGPset_Pile", "DA1-1_CompressionCapacity", true, SgAgency.BCA, GCon, "N.A", "IFC+SG: Pile", "BCA Mapping Dec 2025"),
+            R("SGPset_PileStructuralLoad", "DA1-1_CompressionDesignLoad", true, SgAgency.BCA, GCon, "N.A", "IFC+SG: Pile", "BCA Mapping Dec 2025"),
+            R("SGPset_Pile", "DA1-1_TensionCapacity", true, SgAgency.BCA, GCon, "N.A", "IFC+SG: Pile", "BCA Mapping Dec 2025"),
+            R("SGPset_PileStructuralLoad", "DA1-1_TensionDesignLoad", true, SgAgency.BCA, GCon, "N.A", "IFC+SG: Pile", "BCA Mapping Dec 2025"),
+            R("SGPset_Pile", "DA1-2_CompressionCapacity", true, SgAgency.BCA, GCon, "N.A", "IFC+SG: Pile", "BCA Mapping Dec 2025"),
+            R("SGPset_PileStructuralLoad", "DA1-2_CompressionDesignLoad", true, SgAgency.BCA, GCon, "N.A", "IFC+SG: Pile", "BCA Mapping Dec 2025"),
+        }));
+
+        // Pipes/ Ducts
+        Add(E("CX-039", "Pipes/ Ducts", "IFCPIPESEGMENT", "NOTDEFINED", "M", SgAgency.BCA, new[]
+        {
+            R("Please refer to property sets below", "Please refer to properties below", true, SgAgency.PUB, GCon, "N.A", "IFC+SG: Pipes/ Ducts", "BCA Mapping Dec 2025"),
+            R("SGPset_PipeSegment", "PreInsulated", true, SgAgency.BCA, GCon, "TRUE/FALSE", "IFC+SG: Pipes/ Ducts", "BCA Mapping Dec 2025"),
+            R("SGPset_PipeSegment", "Perforated", true, SgAgency.NParks, GCon, "TRUE/FALSE", "IFC+SG: Pipes/ Ducts", "BCA Mapping Dec 2025"),
+            R("SGPset_PipeSegment", "ConstructionMethod", true, SgAgency.BCA, GCon, "N.A", "IFC+SG: Pipes/ Ducts", "BCA Mapping Dec 2025"),
+            R("SGPset_Material", "Material", true, SgAgency.PUB, GCon, "N.A", "IFC+SG: Pipes/ Ducts", "BCA Mapping Dec 2025"),
+            R("SGPset_PipeSegment", "Gradient", true, SgAgency.PUB, GCon, "N.A", "IFC+SG: Pipes/ Ducts", "BCA Mapping Dec 2025"),
+            R("SGPset_PipeSegmentDimension", "InnerDiameter", true, SgAgency.PUB, GCon, "N.A", "IFC+SG: Pipes/ Ducts", "BCA Mapping Dec 2025"),
+            R("SGPset_PipeSegmentDimension", "Length", true, SgAgency.PUB, GCon, "N.A", "IFC+SG: Pipes/ Ducts", "BCA Mapping Dec 2025"),
+            R("SGPset_PipeSegmentDimension", "Thickness", true, SgAgency.PUB, GCon, "N.A", "IFC+SG: Pipes/ Ducts", "BCA Mapping Dec 2025"),
+            R("SGPset_PipeSegment", "TradeEffluent", true, SgAgency.NEA, GCon, "TRUE/FALSE", "IFC+SG: Pipes/ Ducts", "BCA Mapping Dec 2025"),
+        }));
+
+        // Planting Areas
+        Add(E("CX-041", "Planting Areas", "IFCGEOGRAPHICELEMENT", "NOTDEFINED", "L", SgAgency.NParks, new[]
+        {
+            R("SGPset_GeographicElementDimension", "Area", true, SgAgency.NParks, GCon, "N.A", "IFC+SG: Planting Areas", "BCA Mapping Dec 2025"),
+            R("SGPset_GeographicElement", "ApprovedSoilMixture", true, SgAgency.NParks, GCon, "TRUE/FALSE", "IFC+SG: Planting Areas", "BCA Mapping Dec 2025"),
+            R("SGPset_GeographicElement", "Status", true, SgAgency.NParks, GCon, "Existing, Proposed, New, To be Removed", "IFC+SG: Planting Areas", "BCA Mapping Dec 2025"),
+            R("SGPset_GeographicElement", "Turf", true, SgAgency.NParks, GCon, "TRUE/FALSE", "IFC+SG: Planting Areas", "BCA Mapping Dec 2025"),
+            R("SGPset_GeographicElement", "TurfSpecies", true, SgAgency.NParks, GCon, "N.A", "IFC+SG: Planting Areas", "BCA Mapping Dec 2025"),
+            R("SGPset_GeographicElement", "Compensated", true, SgAgency.NParks, GCon, "TRUE/FALSE", "IFC+SG: Planting Areas", "BCA Mapping Dec 2025"),
+            R("SGPset_GeographicElement", "Encroachment", true, SgAgency.NParks, GCon, "TRUE/FALSE", "IFC+SG: Planting Areas", "BCA Mapping Dec 2025"),
+            R("SGPset_GeographicElement", "CarparkProvision", true, SgAgency.NParks, GCon, "TRUE/FALSE", "IFC+SG: Planting Areas", "BCA Mapping Dec 2025"),
+        }));
+
+        // Pollution Control
+        Add(E("CX-042", "Pollution Control", "IFCUNITARYEQUIPMENT", "NOTDEFINED", "M", SgAgency.NEA, new[]
+        {
+            R("Please refer to property sets below", "Please refer to properties below", true, SgAgency.NEA, GCon, "N.A", "IFC+SG: Pollution Control", "BCA Mapping Dec 2025"),
+            R("SGPset_UnitaryEquipment", "AI_AmmoniaAndAmmonium", true, SgAgency.NEA, GCon, "N.A", "IFC+SG: Pollution Control", "BCA Mapping Dec 2025"),
+            R("SGPset_UnitaryEquipment", "AI_Antimony", true, SgAgency.NEA, GCon, "N.A", "IFC+SG: Pollution Control", "BCA Mapping Dec 2025"),
+            R("SGPset_UnitaryEquipment", "AI_Arsenic", true, SgAgency.NEA, GCon, "N.A", "IFC+SG: Pollution Control", "BCA Mapping Dec 2025"),
+            R("SGPset_UnitaryEquipment", "AI_Benzene", true, SgAgency.NEA, GCon, "N.A", "IFC+SG: Pollution Control", "BCA Mapping Dec 2025"),
+            R("SGPset_UnitaryEquipment", "AI_Cadmium", true, SgAgency.NEA, GCon, "N.A", "IFC+SG: Pollution Control", "BCA Mapping Dec 2025"),
+            R("SGPset_UnitaryEquipment", "AI_CarbonMonoxide", true, SgAgency.NEA, GCon, "N.A", "IFC+SG: Pollution Control", "BCA Mapping Dec 2025"),
+            R("SGPset_UnitaryEquipment", "AI_Chlorine", true, SgAgency.NEA, GCon, "N.A", "IFC+SG: Pollution Control", "BCA Mapping Dec 2025"),
+            R("SGPset_UnitaryEquipment", "AI_Copper", true, SgAgency.NEA, GCon, "N.A", "IFC+SG: Pollution Control", "BCA Mapping Dec 2025"),
+            R("SGPset_UnitaryEquipment", "AI_DioxinsAndFurans", true, SgAgency.NEA, GCon, "N.A", "IFC+SG: Pollution Control", "BCA Mapping Dec 2025"),
+        }));
+
+        // Prefabricated Building Systems and MEP Components
+        Add(E("CX-043", "Prefabricated Building Systems and MEP Components", "IFCSPACE", "NOTDEFINED", "A", SgAgency.BCA, new[]
+        {
+            R("Please refer to property sets below", "Please refer to properties below", true, SgAgency.BCA, GCon, "N.A", "IFC+SG: Prefabricated Building Systems and MEP Components", "BCA Mapping Dec 2025"),
+            R("SGPset_Space", "SpaceName", true, SgAgency.BCA, GCon, "N.A", "IFC+SG: Prefabricated Building Systems and MEP Components", "BCA Mapping Dec 2025"),
+            R("SGPset_SpaceDimension", "InternalLength", true, SgAgency.BCA, GCon, "N.A", "IFC+SG: Prefabricated Building Systems and MEP Components", "BCA Mapping Dec 2025"),
+            R("SGPset_SpaceDimension", "InternalWidth", true, SgAgency.BCA, GCon, "N.A", "IFC+SG: Prefabricated Building Systems and MEP Components", "BCA Mapping Dec 2025"),
+            R("SGPset_Space", "ConstructionMethod", true, SgAgency.BCA, GCon, "Prefab, CIS, PC, PBU", "IFC+SG: Prefabricated Building Systems and MEP Components", "BCA Mapping Dec 2025"),
+            R("SGPset_Space", "Accreditation_MAS", true, SgAgency.BCA, GCon, "TRUE/FALSE", "IFC+SG: Prefabricated Building Systems and MEP Components", "BCA Mapping Dec 2025"),
+            R("SGPset_Space", "MechanicalConnectionType", true, SgAgency.BCA, GCon, "N.A", "IFC+SG: Prefabricated Building Systems and MEP Components", "BCA Mapping Dec 2025"),
+            R("SGPset_Slab", "ConstructionMethod", true, SgAgency.BCA, GCon, "CIS, PC, PT (Pre), PT (Post), PF, PPVC, Spun", "IFC+SG: Prefabricated Building Systems and MEP Components", "BCA Mapping Dec 2025"),
+            R("SGPset_SlabDimension", "Thickness", true, SgAgency.BCA, GCon, "N.A", "IFC+SG: Prefabricated Building Systems and MEP Components", "BCA Mapping Dec 2025"),
+            R("SGPset_Wall", "ConstructionMethod", true, SgAgency.BCA, GCon, "CIS, PC, PT (Pre), PT (Post), PF, PPVC, Spun", "IFC+SG: Prefabricated Building Systems and MEP Components", "BCA Mapping Dec 2025"),
+        }));
+
+        // Project Development Type
+        Add(E("CX-044", "Project Development Type", "IFCBUILDING", "NOTDEFINED", "A", SgAgency.BCA, new[]
+        {
+            R("SGPset_Building", "OwnerBuiltOwnerStay", true, SgAgency.BCA, GCon, "TRUE/FALSE", "IFC+SG: Project Development Type", "BCA Mapping Dec 2025"),
+            R("SGPset_Building", "ProjectDevelopmentType", true, SgAgency.BCA, GCon, "Residential (landed), Residential (non-landed), Mi", "IFC+SG: Project Development Type", "BCA Mapping Dec 2025"),
+        }));
+
+        // Pump
+        Add(E("CX-045", "Pump", "IFCPUMP", "NOTDEFINED", "M", SgAgency.PUB, new[]
+        {
+            R("SGPset_Pump", "Capacity", true, SgAgency.PUB, GCon, "N.A", "IFC+SG: Pump", "BCA Mapping Dec 2025"),
+            R("SGPset_Pump", "Duty", true, SgAgency.PUB, GCon, "TRUE/FALSE", "IFC+SG: Pump", "BCA Mapping Dec 2025"),
+            R("SGPset_Pump", "Standby", true, SgAgency.PUB, GCon, "TRUE/FALSE", "IFC+SG: Pump", "BCA Mapping Dec 2025"),
+            R("SGPset_Pump", "PumpHead", true, SgAgency.PUB, GCon, "N.A", "IFC+SG: Pump", "BCA Mapping Dec 2025"),
+            R("SGPset_Pump", "SystemName", true, SgAgency.PUB, GCon, "N.A", "IFC+SG: Pump", "BCA Mapping Dec 2025"),
+            R("SGPset_Pump", "SystemType", true, SgAgency.PUB, GCon, "N.A", "IFC+SG: Pump", "BCA Mapping Dec 2025"),
+        }));
+
+        // Railing
+        Add(E("CX-047", "Railing", "IFCRAILING", "NOTDEFINED", "A", SgAgency.BCA, new[]
+        {
+            R("Please refer to property sets below", "Please refer to properties below", true, SgAgency.BCA, GCon, "N.A", "IFC+SG: Railing", "BCA Mapping Dec 2025"),
+            R("SGPset_RailingDimension", "Height", true, SgAgency.BCA, GCon, "Any positive number", "IFC+SG: Railing", "BCA Mapping Dec 2025"),
+            R("SGPset_Material", "Material", true, SgAgency.BCA, GCon, "N.A", "IFC+SG: Railing", "BCA Mapping Dec 2025"),
+            R("SGPset_Railing", "SafetyBarrier", true, SgAgency.BCA, GCon, "TRUE/FALSE", "IFC+SG: Railing", "BCA Mapping Dec 2025"),
+            R("SGPset_Railing", "TypeOfBarrier", true, SgAgency.BCA, GCon, "N.A", "IFC+SG: Railing", "BCA Mapping Dec 2025"),
+            R("SGPset_Railing", "IsLaminated", true, SgAgency.BCA, GCon, "TRUE/FALSE", "IFC+SG: Railing", "BCA Mapping Dec 2025"),
+        }));
+
+        // Ramp
+        Add(E("CX-048", "Ramp", "IFCRAMP", "NOTDEFINED", "A", SgAgency.BCA, new[]
+        {
+            R("Please refer to property sets below", "Please refer to properties below", true, SgAgency.LTA, GCon, "N.A", "IFC+SG: Ramp", "BCA Mapping Dec 2025"),
+            R("SGPset_RampDimension", "Gradient", true, SgAgency.BCA, GCon, "N.A", "IFC+SG: Ramp", "BCA Mapping Dec 2025"),
+            R("SGPset_RampDimension", "Width", true, SgAgency.BCA, GCon, "N.A", "IFC+SG: Ramp", "BCA Mapping Dec 2025"),
+            R("SGPset_Ramp", "BarrierFreeAccessibility", true, SgAgency.BCA, GCon, "TRUE/FALSE", "IFC+SG: Ramp", "BCA Mapping Dec 2025"),
+            R("SGPset_Ramp", "TransitionRamp", true, SgAgency.LTA, GCon, "TRUE/FALSE", "IFC+SG: Ramp", "BCA Mapping Dec 2025"),
+            R("SGPset_Ramp", "Accessway", true, SgAgency.LTA, GCon, "TRUE/FALSE", "IFC+SG: Ramp", "BCA Mapping Dec 2025"),
+            R("SGPset_Ramp", "Egress", true, SgAgency.LTA, GCon, "TRUE/FALSE", "IFC+SG: Ramp", "BCA Mapping Dec 2025"),
+            R("SGPset_Ramp", "Ingress", true, SgAgency.LTA, GCon, "TRUE/FALSE", "IFC+SG: Ramp", "BCA Mapping Dec 2025"),
+            R("SGPset_Ramp", "Vehicular", true, SgAgency.LTA, GCon, "TRUE/FALSE", "IFC+SG: Ramp", "BCA Mapping Dec 2025"),
+            R("SGPset_Material", "Material", true, SgAgency.LTA, GCon, "N.A", "IFC+SG: Ramp", "BCA Mapping Dec 2025"),
+        }));
+
+        // Refuse Chute / Recyclables Chute
+        Add(E("CX-049", "Refuse Chute / Recyclables Chute", "IFCSPACE", "NOTDEFINED", "A", SgAgency.BCA, new[]
+        {
+            R("SGPset_Space", "SpaceName", true, SgAgency.BCA, GCon, "Refuse Chute, Recyclables Chute", "IFC+SG: Refuse Chute / Recyclables Chute", "BCA Mapping Dec 2025"),
+            R("SGPset_Space", "ConstructionMethod", true, SgAgency.BCA, GCon, "Precast, Prefab, CIS", "IFC+SG: Refuse Chute / Recyclables Chute", "BCA Mapping Dec 2025"),
+            R("SGPset_SpaceDimension", "InnerLength", true, SgAgency.BCA, GCon, "N.A", "IFC+SG: Refuse Chute / Recyclables Chute", "BCA Mapping Dec 2025"),
+            R("SGPset_SpaceDimension", "InnerWidth", true, SgAgency.BCA, GCon, "N.A", "IFC+SG: Refuse Chute / Recyclables Chute", "BCA Mapping Dec 2025"),
+            R("SGPset_SpaceDimension", "OuterLength", true, SgAgency.BCA, GCon, "N.A", "IFC+SG: Refuse Chute / Recyclables Chute", "BCA Mapping Dec 2025"),
+            R("SGPset_SpaceDimension", "OuterWidth", true, SgAgency.BCA, GCon, "N.A", "IFC+SG: Refuse Chute / Recyclables Chute", "BCA Mapping Dec 2025"),
+            R("SGPset_SpaceDimension", "ChamferRadius", true, SgAgency.BCA, GCon, "N.A", "IFC+SG: Refuse Chute / Recyclables Chute", "BCA Mapping Dec 2025"),
+            R("SGPset_Wall", "ConstructionMethod", true, SgAgency.NEA, GCon, "CIS, PC, PT (Pre), PT (Post), PF, PPVC, Spun", "IFC+SG: Refuse Chute / Recyclables Chute", "BCA Mapping Dec 2025"),
+            R("Please refer to property sets below", "Please refer to properties below", true, SgAgency.NEA, GCon, "N.A", "IFC+SG: Refuse Chute / Recyclables Chute", "BCA Mapping Dec 2025"),
+            R("SGPset_Door", "AirTight", true, SgAgency.NEA, GCon, "TRUE/FALSE", "IFC+SG: Refuse Chute / Recyclables Chute", "BCA Mapping Dec 2025"),
+        }));
+
+        // Refuse Handling Equipment
+        Add(E("CX-050", "Refuse Handling Equipment", "IFCTANK", "NOTDEFINED", "M", SgAgency.NEA, new[]
+        {
+            R("SGPset_Tank", "Litre", true, SgAgency.NEA, GCon, "N.A", "IFC+SG: Refuse Handling Equipment", "BCA Mapping Dec 2025"),
+        }));
+
+        // Road
+        Add(E("CX-051", "Road", "IFCCIVILELEMENT", "NOTDEFINED", "C", SgAgency.SCDF, new[]
+        {
+            R("SGPset_CivilElement", "DesignedVehicleMass", true, SgAgency.SCDF, GCon, "N.A", "IFC+SG: Road", "BCA Mapping Dec 2025"),
+            R("SGPset_CivilElement", "Ingress", true, SgAgency.LTA, GCon, "TRUE/FALSE", "IFC+SG: Road", "BCA Mapping Dec 2025"),
+            R("SGPset_CivilElement", "Egress", true, SgAgency.LTA, GCon, "TRUE/FALSE", "IFC+SG: Road", "BCA Mapping Dec 2025"),
+            R("SGPset_Material", "Material", true, SgAgency.LTA, GCon, "N.A", "IFC+SG: Road", "BCA Mapping Dec 2025"),
+            R("SGPSet_CivilElement", "RoadCategory", true, SgAgency.LTA, GCon, "N.A", "IFC+SG: Road", "BCA Mapping Dec 2025"),
+            R("SGPset_Space", "LoadingCapacity", true, SgAgency.SCDF, GCon, "24,30,50", "IFC+SG: Road", "BCA Mapping Dec 2025"),
+            R("SGPset_BuildingElementProxyDimension", "Width", true, SgAgency.LTA, GCon, "N.A", "IFC+SG: Road", "BCA Mapping Dec 2025"),
+            R("SGPset_BuildingElementProxy", "Egress", true, SgAgency.LTA, GCon, "TRUE/FALSE", "IFC+SG: Road", "BCA Mapping Dec 2025"),
+            R("SGPset_BuildingElementProxy", "Ingress", true, SgAgency.LTA, GCon, "TRUE/FALSE", "IFC+SG: Road", "BCA Mapping Dec 2025"),
+            R("SGPset_BuildingElementProxy", "Vehicular", true, SgAgency.LTA, GCon, "TRUE/FALSE", "IFC+SG: Road", "BCA Mapping Dec 2025"),
+        }));
+
+        // Roof
+        Add(E("CX-052", "Roof", "IFCROOF", "NOTDEFINED", "A", SgAgency.BCA, new[]
+        {
+            R("SGPset_Roof", "ConstructionMethod", true, SgAgency.BCA, GCon, "N.A", "IFC+SG: Roof", "BCA Mapping Dec 2025"),
+            R("SGPset_Material", "Material", true, SgAgency.NParks, GCon, "N.A", "IFC+SG: Roof", "BCA Mapping Dec 2025"),
+            R("SGPset_Slab", "ConstructionMethod", true, SgAgency.BCA, GCon, "CIS, PC, PT (Pre), PT (Post), PF, PPVC, Spun", "IFC+SG: Roof", "BCA Mapping Dec 2025"),
+            R("SGPset_Covering", "ConstructionMethod", true, SgAgency.BCA, GCon, "N.A", "IFC+SG: Roof", "BCA Mapping Dec 2025"),
+        }));
+
+        // Sanitary Appliances
+        Add(E("CX-053", "Sanitary Appliances", "IFCSANITARYTERMINAL", "NOTDEFINED", "P", SgAgency.BCA, new[]
+        {
+            R("SGPset_SanitaryTerminal", "SystemName", true, SgAgency.BCA, GCon, "N.A", "IFC+SG: Sanitary Appliances", "BCA Mapping Dec 2025"),
+            R("SGPset_SanitaryTerminal", "SystemType", true, SgAgency.BCA, GCon, "N.A", "IFC+SG: Sanitary Appliances", "BCA Mapping Dec 2025"),
+        }));
+
+        // Sanitary Appliances (Bath)
+        Add(E("CX-054", "Sanitary Appliances (Bath)", "IFCSANITARYTERMINAL", "NOTDEFINED", "P", SgAgency.PUB, new[]
+        {
+            R("SGPset_SanitaryTerminal", "WELS", true, SgAgency.PUB, GCon, "TRUE/FALSE", "IFC+SG: Sanitary Appliances (Bath)", "BCA Mapping Dec 2025"),
+        }));
+
+        // Sanitary Appliances (Bidet)
+        Add(E("CX-055", "Sanitary Appliances (Bidet)", "IFCSANITARYTERMINAL", "NOTDEFINED", "P", SgAgency.PUB, new[]
+        {
+            R("SGPset_SanitaryTerminal", "WELS", true, SgAgency.PUB, GCon, "TRUE/FALSE", "IFC+SG: Sanitary Appliances (Bidet)", "BCA Mapping Dec 2025"),
+        }));
+
+        // Sanitary Appliances (Shower)
+        Add(E("CX-056", "Sanitary Appliances (Shower)", "IFCSANITARYTERMINAL", "NOTDEFINED", "P", SgAgency.PUB, new[]
+        {
+            R("SGPset_SanitaryTerminal", "WELS", true, SgAgency.PUB, GCon, "TRUE/FALSE", "IFC+SG: Sanitary Appliances (Shower)", "BCA Mapping Dec 2025"),
+        }));
+
+        // Sanitary Appliances (Urinal)
+        Add(E("CX-057", "Sanitary Appliances (Urinal)", "IFCSANITARYTERMINAL", "NOTDEFINED", "P", SgAgency.BCA, new[]
+        {
+            R("SGPset_SanitaryTerminal", "AmbulantDisabled", true, SgAgency.BCA, GCon, "TRUE/FALSE", "IFC+SG: Sanitary Appliances (Urinal)", "BCA Mapping Dec 2025"),
+            R("SGPset_SanitaryTerminal", "ChildrenFriendly", true, SgAgency.NEA, GCon, "TRUE/FALSE", "IFC+SG: Sanitary Appliances (Urinal)", "BCA Mapping Dec 2025"),
+            R("SGPset_SanitaryTerminal", "Mounting", true, SgAgency.NEA, GCon, "N.A", "IFC+SG: Sanitary Appliances (Urinal)", "BCA Mapping Dec 2025"),
+            R("SGPset_SanitaryTerminal", "Waterless", true, SgAgency.BCA, GCon, "TRUE/FALSE", "IFC+SG: Sanitary Appliances (Urinal)", "BCA Mapping Dec 2025"),
+            R("SGPset_SanitaryTerminal", "WELS", true, SgAgency.PUB, GCon, "TRUE/FALSE", "IFC+SG: Sanitary Appliances (Urinal)", "BCA Mapping Dec 2025"),
+        }));
+
+        // Sanitary Appliances (Wash Basin)
+        Add(E("CX-058", "Sanitary Appliances (Wash Basin)", "IFCSANITARYTERMINAL", "NOTDEFINED", "P", SgAgency.PUB, new[]
+        {
+            R("SGPset_SanitaryTerminal", "ChildrenFriendly", true, SgAgency.NEA, GCon, "TRUE/FALSE", "IFC+SG: Sanitary Appliances (Wash Basin)", "BCA Mapping Dec 2025"),
+            R("SGPset_SanitaryTerminal", "Mounting", true, SgAgency.NEA, GCon, "N.A", "IFC+SG: Sanitary Appliances (Wash Basin)", "BCA Mapping Dec 2025"),
+            R("SGPset_SanitaryTerminal", "WELS", true, SgAgency.PUB, GCon, "TRUE/FALSE", "IFC+SG: Sanitary Appliances (Wash Basin)", "BCA Mapping Dec 2025"),
+        }));
+
+        // Sanitary Appliances (Water Closet)
+        Add(E("CX-059", "Sanitary Appliances (Water Closet)", "IFCSANITARYTERMINAL", "NOTDEFINED", "P", SgAgency.BCA, new[]
+        {
+            R("SGPset_SanitaryTerminal", "BarrierFreeAccessibility", true, SgAgency.BCA, GCon, "TRUE/FALSE", "IFC+SG: Sanitary Appliances (Water Closet)", "BCA Mapping Dec 2025"),
+            R("SGPset_SanitaryTerminal", "AmbulantDisabled", true, SgAgency.BCA, GCon, "TRUE/FALSE", "IFC+SG: Sanitary Appliances (Water Closet)", "BCA Mapping Dec 2025"),
+            R("SGPset_SanitaryTerminal", "ChildrenFriendly", true, SgAgency.BCA, GCon, "TRUE/FALSE", "IFC+SG: Sanitary Appliances (Water Closet)", "BCA Mapping Dec 2025"),
+            R("SGPset_SanitaryTerminal", "PanMounting", true, SgAgency.NEA, GCon, "N.A", "IFC+SG: Sanitary Appliances (Water Closet)", "BCA Mapping Dec 2025"),
+            R("SGPset_SanitaryTerminal", "ToiletPanType", true, SgAgency.NEA, GCon, "N.A", "IFC+SG: Sanitary Appliances (Water Closet)", "BCA Mapping Dec 2025"),
+            R("SGPset_SanitaryTerminal", "WELS", true, SgAgency.PUB, GCon, "TRUE/FALSE", "IFC+SG: Sanitary Appliances (Water Closet)", "BCA Mapping Dec 2025"),
+        }));
+
+        // Seating
+        Add(E("CX-060", "Seating", "IFCFURNITURE", "NOTDEFINED", "A", SgAgency.SCDF, new[]
+        {
+            R("SGPset_Furniture", "SeatingCapacity", true, SgAgency.SCDF, GCon, "N.A", "IFC+SG: Seating", "BCA Mapping Dec 2025"),
+        }));
+
+        // Shading Device
+        Add(E("CX-063", "Shading Device", "IFCSHADINGDEVICE", "NOTDEFINED", "A", SgAgency.BCA, new[]
+        {
+            R("SGPset_ShadingDevice", "ShadingDevice", true, SgAgency.BCA, GCon, "N.A", "IFC+SG: Shading Device", "BCA Mapping Dec 2025"),
+        }));
+
+        // Signage
+        Add(E("CX-064", "Signage", "IFCBUILDINGELEMENTPROXY", "NOTDEFINED", "A", SgAgency.SCDF, new[]
+        {
+            R("SGPset_BuildingElementProxy", "MountingHeight", true, SgAgency.SCDF, GCon, "N.A", "IFC+SG: Signage", "BCA Mapping Dec 2025"),
+        }));
+
+        // Site
+        Add(E("CX-065", "Site", "IFCSITE", "NOTDEFINED", "A", SgAgency.URA, new[]
+        {
+            R("SGPset_Site", "NumberOfWorkers", true, SgAgency.URA, GCon, "N.A", "IFC+SG: Site", "BCA Mapping Dec 2025"),
+        }));
+
+        // Site Boundary
+        Add(E("CX-066", "Site Boundary", "IFCGEOGRAPHICELEMENT", "NOTDEFINED", "L", SgAgency.URA, new[]
+        {
+            R("SGPset_GeographicElementDimension", "Area", true, SgAgency.URA, GCon, "N.A", "IFC+SG: Site Boundary", "BCA Mapping Dec 2025"),
+            R("SGPset_GeographicElement", "BroadLandUse", true, SgAgency.URA, GCon, "Agriculture, Beach Area, Business 1, Business 1- W", "IFC+SG: Site Boundary", "BCA Mapping Dec 2025"),
+            R("SGPset_GeographicElement", "VacantLand", true, SgAgency.NParks, GCon, "TRUE/FALSE", "IFC+SG: Site Boundary", "BCA Mapping Dec 2025"),
+        }));
+
+        // Slab
+        Add(E("CX-068", "Slab", "IFCSLAB", "NOTDEFINED", "S", SgAgency.BCA, new[]
+        {
+            R("Please refer to property sets below", "Please refer to properties below", true, SgAgency.BCA, GCon, "N.A", "IFC+SG: Slab", "BCA Mapping Dec 2025"),
+            R("SGPset_Slab", "Accreditation_MAS", true, SgAgency.BCA, GCon, "TRUE/FALSE", "IFC+SG: Slab", "BCA Mapping Dec 2025"),
+            R("SGPset_SlabReinforcement", "BottomDistribution_nominal", true, SgAgency.BCA, GCon, "N.A", "IFC+SG: Slab", "BCA Mapping Dec 2025"),
+            R("SGPset_SlabReinforcement", "BottomMain_nominal", true, SgAgency.BCA, GCon, "N.A", "IFC+SG: Slab", "BCA Mapping Dec 2025"),
+            R("SGPset_Slab", "ConstructionMethod", true, SgAgency.BCA, GCon, "CIS, PC, PT (Pre), PT (Post), PF, PPVC, Spun", "IFC+SG: Slab", "BCA Mapping Dec 2025"),
+            R("SGPset_Slab", "LatticeGirderReinforcement", true, SgAgency.BCA, GCon, "TRUE/FALSE", "IFC+SG: Slab", "BCA Mapping Dec 2025"),
+            R("SGPset_Slab", "LoadBearing", true, SgAgency.BCA, GCon, "TRUE/FALSE", "IFC+SG: Slab", "BCA Mapping Dec 2025"),
+            R("SGPset_SlabDimension", "Mark", true, SgAgency.BCA, GCon, "N.A", "IFC+SG: Slab", "BCA Mapping Dec 2025"),
+            R("SGPset_Material", "MaterialGrade", true, SgAgency.BCA, GCon, "C12/15, C20/25, C30/37, C32/40, C35/45, C40/50, C5", "IFC+SG: Slab", "BCA Mapping Dec 2025"),
+            R("SGPset_Slab", "MechanicalConnectionType", true, SgAgency.BCA, GCon, "N.A", "IFC+SG: Slab", "BCA Mapping Dec 2025"),
+        }));
+
+        // Soffit
+        Add(E("CX-069", "Soffit", "IFCCOVERING", "NOTDEFINED", "A", SgAgency.SCDF, new[]
+        {
+            R("Pset_CoveringCommon", "FireRating", true, SgAgency.SCDF, GCon, "0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4", "IFC+SG: Soffit", "BCA Mapping Dec 2025"),
+        }));
+
+        // Space (Area)
+        Add(E("CX-070", "Space (Area)", "IFCSPACE", "NOTDEFINED", "A", SgAgency.URA, new[]
+        {
+            R("SGPset_SpaceArea_GFA", "AGF_DevelopmentUse", true, SgAgency.URA, GCon, "Refer to Space Values sheet", "IFC+SG: Space (Area)", "BCA Mapping Dec 2025"),
+            R("SGPset_SpaceArea_GFA", "AGF_Name", true, SgAgency.URA, GCon, "Refer to Space Values sheet", "IFC+SG: Space (Area)", "BCA Mapping Dec 2025"),
+            R("SGPset_SpaceArea_GFA", "AGF_UnitNumber", true, SgAgency.URA, GCon, "N.A", "IFC+SG: Space (Area)", "BCA Mapping Dec 2025"),
+            R("SGPset_SpaceArea_GFA", "AGF_BonusGFAType", true, SgAgency.URA, GCon, "Refer to Space Values sheet", "IFC+SG: Space (Area)", "BCA Mapping Dec 2025"),
+            R("SGPset_SpaceArea_GFA", "AGF_Note", true, SgAgency.URA, GCon, "N.A", "IFC+SG: Space (Area)", "BCA Mapping Dec 2025"),
+            R("SGPset_SpaceArea_GFA", "AGF_UseQuantum", true, SgAgency.URA, GCon, "Predominant, Ancillary", "IFC+SG: Space (Area)", "BCA Mapping Dec 2025"),
+            R("SGPset_SpaceArea_GFA", "AGF_BuildingTypology", true, SgAgency.URA, GCon, "Refer to Space Values sheet", "IFC+SG: Space (Area)", "BCA Mapping Dec 2025"),
+            R("SGPset_SpaceArea_GFA", "AGF_SupportingFacility", true, SgAgency.URA, GCon, "Refer to Space Values sheet", "IFC+SG: Space (Area)", "BCA Mapping Dec 2025"),
+            R("SGPset_SpaceArea_Strata", "AST_AreaType", true, SgAgency.URA, GCon, "Refer to Space Values sheet", "IFC+SG: Space (Area)", "BCA Mapping Dec 2025"),
+            R("SGPset_SpaceArea_Strata", "AST_LegalArea", true, SgAgency.URA, GCon, "N.A", "IFC+SG: Space (Area)", "BCA Mapping Dec 2025"),
+        }));
+
+        // Space (Usage)
+        Add(E("CX-071", "Space (Usage)", "IFCSPACE", "NOTDEFINED", "A", SgAgency.BCA, new[]
+        {
+            R("SGPset_Space", "Accreditation_MAS", true, SgAgency.BCA, GCon, "TRUE/FALSE", "IFC+SG: Space (Usage)", "BCA Mapping Dec 2025"),
+            R("SGPset_Space", "AmbulantDisabled", true, SgAgency.BCA, GCon, "TRUE/FALSE", "IFC+SG: Space (Usage)", "BCA Mapping Dec 2025"),
+            R("SGPset_SpaceDimension", "Area", true, SgAgency.BCA, GCon, "N.A", "IFC+SG: Space (Usage)", "BCA Mapping Dec 2025"),
+            R("SGPset_Space", "BarrierFreeAccessibility", true, SgAgency.BCA, GCon, "TRUE/FALSE", "IFC+SG: Space (Usage)", "BCA Mapping Dec 2025"),
+            R("SGPset_Space", "ChildrenFriendly", true, SgAgency.BCA, GCon, "TRUE/FALSE", "IFC+SG: Space (Usage)", "BCA Mapping Dec 2025"),
+            R("SGPset_Space", "CValue", true, SgAgency.BCA, GCon, "N.A", "IFC+SG: Space (Usage)", "BCA Mapping Dec 2025"),
+            R("SGPset_Space", "ElderlyFriendly", true, SgAgency.BCA, GCon, "TRUE/FALSE", "IFC+SG: Space (Usage)", "BCA Mapping Dec 2025"),
+            R("SGPset_Space", "EmergencyVoiceCommunicationSystem", true, SgAgency.BCA, GCon, "1-way EVC System, 2-way EVC System, Public Address", "IFC+SG: Space (Usage)", "BCA Mapping Dec 2025"),
+            R("SGPset_Space", "FireDetectionAndSuppressionSystem", true, SgAgency.BCA, GCon, "Automatic Fire Alarm System, Automatic Sprinkler S", "IFC+SG: Space (Usage)", "BCA Mapping Dec 2025"),
+            R("SGPset_Space", "FireEmergencyVentilationMode", true, SgAgency.BCA, GCon, "Natural Ventilation, Mechanical Ventilation, Press", "IFC+SG: Space (Usage)", "BCA Mapping Dec 2025"),
+        }));
+
+        // Sprinkler (Non-Fire; for NEA)
+        Add(E("CX-072", "Sprinkler (Non-Fire; for NEA)", "IFCSANITARYTERMINAL", "NOTDEFINED", "P", SgAgency.NEA, new[]
+        {
+            R("SGPset_SanitaryTerminal", "SystemName", true, SgAgency.NEA, GCon, "N.A", "IFC+SG: Sprinkler (Non-Fire; for NEA)", "BCA Mapping Dec 2025"),
+            R("SGPset_SanitaryTerminal", "SystemType", true, SgAgency.NEA, GCon, "N.A", "IFC+SG: Sprinkler (Non-Fire; for NEA)", "BCA Mapping Dec 2025"),
+        }));
+
+        // Staircase
+        Add(E("CX-073", "Staircase", "IFCSTAIR", "NOTDEFINED", "A", SgAgency.BCA, new[]
+        {
+            R("Pset_StairCommon", "FireExit", true, SgAgency.SCDF, GCon, "TRUE/FALSE", "IFC+SG: Staircase", "BCA Mapping Dec 2025"),
+            R("Please refer to property sets below", "Please refer to properties below", true, SgAgency.BCA, GCon, "N.A", "IFC+SG: Staircase", "BCA Mapping Dec 2025"),
+            R("Pset_StairFlightCommon", "NumberOfRiser", true, SgAgency.BCA, GCon, "N.A", "IFC+SG: Staircase", "BCA Mapping Dec 2025"),
+            R("Pset_StairFlightCommon", "RiserHeight", true, SgAgency.BCA, GCon, "N.A", "IFC+SG: Staircase", "BCA Mapping Dec 2025"),
+            R("Pset_StairFlightCommon", "NumberOfTreads", true, SgAgency.BCA, GCon, "N.A", "IFC+SG: Staircase", "BCA Mapping Dec 2025"),
+            R("Pset_StairFlightCommon", "TreadLength", true, SgAgency.SCDF, GCon, "N.A", "IFC+SG: Staircase", "BCA Mapping Dec 2025"),
+            R("SGPset_Material", "MaterialGrade", true, SgAgency.BCA, GCon, "C12/15, C20/25, C30/37, C32/40, C35/45, C40/50, C5", "IFC+SG: Staircase", "BCA Mapping Dec 2025"),
+            R("SGPset_StairFlight", "ConstructionMethod", true, SgAgency.BCA, GCon, "CIS, PC, PT (Pre), PT (Post), PF, PPVC, Spun", "IFC+SG: Staircase", "BCA Mapping Dec 2025"),
+            R("SGPset_Space", "SpaceName", true, SgAgency.BCA, GCon, "external exit staircase, internal exit staircase, ", "IFC+SG: Staircase", "BCA Mapping Dec 2025"),
+            R("SGPset_StairReinforcement", "BottomDistribution", true, SgAgency.BCA, GCon, "N.A", "IFC+SG: Staircase", "BCA Mapping Dec 2025"),
+        }));
+
+        // Tank
+        Add(E("CX-074", "Tank", "IFCTANK", "NOTDEFINED", "M", SgAgency.SCDF, new[]
+        {
+            R("Please refer to property sets below", "Please refer to properties below", true, SgAgency.SCDF, GCon, "N.A", "IFC+SG: Tank", "BCA Mapping Dec 2025"),
+            R("SGPset_Tank", "IsPotable", true, SgAgency.PUB, GCon, "TRUE/FALSE", "IFC+SG: Tank", "BCA Mapping Dec 2025"),
+            R("Pset_TankTypeCommon", "NominalCapacity", true, SgAgency.PUB, GCon, "N.A", "IFC+SG: Tank", "BCA Mapping Dec 2025"),
+            R("Pset_TankTypeCommon", "EffectiveCapacity", true, SgAgency.PUB, GCon, "N.A", "IFC+SG: Tank", "BCA Mapping Dec 2025"),
+            R("SGPset_TankDimension", "Diameter", true, SgAgency.PUB, GCon, "N.A", "IFC+SG: Tank", "BCA Mapping Dec 2025"),
+            R("SGPset_TankDimension", "Height", true, SgAgency.PUB, GCon, "N.A", "IFC+SG: Tank", "BCA Mapping Dec 2025"),
+            R("SGPset_TankDimension", "Length", true, SgAgency.PUB, GCon, "N.A", "IFC+SG: Tank", "BCA Mapping Dec 2025"),
+            R("SGPset_TankDimension", "Thickness", true, SgAgency.PUB, GCon, "N.A", "IFC+SG: Tank", "BCA Mapping Dec 2025"),
+            R("SGPset_TankDimension", "Width", true, SgAgency.PUB, GCon, "N.A", "IFC+SG: Tank", "BCA Mapping Dec 2025"),
+            R("SGPset_Tank", "TradeEffluent", true, SgAgency.PUB, GCon, "TRUE/FALSE", "IFC+SG: Tank", "BCA Mapping Dec 2025"),
+        }));
+
+        // Tank (RC Tank)
+        Add(E("CX-075", "Tank (RC Tank)", "IFCSPACE", "NOTDEFINED", "A", SgAgency.PUB, new[]
+        {
+            R("SGPset_Space", "SpaceName", true, SgAgency.PUB, GCon, "balancing tank, detention tank, domestic booster t", "IFC+SG: Tank (RC Tank)", "BCA Mapping Dec 2025"),
+            R("SGPset_SpaceDimension", "Area", true, SgAgency.PUB, GCon, "N.A", "IFC+SG: Tank (RC Tank)", "BCA Mapping Dec 2025"),
+            R("SGPset_SpaceDimension", "Height", true, SgAgency.PUB, GCon, "N.A", "IFC+SG: Tank (RC Tank)", "BCA Mapping Dec 2025"),
+            R("SGPset_SpaceDimension", "Thickness", true, SgAgency.PUB, GCon, "N.A", "IFC+SG: Tank (RC Tank)", "BCA Mapping Dec 2025"),
+            R("SGPset_Space", "NominalCapacity", true, SgAgency.PUB, GCon, "N.A", "IFC+SG: Tank (RC Tank)", "BCA Mapping Dec 2025"),
+            R("SGPset_Space", "EffectiveCapacity", true, SgAgency.PUB, GCon, "N.A", "IFC+SG: Tank (RC Tank)", "BCA Mapping Dec 2025"),
+            R("SGPset_Space", "IsPotable", true, SgAgency.PUB, GCon, "TRUE/FALSE", "IFC+SG: Tank (RC Tank)", "BCA Mapping Dec 2025"),
+        }));
+
+        // Type Bedding for Pipe
+        Add(E("CX-076", "Type Bedding for Pipe", "IFCPIPESEGMENT", "NOTDEFINED", "M", SgAgency.PUB, new[]
+        {
+            R("SGPset_PipeSegment", "BeddingType", true, SgAgency.PUB, GCon, "N.A", "IFC+SG: Type Bedding for Pipe", "BCA Mapping Dec 2025"),
+        }));
+
+        // Valve
+        Add(E("CX-077", "Valve", "IFCVALVE", "NOTDEFINED", "M", SgAgency.BCA, new[]
+        {
+            R("SGPset_Valve", "SystemName", true, SgAgency.BCA, GCon, "N.A", "IFC+SG: Valve", "BCA Mapping Dec 2025"),
+            R("SGPset_Valve", "SystemType", true, SgAgency.BCA, GCon, "N.A", "IFC+SG: Valve", "BCA Mapping Dec 2025"),
+        }));
+
+        // Wall
+        Add(E("CX-078", "Wall", "IFCWALL", "NOTDEFINED", "A", SgAgency.BCA, new[]
+        {
+            R("Please refer to property sets below", "Please refer to properties below", true, SgAgency.NParks, GCon, "N.A", "IFC+SG: Wall", "BCA Mapping Dec 2025"),
+            R("SGPset_Wall", "ConstructionMethod", true, SgAgency.BCA, GCon, "CIS, PC, PT (Pre), PT (Post), PF, PPVC, Spun", "IFC+SG: Wall", "BCA Mapping Dec 2025"),
+            R("SGPset_Wall", "IsPartyWall", true, SgAgency.BCA, GCon, "TRUE/FALSE", "IFC+SG: Wall", "BCA Mapping Dec 2025"),
+            R("SGPset_Wall", "ArrangementType", true, SgAgency.BCA, GCon, "N.A", "IFC+SG: Wall", "BCA Mapping Dec 2025"),
+            R("SGPset_Wall", "BeamFaçade", true, SgAgency.BCA, GCon, "TRUE/FALSE", "IFC+SG: Wall", "BCA Mapping Dec 2025"),
+            R("SGPset_Wall", "DoubleBayFaçade", true, SgAgency.BCA, GCon, "TRUE/FALSE", "IFC+SG: Wall", "BCA Mapping Dec 2025"),
+            R("SGPset_WallReinforcement", "HorizontalRebar", true, SgAgency.BCA, GCon, "N.A", "IFC+SG: Wall", "BCA Mapping Dec 2025"),
+            R("SGPset_Wall", "IsExternal", true, SgAgency.BCA, GCon, "TRUE/FALSE", "IFC+SG: Wall", "BCA Mapping Dec 2025"),
+            R("SGPset_Wall", "LoadBearing", true, SgAgency.BCA, GCon, "TRUE/FALSE", "IFC+SG: Wall", "BCA Mapping Dec 2025"),
+            R("SGPset_WallDimension", "Mark", true, SgAgency.BCA, GCon, "N.A", "IFC+SG: Wall", "BCA Mapping Dec 2025"),
+        }));
+
+        // Waste Terminal
+        Add(E("CX-079", "Waste Terminal", "IFCWASTETERMINAL", "NOTDEFINED", "P", SgAgency.BCA, new[]
+        {
+            R("Please refer to property sets below", "Please refer to properties below", true, SgAgency.PUB, GCon, "N.A", "IFC+SG: Waste Terminal", "BCA Mapping Dec 2025"),
+            R("SGPset_Material", "Material", true, SgAgency.PUB, GCon, "N.A", "IFC+SG: Waste Terminal", "BCA Mapping Dec 2025"),
+            R("SGPset_WasteTerminal", "TradeEffluent", true, SgAgency.NEA, GCon, "TRUE/FALSE", "IFC+SG: Waste Terminal", "BCA Mapping Dec 2025"),
+            R("SGPset_WasteTerminal", "SystemName", true, SgAgency.BCA, GCon, "N.A", "IFC+SG: Waste Terminal", "BCA Mapping Dec 2025"),
+            R("SGPset_WasteTerminal", "SystemType", true, SgAgency.BCA, GCon, "N.A", "IFC+SG: Waste Terminal", "BCA Mapping Dec 2025"),
+        }));
+
+        // Water Meter
+        Add(E("CX-080", "Water Meter", "IFCFLOWMETER", "NOTDEFINED", "P", SgAgency.PUB, new[]
+        {
+            R("SGPset_FlowMeter", "Capacity", true, SgAgency.PUB, GCon, "N.A", "IFC+SG: Water Meter", "BCA Mapping Dec 2025"),
+            R("SGPset_FlowMeterDimension", "Diameter", true, SgAgency.PUB, GCon, "N.A", "IFC+SG: Water Meter", "BCA Mapping Dec 2025"),
+            R("SGPset_FlowMeterDimension", "Length", true, SgAgency.PUB, GCon, "N.A", "IFC+SG: Water Meter", "BCA Mapping Dec 2025"),
+            R("Pset_FlowMeterOccurrence", "Purpose", true, SgAgency.PUB, GCon, "N.A", "IFC+SG: Water Meter", "BCA Mapping Dec 2025"),
+            R("SGPset_FlowMeter", "UnitNumber", true, SgAgency.PUB, GCon, "N.A", "IFC+SG: Water Meter", "BCA Mapping Dec 2025"),
+            R("SGPset_FlowMeter", "UnitNumberTag", true, SgAgency.PUB, GCon, "TRUE/FALSE", "IFC+SG: Water Meter", "BCA Mapping Dec 2025"),
+            R("SGPset_FlowMeter", "WaterSupplySource", true, SgAgency.PUB, GCon, "N.A", "IFC+SG: Water Meter", "BCA Mapping Dec 2025"),
+            R("SGPset_FlowMeter", "SystemName", true, SgAgency.PUB, GCon, "N.A", "IFC+SG: Water Meter", "BCA Mapping Dec 2025"),
+            R("SGPset_FlowMeter", "SystemType", true, SgAgency.PUB, GCon, "N.A", "IFC+SG: Water Meter", "BCA Mapping Dec 2025"),
+        }));
+
+        // Window
+        Add(E("CX-081", "Window", "IFCWINDOW", "NOTDEFINED", "A", SgAgency.BCA, new[]
+        {
+            R("Please refer to property sets below", "Please refer to properties below", true, SgAgency.BCA, GCon, "N.A", "IFC+SG: Window", "BCA Mapping Dec 2025"),
+            R("SGPset_WindowDimension", "InnerDiameter", true, SgAgency.BCA, GCon, "N.A", "IFC+SG: Window", "BCA Mapping Dec 2025"),
+            R("SGPset_WindowDimension", "OuterDiameter", true, SgAgency.BCA, GCon, "N.A", "IFC+SG: Window", "BCA Mapping Dec 2025"),
+            R("SGPset_Window", "FireAccessOpening", true, SgAgency.SCDF, GCon, "TRUE/FALSE", "IFC+SG: Window", "BCA Mapping Dec 2025"),
+            R("SGPset_WindowDimension", "StructuralWidth", true, SgAgency.BCA, GCon, "N.A", "IFC+SG: Window", "BCA Mapping Dec 2025"),
+            R("SGPset_WindowDimension", "StructuralHeight", true, SgAgency.BCA, GCon, "N.A", "IFC+SG: Window", "BCA Mapping Dec 2025"),
+            R("SGPset_Material", "Material", true, SgAgency.URA, GCon, "N.A", "IFC+SG: Window", "BCA Mapping Dec 2025"),
+            R("SGPset_Window", "SafetyBarrierHeight", true, SgAgency.SCDF, GCon, "N.A", "IFC+SG: Window", "BCA Mapping Dec 2025"),
+            R("SGPset_Window", "PercentageOfOpening", true, SgAgency.BCA, GCon, "N.A", "IFC+SG: Window", "BCA Mapping Dec 2025"),
+        }));
+
 
         return d;
     }

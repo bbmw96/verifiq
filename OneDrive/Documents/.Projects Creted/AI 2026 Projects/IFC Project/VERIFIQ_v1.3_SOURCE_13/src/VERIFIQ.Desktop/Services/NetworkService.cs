@@ -111,7 +111,7 @@ public sealed class NetworkService
         };
 
         client.DefaultRequestHeaders.UserAgent.ParseAdd(
-            $"VERIFIQ/{UpdateChecker.CurrentVersion} (+bbmw0.com)");
+            $"VERIFIQ/{AppVersion.Current} (+bbmw0.com)");
 
         return client;
     }

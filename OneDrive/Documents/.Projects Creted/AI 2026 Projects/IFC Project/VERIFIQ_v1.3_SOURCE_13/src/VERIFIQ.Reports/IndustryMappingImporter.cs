@@ -4,7 +4,7 @@
 // ─── IFC+SG INDUSTRY MAPPING EXCEL IMPORTER ──────────────────────────────────
 //
 // Reads the official BCA/GovTech IFC+SG Industry Mapping Excel file
-// (downloadable from info.corenet.gov.sg) and merges the classification
+// (downloadable from go.gov.sg/ifcsg, IFC+SG Resource Kit) and merges the classification
 // codes and their required property sets into VERIFIQ's runtime library.
 //
 // The Industry Mapping Excel defines for every building element type:
@@ -124,7 +124,12 @@ public sealed class IndustryMappingImporter
 
     private static void ProcessSheet(IXLWorksheet ws, ColumnMap cols, IndustryMappingImportResult result)
     {
-        // Group by classification code - each row may be a property rule for a code
+        // Group by classification code.
+        // COP3.1 BCA format: "Identified Component" is used as the key (e.g. "Beam", "Wall").
+        // Each row represents one property rule for that component under a given agency.
+        // ArchiCAD note: elements are classified by classification code, not native type.
+        // A slab assigned classification "Wall" exports as IfcWall in ArchiCAD.
+        // VERIFIQ validates based on the IFC entity + classification combination.
         var codeEntries = new Dictionary<string, ClassificationCodeEntry>(StringComparer.OrdinalIgnoreCase);
 
         int lastRow = ws.LastRowUsed()?.RowNumber() ?? 1;
@@ -235,48 +240,75 @@ public sealed class IndustryMappingImporter
             bool foundAny = false;
             for (int col = 1; col <= lastCol; col++)
             {
-                var header = ws.Cell(headerRow, col).GetString().Trim().ToUpperInvariant();
+                var header = ws.Cell(headerRow, col).GetString().Trim().ToUpperInvariant()
+                               .Replace("\n", " ").Replace("\r", "").Replace("\t", " ");
                 if (string.IsNullOrWhiteSpace(header)) continue;
 
-                if (header.Contains("CLASSIFICATION") && header.Contains("CODE") && map.ClassificationCode < 0)
-                { map.ClassificationCode = col; foundAny = true; }
-                else if ((header.Contains("CODE") && !header.Contains("DESIGN")) && map.ClassificationCode < 0)
-                { map.ClassificationCode = col; foundAny = true; }
+                // === BCA IFC+SG Dec 2025 COP3.1 EXACT COLUMN HEADERS ===
+                // Col 1:  S/N
+                // Col 2:  Agency
+                // Col 3:  Identified Component
+                // Col 4:  Identified parameters
+                // Col 5:  Suggested Revit Representation
+                // Col 6:  Suggested Archicad Representation
+                // Col 7:  Suggested Tekla Structures Representation
+                // Col 8:  Suggested Bentley OpenBuildings Representation
+                // Col 9:  Suggested Discipline
+                // Col 10: IFC4 Entities
+                // Col 11: IFC Sub Types (* = USERDEFINED)
+                // Col 12: Property Set
+                // Col 13: Property Name
+                // Col 14: Property Type
+                // Col 15: Property Unit
+                // Col 16: IFC4 Material Set
+                // Col 17: Accepted Values (for parameters with Input Limitations)
+                // Col 18: Sample Value for Reference
 
-                if ((header.Contains("NAME") || header.Contains("DESCRIPTION") && header.Contains("CODE")) && map.CodeName < 0)
-                    map.CodeName = col;
-
-                if ((header.Contains("IFC") && header.Contains("CLASS")) || header.Contains("ENTITY") || header == "IFC_CLASS")
-                { map.IfcClass = col; foundAny = true; }
-
-                if (header.Contains("PREDEFINED") || header.Contains("PREDEF") || header.Contains("TYPE") && header.Contains("IFC"))
-                    map.PredefinedType = col;
-
-                if ((header.Contains("PROPERTY") && header.Contains("SET")) || header.Contains("PSET") || header == "PROPERTYSET")
-                { map.PropertySetName = col; foundAny = true; }
-
-                if ((header.Contains("PROPERTY") && header.Contains("NAME")) || header == "PROPERTY" || header == "PROPERTYNAME")
-                { map.PropertyName = col; foundAny = true; }
-
-                if (header.Contains("AGENCY") || header.Contains("AUTHORITY") || header.Contains("REGULATOR"))
+                if (header == "AGENCY" || header.Contains("AGENCY"))
                     map.Agency = col;
 
-                if (header == "REQUIRED" || header.Contains("MANDATORY") || header.Contains("IS_REQUIRED"))
-                    map.IsRequired = col;
+                if (header.Contains("IDENTIFIED COMPONENT") || header.Contains("IDENTIFIED PARAM"))
+                {
+                    map.CodeName = col; foundAny = true;
+                    // In BCA COP3.1 format, component name IS the classification name
+                }
 
-                if (header.Contains("EXPECTED") || header.Contains("VALUE") && header.Contains("EXPECTED"))
+                if (header.Contains("IFC4") && header.Contains("ENTIT") ||
+                    header.Contains("IFC ENTIT") || header == "IFC4 ENTITIES" || header == "ENTITY")
+                { map.IfcClass = col; foundAny = true; }
+
+                if (header.Contains("IFC SUB TYPE") || header.Contains("SUBTYPE") || header.Contains("SUB TYPE"))
+                    map.PredefinedType = col;
+
+                if (header.Contains("PROPERTY SET") || header.Contains("PROPERTYSET") || header == "PSET")
+                { map.PropertySetName = col; foundAny = true; }
+
+                if (header.Contains("PROPERTY NAME") || (header == "PROPERTY" && map.PropertyName < 0))
+                { map.PropertyName = col; foundAny = true; }
+
+                if (header.Contains("PROPERTY TYPE") && !header.Contains("NAME"))
+                    map.IsRequired = col;  // Reuse for type detection
+
+                if (header.Contains("ACCEPTED VALUE") || header.Contains("INPUT LIMITATION"))
                     map.ExpectedValue = col;
 
-                if (header.Contains("DESCRIPTION") && !header.Contains("CODE"))
+                if (header.Contains("SAMPLE VALUE"))
                     map.Description = col;
 
-                if (header.Contains("REGULATION") || header.Contains("REFERENCE") || header.Contains("STANDARD") || header.Contains("CODE_OF"))
-                    map.Regulation = col;
+                // Also handle older format columns (for backward compat)
+                if (header.Contains("CLASSIFICATION") && header.Contains("CODE") && map.ClassificationCode < 0)
+                { map.ClassificationCode = col; foundAny = true; }
+
+                if ((header.Contains("IFC") && header.Contains("CLASS")) && map.IfcClass < 0)
+                    map.IfcClass = col;
             }
 
-            if (foundAny && map.IsValid)
+            // In COP3.1 format: IFC entity + property set + property name is sufficient
+            if (foundAny && map.IfcClass > 0 && map.PropertySetName > 0 && map.PropertyName > 0)
             {
                 map.DataStartRow = headerRow + 1;
+                // In COP3.1 format: classification code is derived from component name + index
+                if (map.ClassificationCode < 0) map.ClassificationCode = map.CodeName;
                 break;
             }
         }

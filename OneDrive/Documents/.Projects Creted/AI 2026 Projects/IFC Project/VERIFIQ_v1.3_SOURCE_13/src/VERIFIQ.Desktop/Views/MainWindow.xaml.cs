@@ -40,6 +40,7 @@ public partial class MainWindow : Window
     private ValidationSession?    _lastSession;
     private readonly ReportGenerator _reporter  = new();
     private CancellationTokenSource? _cts;
+    private bool _deferredUpdateOnClose = false;
     private bool                  _isValidating = false;
 
     // Rules infrastructure
@@ -159,10 +160,14 @@ public partial class MainWindow : Window
                 Dispatcher.Invoke(() =>
                     SendToFrontend("updateAvailable", new
                     {
-                        current = info.Current,
-                        latest  = info.Latest,
-                        url     = info.Url,
-                        notes   = info.Notes
+                        current     = info.Current,
+                        latest      = info.Latest,
+                        url         = info.GitHubUrl,
+                        directUrl   = info.DownloadUrl,
+                        notes       = info.Notes,
+                        releaseDate = info.ReleaseDate,
+                        sizeMb      = info.SizeMb,
+                        mandatory   = info.IsMandatory
                     }));
             };
             await checker.CheckAsync();
@@ -196,6 +201,14 @@ public partial class MainWindow : Window
 
         // Bridge: receive messages sent from the JS frontend via VBridge.send()
         ContentWebView.CoreWebView2.WebMessageReceived += OnWebMessageReceived;
+
+        // Apply any deferred update from a previous session
+        // (installer was downloaded, user deferred install to close)
+        _ = Task.Run(async () =>
+        {
+            await Task.Delay(3000); // Wait for app to fully load
+            Services.UpdateChecker.ApplyPendingUpdateIfExists();
+        });
 
         // Map the wwwroot folder to the virtual hostname verifiq.local so that
         // scripts, CSS and HTML are served securely without exposing disk paths.
@@ -626,22 +639,26 @@ public partial class MainWindow : Window
                     }),
                 findings = session.Results
                     .OrderByDescending(r => r.Severity)
-                    .Take(500)
+                    .ThenBy(r => r.ElementGuid)
+                    .Take(5000)  // Increased from 500  -  show all findings up to 5000
                     .Select(r => new
                     {
+                        stepId   = r.StepId,
                         guid     = r.ElementGuid,
                         name     = r.ElementName,
-                        cls      = r.IfcClass,
+                        cls      = r.ClsForJs,   // "IfcClass|ClassificationCode|PredefinedType"
                         storey   = r.StoreyName,
                         check    = r.CheckLevel.ToString(),
                         severity = r.Severity.ToString(),
                         agency   = r.AffectedAgency.ToString(),
+                        gateway  = r.AffectedGateway.ToString(),
                         pset     = r.PropertySetName,
                         prop     = r.PropertyName,
                         expected = r.ExpectedValue,
                         actual   = r.ActualValue,
                         message  = r.Message,
-                        fix      = r.RemediationGuidance
+                        fix      = r.RemediationGuidance,
+                        ruleRef  = r.RuleReference
                     })
             });
             // Navigation to 'results' is handled by the JS bridge when it
@@ -723,29 +740,39 @@ public partial class MainWindow : Window
 
     private void UpdateSidebarSelection(string page)
     {
-        var all = new[] { NavDashboard, NavFiles, NavValidation,
-                          Nav3DViewer, NavResults, NavCritical, NavDesign,
-                          NavExport, NavPropEditor, NavRules, NavLicence, NavSettings, NavAbout };
+        // Reset ALL nav buttons - must include every button defined in XAML
+        var all = new[] {
+            NavDashboard, NavFiles, NavValidation, Nav3DViewer,
+            NavResults, NavCritical, NavDesign, NavExport,
+            NavPropEditor, NavRules, NavLicence, NavSettings, NavAbout,
+            NavUserGuide, NavManual, NavImport, NavSearch, NavIds, NavMerge, NavCobie
+        };
 
         foreach (var btn in all)
             btn.Style = (Style)FindResource("NavItem");
 
         var active = page switch
         {
-            "dashboard"  => NavDashboard,
-            "files"      => NavFiles,
-            "validation" => NavValidation,
-            "3d"         => Nav3DViewer,
-            "results"    => NavResults,
-            "critical"   => NavCritical,
-            "design"     => NavDesign,
-            "export"     => NavExport,
-            "rules"      => NavRules,
-            "licence"    => NavLicence,
-            "settings"   => NavSettings,
-            "about"        => NavAbout,
+            "dashboard"      => NavDashboard,
+            "files"          => NavFiles,
+            "validation"     => NavValidation,
+            "3d"             => Nav3DViewer,
+            "results"        => NavResults,
+            "critical"       => NavCritical,
+            "design"         => NavDesign,
+            "export"         => NavExport,
+            "rules"          => NavRules,
+            "licence"        => NavLicence,
+            "settings"       => NavSettings,
+            "about"          => NavAbout,
             "propertyeditor" => NavPropEditor,
-            "userguide"      => NavAbout,
+            "userguide"      => NavUserGuide,
+            "import"         => NavImport,
+            "search"         => NavSearch,
+            "ids"            => NavIds,
+            "merge"          => NavMerge,
+            "cobie"          => NavCobie,
+            "manual"         => NavManual,
             "help"           => NavAbout,
             _                => NavDashboard
         };
@@ -772,8 +799,15 @@ public partial class MainWindow : Window
     private void Nav_Rules_Click     (object s, RoutedEventArgs e) => NavToJs("rules");
     private void Nav_Licence_Click   (object s, RoutedEventArgs e) => NavToJs("licence");
     private void Nav_Settings_Click  (object s, RoutedEventArgs e) => NavToJs("settings");
+    private void Nav_Import_Click    (object s, RoutedEventArgs e) => NavToJs("import");
+    private void Nav_Search_Click    (object s, RoutedEventArgs e) => NavToJs("search");
+    private void Nav_Ids_Click       (object s, RoutedEventArgs e) => NavToJs("ids");
+    private void Nav_Merge_Click     (object s, RoutedEventArgs e) => NavToJs("merge");
+    private void Nav_Cobie_Click     (object s, RoutedEventArgs e) => NavToJs("cobie");
     private void Nav_About_Click     (object s, RoutedEventArgs e) => NavToJs("about");
     private void Help_Click          (object s, RoutedEventArgs e) => NavToJs("help");
+    private void Nav_UserGuide_Click (object s, RoutedEventArgs e) => NavToJs("userguide");
+    private void Nav_Manual_Click    (object s, RoutedEventArgs e) => NavToJs("manual");
     private void Nav_PropertyEditor_Click(object s, RoutedEventArgs e) => NavToJs("propertyeditor");
     private void MenuHelp_UserGuide  (object s, RoutedEventArgs e) => NavToJs("userguide");
 
@@ -819,6 +853,25 @@ public partial class MainWindow : Window
             {
                 switch (msg.Action)
                 {
+                    case "openUrl":
+                    case "openLink":
+                    {
+                        var url = msg.Data?.GetProperty("url").GetString() ?? string.Empty;
+                        if (!string.IsNullOrWhiteSpace(url) &&
+                            (url.StartsWith("https://", StringComparison.OrdinalIgnoreCase) ||
+                             url.StartsWith("http://",  StringComparison.OrdinalIgnoreCase) ||
+                             url.StartsWith("mailto:",  StringComparison.OrdinalIgnoreCase)))
+                        {
+                            System.Diagnostics.Process.Start(
+                                new System.Diagnostics.ProcessStartInfo
+                                {
+                                    FileName        = url,
+                                    UseShellExecute = true
+                                });
+                        }
+                        break;
+                    }
+
                     case "openFile":
                         OpenFile_Click(this, new RoutedEventArgs());
                         break;
@@ -826,8 +879,31 @@ public partial class MainWindow : Window
                         RunValidation_Click(this, new RoutedEventArgs());
                         break;
                     case "export":
-                        Export_Click(this, new RoutedEventArgs());
+                    {
+                        // Check if a specific format was requested (e.g. from COBie page)
+                        var reqFormat = msg.Data?.TryGetProperty("format", out var fmtEl) == true
+                            ? fmtEl.GetString() : null;
+                        Dispatcher.Invoke(() =>
+                        {
+                            if (!string.IsNullOrEmpty(reqFormat))
+                            {
+                                // Direct export without dialog for specific formats
+                                if (reqFormat == "cobie")
+                                {
+                                    SetStatus("COBie export: use Export Reports page to export COBie data.");
+                                }
+                                else
+                                {
+                                    Export_Click(this, new RoutedEventArgs());
+                                }
+                            }
+                            else
+                            {
+                                Export_Click(this, new RoutedEventArgs());
+                            }
+                        });
                         break;
+                    }
 
                     case "setCountryMode":
                         if (msg.Data?.GetProperty("mode").GetString() is string mode)
@@ -933,69 +1009,63 @@ public partial class MainWindow : Window
                         break;
 
                     case "applyPropertyEdits":
+            {
+                var d2 = msg.Data?.GetProperty("edits");
+                if (!d2.HasValue) { SendToFrontend("propertyEditsApplied", new { success = false, error = "No edits provided" }); break; }
+                var edits = new List<VERIFIQ.Parser.PropertyEditRequest>();
+                foreach (var item in d2.Value.EnumerateArray())
+                {
+                    edits.Add(new VERIFIQ.Parser.PropertyEditRequest
                     {
-                        // Fix 1: msg.Data is JsonElement? (nullable) - use .Value to access members
-                        // Fix 2: bridge handler is sync - use Task.Run for the async writer
-                        if (!msg.Data.HasValue)
+                        ElementGuid     = item.GetProperty("guid").GetString()    ?? "",
+                        PropertyStepId  = item.TryGetProperty("stepId", out var sId) ? sId.GetInt32() : 0,
+                        PropertySetName = item.GetProperty("psetName").GetString() ?? "",
+                        PropertyName    = item.GetProperty("propName").GetString() ?? "",
+                        NewValue        = item.GetProperty("newValue").GetString() ?? "",
+                    });
+                }
+                _ = Task.Run(async () =>
+                {
+                    try
+                    {
+                        var writer = new VERIFIQ.Parser.IfcPropertyWriter();
+                        var source = _loadedFiles.FirstOrDefault()?.FilePath ?? string.Empty;
+                        if (string.IsNullOrEmpty(source)) { SendToFrontend("propertyEditsApplied", new { success = false, error = "No IFC file loaded" }); return; }
+                        var result = await writer.ApplyEditsAsync(source, edits, CancellationToken.None);
+                        SendToFrontend("propertyEditsApplied", new
                         {
-                            SendToFrontend("propertyEditResult", new { success = false, error = "No data." });
-                            break;
-                        }
-                        var sourceFile = _loadedFiles.FirstOrDefault();
-                        if (sourceFile == null)
-                        {
-                            SendToFrontend("propertyEditResult", new { success = false, error = "No IFC file loaded." });
-                            break;
-                        }
-                        var dataElem   = msg.Data.Value;
-                        var filePath   = sourceFile.FilePath;
-                        _ = Task.Run(async () =>
-                        {
-                            try
-                            {
-                                var edits = new List<VERIFIQ.Parser.PropertyEditRequest>();
-                                foreach (var item in dataElem.GetProperty("edits").EnumerateArray())
-                                {
-                                    edits.Add(new VERIFIQ.Parser.PropertyEditRequest
-                                    {
-                                        PropertyStepId  = item.GetProperty("stepId").GetInt32(),
-                                        PropertySetName = item.GetProperty("psetName").GetString() ?? "",
-                                        PropertyName    = item.GetProperty("propName").GetString() ?? "",
-                                        IfcDataType     = item.GetProperty("dataType").GetString() ?? "IFCLABEL",
-                                        NewValue        = item.GetProperty("newValue").GetString() ?? "",
-                                        ElementGuid     = item.GetProperty("guid").GetString() ?? ""
-                                    });
-                                }
-                                var writer     = new VERIFIQ.Parser.IfcPropertyWriter();
-                                var editResult = await writer.ApplyEditsAsync(filePath, edits);
-                                SendToFrontend("propertyEditResult", new
-                                {
-                                    success      = editResult.Success,
-                                    outputFile   = Path.GetFileName(editResult.OutputFilePath),
-                                    outputPath   = editResult.OutputFilePath,
-                                    logPath      = editResult.EditLogPath,
-                                    editsApplied = editResult.EditsApplied,
-                                    applied      = editResult.Applied,
-                                    errors       = editResult.Errors
-                                });
-                            }
-                            catch (Exception ex)
-                            {
-                                SendToFrontend("propertyEditResult", new { success = false, error = ex.Message });
-                            }
+                            success      = result.Success,
+                            editsApplied = result.EditsApplied,
+                            outputFile   = Path.GetFileName(result.OutputFilePath),
+                            error        = result.Errors.FirstOrDefault() ?? string.Empty
                         });
-                        break;
                     }
-
+                    catch (Exception ex) { SendToFrontend("propertyEditsApplied", new { success = false, error = ex.Message }); }
+                });
+                break;
+            }
                     case "openFileForImport":
                     {
                         var purpose = msg.Data?.GetProperty("purpose").GetString() ?? "";
                         Dispatcher.Invoke(() =>
                         {
+                            string title, filter;
+                            switch (purpose)
+                            {
+                                case "idsFile":
+                                    title  = "Select IDS Requirements File";
+                                    filter = "IDS Files (*.ids)|*.ids|XML Files (*.xml)|*.xml|All Files|*.*";
+                                    break;
+                                case "industryMapping":
+                                default:
+                                    title  = "Select IFC+SG Industry Mapping Excel";
+                                    filter = "Excel Files|*.xlsx;*.xls|All Files|*.*";
+                                    break;
+                            }
                             var dlg = new Microsoft.Win32.OpenFileDialog
                             {
-                                Title = "Select IFC+SG Industry Mapping Excel",
-                                Filter = "Excel Files|*.xlsx;*.xls|All Files|*.*"
+                                Title  = title,
+                                Filter = filter
                             };
                             if (dlg.ShowDialog() == true)
                             {
@@ -1008,7 +1078,54 @@ public partial class MainWindow : Window
                         break;
                     }
 
-                    case "importIndustryMapping":
+                    case "skipUpdateVersion":
+                {
+                    var skipVersion = msg.Data?.GetProperty("version").GetString() ?? string.Empty;
+                    if (!string.IsNullOrEmpty(skipVersion))
+                        Services.UpdateChecker.SkipVersion(skipVersion);
+                }
+                break;
+
+            case "downloadAndInstallUpdate":
+            {
+                var dlUrl = msg.Data?.GetProperty("url").GetString() ?? string.Empty;
+                if (string.IsNullOrEmpty(dlUrl)) break;
+                _ = Task.Run(async () =>
+                {
+                    SendToFrontend("updateDownloadProgress", new { pct = 0, status = "Downloading..." });
+                    var checker  = new Services.UpdateChecker();
+                    var progress = new Progress<int>(pct =>
+                        SendToFrontend("updateDownloadProgress", new { pct, status = $"Downloading... {pct}%" }));
+                    var path = await checker.DownloadInstallerAsync(dlUrl, progress, CancellationToken.None);
+                    if (path != null)
+                    {
+                        SendToFrontend("updateDownloadProgress", new { pct = 100, status = "Download complete. Installing..." });
+                        await Task.Delay(1500);
+                        Dispatcher.Invoke(() => Services.UpdateChecker.RunInstaller(path, silent: true));
+                    }
+                    else
+                    {
+                        SendToFrontend("updateDownloadProgress", new { pct = -1, status = "Download failed. Please download manually." });
+                    }
+                });
+                break;
+            }
+
+            case "deferUpdateToClose":
+                // Update is already downloaded (pending_update.txt written), install on close
+                _deferredUpdateOnClose = true;
+                SendToFrontend("updateDeferred", new { message = "Update will be installed when you close VERIFIQ." });
+                break;
+
+            case "checkForUpdates":
+                _ = Task.Run(async () =>
+                {
+                    var checker = new Services.UpdateChecker();
+                    await checker.CheckAsync(forceCheck: true);
+                });
+                break;
+
+            case "importIndustryMapping":
                     {
                         // Import BCA IFC+SG Industry Mapping Excel into the runtime code library
                         if (!msg.Data.HasValue) break;
@@ -1398,7 +1515,7 @@ public partial class MainWindow : Window
             var checker = new Services.UpdateChecker();
             checker.UpdateAvailable += info => Dispatcher.Invoke(() =>
                 System.Windows.MessageBox.Show(
-                    $"VERIFIQ {info.Latest} is available (you have {info.Current}).\n\nDownload from: {info.Url}",
+                    $"VERIFIQ {info.Latest} is available (you have {info.Current}).\n\nDownload from: {info.DownloadUrl}",
                     "VERIFIQ: Update Available", System.Windows.MessageBoxButton.OK,
                     System.Windows.MessageBoxImage.Information));
             await checker.CheckAsync();

@@ -170,11 +170,11 @@
 
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="56"/>    <!-- Title bar -->
-            <RowDefinition Height="30"/>    <!-- Menu bar -->
-            <RowDefinition Height="52"/>    <!-- Country mode + toolbar -->
+            <RowDefinition Height="44"/>    <!-- Title bar -->
+            <RowDefinition Height="26"/>    <!-- Menu bar -->
+            <RowDefinition Height="42"/>    <!-- Country mode + toolbar -->
             <RowDefinition Height="*"/>     <!-- Main content -->
-            <RowDefinition Height="28"/>    <!-- Status bar -->
+            <RowDefinition Height="22"/>    <!-- Status bar -->
         </Grid.RowDefinitions>
 
         <!-- ═══ TITLE BAR ═══════════════════════════════════════════════════ -->
@@ -188,15 +188,15 @@
 
                 <!-- Logo + Name -->
                 <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
-                    <Border Width="32" Height="32" Background="#0E7C86" CornerRadius="6" Margin="0,0,10,0">
-                        <TextBlock Text="VQ" Foreground="White" FontWeight="Bold" FontSize="14"
+                    <Border Width="26" Height="26" Background="#0E7C86" CornerRadius="6" Margin="0,0,10,0">
+                        <TextBlock Text="VQ" Foreground="White" FontWeight="Bold" FontSize="11"
                                    HorizontalAlignment="Center" VerticalAlignment="Center"/>
                     </Border>
-                    <TextBlock Text="VERIFIQ" Foreground="White" FontSize="20"
+                    <TextBlock Text="VERIFIQ" Foreground="White" FontSize="16"
                                FontWeight="Bold" VerticalAlignment="Center"
                                FontFamily="Arial"/>
                     <TextBlock Text="  IFC Compliance Checker" Foreground="#93C5FD"
-                               FontSize="13" VerticalAlignment="Center" Margin="0,2,0,0"/>
+                               FontSize="11" VerticalAlignment="Center" Margin="0,2,0,0"/>
                 </StackPanel>
 
                 <!-- Licence info -->
@@ -210,7 +210,7 @@
 
                 <!-- Help / About -->
                 <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
-                    <TextBlock Text="v1.2.0" Foreground="#64748B" FontSize="11"
+                    <TextBlock Text="v2.0.0" Foreground="#64748B" FontSize="11"
                                VerticalAlignment="Center" Margin="0,0,12,0"/>
                     <Button Content="?" Style="{StaticResource PrimaryButton}"
                             Width="28" Height="28" Padding="0"
@@ -389,64 +389,147 @@
             </Grid.ColumnDefinitions>
 
             <!-- SIDEBAR ──────────────────────────────────────────────────── -->
-            <Border Grid.Column="0" Background="#0B1F45">
+            <Grid Grid.Column="0" Background="#0B1F45">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                <ScrollViewer Grid.Row="0"
+                              VerticalScrollBarVisibility="Auto"
+                              HorizontalScrollBarVisibility="Disabled"
+                              CanContentScroll="False">
                 <StackPanel>
-                    <TextBlock Text="NAVIGATION" Foreground="#64748B"
-                               FontFamily="Arial" FontSize="10"
-                               FontWeight="Bold" Margin="20,16,20,8"/>
+
+                    <!-- ── SECTION: WORKFLOW ───────────────────────── -->
+                    <Border Margin="14,14,14,2" Background="#112240"
+                            CornerRadius="6" Padding="10,7">
+                        <TextBlock Text="WORKFLOW" Foreground="#0E7C86"
+                                   FontFamily="Arial" FontSize="9"
+                                   FontWeight="Bold"/>
+                    </Border>
 
                     <Button x:Name="NavDashboard" Content="📊  Dashboard"
                             Style="{StaticResource NavItemActive}"
-                            Click="Nav_Dashboard_Click"/>
+                            Click="Nav_Dashboard_Click"
+                            ToolTip="Compliance overview and score"/>
                     <Button x:Name="NavFiles" Content="📁  Loaded Files"
                             Style="{StaticResource NavItem}"
-                            Click="Nav_Files_Click"/>
-                    <Button x:Name="NavValidation" Content="✅  Validation"
+                            Click="Nav_Files_Click"
+                            ToolTip="Open and manage IFC files"/>
+                    <Button x:Name="NavValidation" Content="✅  Run Validation"
                             Style="{StaticResource NavItem}"
-                            Click="Nav_Validation_Click"/>
+                            Click="Nav_Validation_Click"
+                            ToolTip="Run 20-level compliance check"/>
                     <Button x:Name="Nav3DViewer" Content="🧊  3D Viewer"
                             Style="{StaticResource NavItem}"
-                            Click="Nav_3DViewer_Click"/>
+                            Click="Nav_3DViewer_Click"
+                            ToolTip="View model with compliance colours"/>
+
+                    <!-- ── SECTION: RESULTS ────────────────────────── -->
+                    <Border Margin="14,16,14,2" Background="#112240"
+                            CornerRadius="6" Padding="10,7">
+                        <TextBlock Text="RESULTS" Foreground="#0E7C86"
+                                   FontFamily="Arial" FontSize="9"
+                                   FontWeight="Bold"/>
+                    </Border>
+
                     <Button x:Name="NavResults" Content="📋  All Results"
                             Style="{StaticResource NavItem}"
-                            Click="Nav_Results_Click"/>
+                            Click="Nav_Results_Click"
+                            ToolTip="All compliance findings with 7 filters"/>
                     <Button x:Name="NavCritical" Content="🚨  Critical Issues"
                             Style="{StaticResource NavItem}"
-                            Click="Nav_Critical_Click"/>
+                            Click="Nav_Critical_Click"
+                            ToolTip="Issues that will cause submission rejection"/>
                     <Button x:Name="NavDesign" Content="📐  Design Code"
                             Style="{StaticResource NavItem}"
-                            Click="Nav_Design_Click"/>
-
-                    <TextBlock Text="REPORTS" Foreground="#64748B"
-                               FontFamily="Arial" FontSize="10"
-                               FontWeight="Bold" Margin="20,20,20,8"/>
-
-                    <Button x:Name="NavExport" Content="📤  Export Reports"
+                            Click="Nav_Design_Click"
+                            ToolTip="URA, BCA, SCDF, NEA, PUB dimension checks"/>
+                    <Button x:Name="NavSearch" Content="🔍  Search Elements"
                             Style="{StaticResource NavItem}"
-                            Click="Nav_Export_Click"/>
+                            Click="Nav_Search_Click"
+                            ToolTip="Search elements by name, class, GUID or code"/>
 
-                    <TextBlock Text="SETTINGS" Foreground="#64748B"
-                               FontFamily="Arial" FontSize="10"
-                               FontWeight="Bold" Margin="20,20,20,8"/>
+                    <!-- ── SECTION: FIX AND EXPORT ─────────────────── -->
+                    <Border Margin="14,16,14,2" Background="#112240"
+                            CornerRadius="6" Padding="10,7">
+                        <TextBlock Text="FIX AND EXPORT" Foreground="#0E7C86"
+                                   FontFamily="Arial" FontSize="9"
+                                   FontWeight="Bold"/>
+                    </Border>
 
                     <Button x:Name="NavPropEditor" Content="✏️  Property Editor"
                             Style="{StaticResource NavItem}"
-                            Click="Nav_PropertyEditor_Click"/>
+                            Click="Nav_PropertyEditor_Click"
+                            ToolTip="Fix property values without opening BIM software"/>
+                    <Button x:Name="NavExport" Content="📤  Export Reports"
+                            Style="{StaticResource NavItem}"
+                            Click="Nav_Export_Click"
+                            ToolTip="Export Word, Excel, PDF, BCF reports"/>
+                    <Button x:Name="NavCobie" Content="📋  COBie Export"
+                            Style="{StaticResource NavItem}"
+                            Click="Nav_Cobie_Click"
+                            ToolTip="Export asset handover data (COBie)"/>
+
+                    <!-- ── SECTION: TOOLS ──────────────────────────── -->
+                    <Border Margin="14,16,14,2" Background="#112240"
+                            CornerRadius="6" Padding="10,7">
+                        <TextBlock Text="TOOLS" Foreground="#0E7C86"
+                                   FontFamily="Arial" FontSize="9"
+                                   FontWeight="Bold"/>
+                    </Border>
+
+                    <Button x:Name="NavIds" Content="✓  IDS Checker"
+                            Style="{StaticResource NavItem}"
+                            Click="Nav_Ids_Click"
+                            ToolTip="Validate against IDS specification files"/>
+                    <Button x:Name="NavMerge" Content="⊕  IFC Merge"
+                            Style="{StaticResource NavItem}"
+                            Click="Nav_Merge_Click"
+                            ToolTip="Federate multiple IFC discipline models"/>
                     <Button x:Name="NavRules" Content="📏  Rules Database"
                             Style="{StaticResource NavItem}"
-                            Click="Nav_Rules_Click"/>
+                            Click="Nav_Rules_Click"
+                            ToolTip="Browse all embedded COP3.1 rules and codes"/>
+                    <Button x:Name="NavImport" Content="📥  Import Mapping"
+                            Style="{StaticResource NavItem}"
+                            Click="Nav_Import_Click"
+                            ToolTip="Import BCA IFC+SG Industry Mapping Excel"/>
+
+                    <!-- ── SECTION: HELP AND ACCOUNT ──────────────── -->
+                    <Border Margin="14,16,14,2" Background="#112240"
+                            CornerRadius="6" Padding="10,7">
+                        <TextBlock Text="HELP AND ACCOUNT" Foreground="#0E7C86"
+                                   FontFamily="Arial" FontSize="9"
+                                   FontWeight="Bold"/>
+                    </Border>
+
+                    <Button x:Name="NavUserGuide" Content="📖  User Guide"
+                            Style="{StaticResource NavItem}"
+                            Click="Nav_UserGuide_Click"
+                            ToolTip="Interactive step-by-step guide"/>
+                    <Button x:Name="NavManual" Content="📚  User Manual"
+                            Style="{StaticResource NavItem}"
+                            Click="Nav_Manual_Click"
+                            ToolTip="Full reference documentation"/>
                     <Button x:Name="NavLicence" Content="🔑  Licence"
                             Style="{StaticResource NavItem}"
-                            Click="Nav_Licence_Click"/>
+                            Click="Nav_Licence_Click"
+                            ToolTip="Activate or manage your licence"/>
                     <Button x:Name="NavSettings" Content="⚙️  Settings"
                             Style="{StaticResource NavItem}"
-                            Click="Nav_Settings_Click"/>
+                            Click="Nav_Settings_Click"
+                            ToolTip="Proxy, updates, country mode"/>
                     <Button x:Name="NavAbout" Content="ℹ️  About VERIFIQ"
                             Style="{StaticResource NavItem}"
-                            Click="Nav_About_Click"/>
+                            Click="Nav_About_Click"
+                            ToolTip="Version, credits, legal"/>
+
+                </StackPanel>
+                </ScrollViewer>
 
                     <!-- Compliance score indicator at bottom -->
-                    <Border Margin="12,24,12,0" Background="#1B3A6B"
+                    <Border Grid.Row="1" Margin="12,12,12,12" Background="#1B3A6B"
                             CornerRadius="8" Padding="10">
                         <StackPanel>
                             <TextBlock x:Name="ScoreTitle" Text="Compliance Score"
@@ -467,8 +550,7 @@
                                        LineHeight="14"/>
                         </StackPanel>
                     </Border>
-                </StackPanel>
-            </Border>
+            </Grid>
 
             <!-- WEBVIEW2 CONTENT PANEL ───────────────────────────────────── -->
             <Grid Grid.Column="1">
@@ -502,7 +584,7 @@
                                    Foreground="#64748B"
                                    HorizontalAlignment="Center"
                                    Margin="0,12,0,0"/>
-                        <!-- Cancel button — only visible while validation is running -->
+                        <!-- Cancel button  -  only visible while validation is running -->
                         <Button x:Name="CancelValidationButton"
                                 Content="✕  Cancel Validation"
                                 Click="CancelValidation_Click"

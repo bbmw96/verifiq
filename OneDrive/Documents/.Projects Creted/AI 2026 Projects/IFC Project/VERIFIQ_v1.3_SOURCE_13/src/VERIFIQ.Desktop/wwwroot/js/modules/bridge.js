@@ -153,6 +153,37 @@ const Bridge = (() => {
         if (window._showUpdateBanner) window._showUpdateBanner(data);
         break;
 
+      case 'propertyEditsApplied':
+        if (window.PropertyEditor) PropertyEditor.onEditsApplied(data);
+        break;
+
+      case 'updateDownloadProgress':
+        // Show download progress in the update banner
+        (function() {
+          const el = document.getElementById('vq-update-progress');
+          if (!el) return;
+          if (data.pct < 0) {
+            el.innerHTML = '<span style="color:#ef4444">Download failed. <button onclick="VBridge.send(\'openUrl\',{url:\'https://bbmw0.com/verifiq\'})" style="background:transparent;border:none;color:#60a5fa;cursor:pointer;text-decoration:underline">Download manually</button></span>';
+            return;
+          }
+          el.innerHTML = '<div style="display:flex;align-items:center;gap:8px">' +
+            '<div style="flex:1;height:4px;background:#1a2840;border-radius:2px">' +
+            '<div style="height:100%;background:#F59E0B;width:' + data.pct + '%;transition:width .3s;border-radius:2px"></div></div>' +
+            '<span style="font-size:11px;color:#fde68a">' + (data.status||'') + '</span></div>';
+        })();
+        break;
+
+      case 'updateDeferred':
+        (function() {
+          const el = document.getElementById('update-banner');
+          if (el) {
+            el.innerHTML = '<div style="background:#0f2035;border-bottom:1px solid #F59E0B;padding:6px 20px;font-size:11px;color:#fde68a">' +
+              '⏰ ' + (data.message||'Update deferred to next close') + '</div>';
+            setTimeout(() => { if(el) el.innerHTML=''; }, 5000);
+          }
+        })();
+        break;
+
       case 'executiveSummary':
         if (window.DashboardPage && DashboardPage.onExecutiveSummary)
           DashboardPage.onExecutiveSummary(data);

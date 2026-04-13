@@ -41,7 +41,7 @@ const Utils = (() => {
       Malaysia:  { label: '🇲🇾 Malaysia: NBeS / UBBL 1984',    cls: 'mode-my' },
       Combined:  { label: '🌏 Singapore + Malaysia',             cls: 'mode-combined' },
     };
-    return map[mode] || map.Singapore;
+    return map[mode] || map['Singapore'];  // Always safe fallback
   }
 
   // ── SCORE COLOUR ───────────────────────────────────────────────────────────
