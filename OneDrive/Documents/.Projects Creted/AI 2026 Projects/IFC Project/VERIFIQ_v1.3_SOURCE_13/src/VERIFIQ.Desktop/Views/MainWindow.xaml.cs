@@ -872,6 +872,11 @@ public partial class MainWindow : Window
                         break;
                     }
 
+                    case "cancel":
+                    case "cancelValidation":
+                        _cts?.Cancel();
+                        break;
+
                     case "openFile":
                         OpenFile_Click(this, new RoutedEventArgs());
                         break;
