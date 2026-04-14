@@ -153,6 +153,61 @@ const Bridge = (() => {
         if (window._showUpdateBanner) window._showUpdateBanner(data);
         break;
 
+      case 'propertyEditsApplied':
+        if (window.PropertyEditor) PropertyEditor.onEditsApplied(data);
+        break;
+
+      case 'updateDownloadProgress':
+        // Show download progress in the update banner
+        (function() {
+          const el = document.getElementById('vq-update-progress');
+          if (!el) return;
+          if (data.pct < 0) {
+            el.innerHTML = '<span style="color:#ef4444">Download failed. <button onclick="VBridge.send(\'openUrl\',{url:\'https://bbmw0.com/verifiq\'})" style="background:transparent;border:none;color:#60a5fa;cursor:pointer;text-decoration:underline">Download manually</button></span>';
+            return;
+          }
+          el.innerHTML = '<div style="display:flex;align-items:center;gap:8px">' +
+            '<div style="flex:1;height:4px;background:#1a2840;border-radius:2px">' +
+            '<div style="height:100%;background:#F59E0B;width:' + data.pct + '%;transition:width .3s;border-radius:2px"></div></div>' +
+            '<span style="font-size:11px;color:#fde68a">' + (data.status||'') + '</span></div>';
+        })();
+        break;
+
+      case 'noUpdateFound':
+        // Show brief "up to date" message in settings if open
+        (function() {
+          var btn = document.getElementById('update-check-btn');
+          if (btn) {
+            btn.textContent = '✓ Up to date (v' + (data.current||'') + ')';
+            btn.style.background = '#22c55e';
+            btn.style.color = '#000';
+            btn.disabled = false;
+            setTimeout(function(){
+              btn.textContent = '🔄 Check for Updates';
+              btn.style.background = '';
+              btn.style.color = '';
+            }, 4000);
+          }
+          // Also show a brief banner at bottom of screen
+          var msg = document.createElement('div');
+          msg.style.cssText = 'position:fixed;bottom:24px;right:24px;z-index:99999;background:#052e16;border:1px solid #22c55e;border-radius:8px;padding:10px 16px;font-size:12px;color:#86efac;box-shadow:0 8px 24px rgba(0,0,0,.5)';
+          msg.textContent = '✓ ' + (data.message || 'VERIFIQ is up to date.');
+          document.body.appendChild(msg);
+          setTimeout(function(){ if(msg.parentNode) msg.parentNode.removeChild(msg); }, 4000);
+        })();
+        break;
+
+      case 'updateDeferred':
+        (function() {
+          const el = document.getElementById('update-banner');
+          if (el) {
+            el.innerHTML = '<div style="background:#0f2035;border-bottom:1px solid #F59E0B;padding:6px 20px;font-size:11px;color:#fde68a">' +
+              '⏰ ' + (data.message||'Update deferred to next close') + '</div>';
+            setTimeout(() => { if(el) el.innerHTML=''; }, 5000);
+          }
+        })();
+        break;
+
       case 'executiveSummary':
         if (window.DashboardPage && DashboardPage.onExecutiveSummary)
           DashboardPage.onExecutiveSummary(data);

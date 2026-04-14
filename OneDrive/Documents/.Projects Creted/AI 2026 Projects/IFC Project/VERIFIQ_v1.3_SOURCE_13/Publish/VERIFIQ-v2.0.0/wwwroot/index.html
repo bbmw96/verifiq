@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>VERIFIQ: IFC Compliance Checker</title>
+  <link rel="stylesheet" href="css/app.css">
+</head>
+<body>
+<div id="update-banner"></div>
+<div id="app">
+  <div id="page-container"></div>
+</div>
+
+<!-- Third-party libraries (offline, bundled in libs/) -->
+<script src="libs/three.min.js"></script>
+<script src="libs/web-ifc-api.js"></script>
+
+<!-- Modules (no dependencies) -->
+<script src="js/modules/state.js"></script>
+<script src="js/modules/utils.js"></script>
+<script src="js/modules/bridge.js"></script>
+
+<!-- Page UI (depend on state + utils) -->
+<script src="js/ui/viewer3d.js"></script>
+<script src="js/ui/dashboard.js"></script>
+<script src="js/ui/results.js"></script>
+<script src="js/ui/files.js"></script>
+
+<!-- App router (depends on all pages) -->
+<script src="js/app.js"></script>
+
+<script>
+  // Initialise the VERIFIQ app after all scripts have loaded.
+  // This is the single entry point that starts the router, bridge, and tour.
+  document.addEventListener('DOMContentLoaded', function() {
+    if (window.App && typeof App.init === 'function') {
+      App.init();
+    }
+  });
+</script>
+</body>
+</html>

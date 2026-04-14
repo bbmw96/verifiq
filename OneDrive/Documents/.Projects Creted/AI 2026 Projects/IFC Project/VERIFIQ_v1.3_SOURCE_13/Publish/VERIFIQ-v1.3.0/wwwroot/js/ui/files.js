@@ -18,31 +18,67 @@ const FilesPage = (() => {
         </div>`;
     }
 
-    const rows = files.map(f => `
+    const rows = files.map(f => {
+      const clsPct = f.elements > 0 ? Math.round((f.classified||0)/f.elements*100) : 0;
+      const sizeStr = f.sizeKb > 1024 ? (f.sizeKb/1024).toFixed(1)+'MB' : (f.sizeKb||0)+'KB';
+      const georef = f.hasGeoreference;
+      return `
       <tr>
-        <td>
-          <strong>${VUtils.esc(f.name)}</strong>
-          <div style="font-size:10px;color:var(--light-grey);margin-top:2px">${VUtils.esc(f.schema)}</div>
+        <td style="padding:10px;min-width:180px">
+          <div style="font-weight:700;font-size:13px;color:var(--white)">${VUtils.esc(f.name)}</div>
+          <div style="display:flex;flex-wrap:wrap;gap:4px;margin-top:4px">
+            <span style="font-size:10px;background:#0a1628;border:1px solid var(--border);border-radius:3px;padding:1px 6px;color:#60A5FA">${VUtils.esc(f.schema)}</span>
+            <span style="font-size:10px;color:var(--mid-grey)">${sizeStr}</span>
+            ${f.parsedAt ? `<span style="font-size:10px;color:var(--mid-grey)">Loaded ${VUtils.esc(f.parsedAt)}</span>` : ''}
+          </div>
         </td>
-        <td><b>${VUtils.fmt(f.elements)}</b> elements</td>
-        <td>
+        <td style="padding:10px;text-align:right">
+          <div style="font-size:16px;font-weight:700">${VUtils.fmt(f.elements)}</div>
+          <div style="font-size:10px;color:var(--mid-grey)">elements</div>
+        </td>
+        <td style="padding:10px;text-align:right">
+          <div style="font-size:13px;font-weight:600">${f.storeys||0}</div>
+          <div style="font-size:10px;color:var(--mid-grey)">storeys</div>
+        </td>
+        <td style="padding:10px;text-align:right">
+          <div style="font-size:13px;font-weight:600">${f.spaces||0}</div>
+          <div style="font-size:10px;color:var(--mid-grey)">spaces</div>
+        </td>
+        <td style="padding:10px">
+          <div style="display:flex;align-items:center;gap:6px">
+            <div style="flex:1;height:6px;background:#1a2840;border-radius:3px;overflow:hidden">
+              <div style="height:100%;background:${clsPct>=90?'#22c55e':clsPct>=50?'#eab308':'#ef4444'};width:${clsPct}%;transition:width .3s"></div>
+            </div>
+            <span style="font-size:11px;font-weight:700;color:${clsPct>=90?'#22c55e':clsPct>=50?'#eab308':'#ef4444'}">${clsPct}%</span>
+          </div>
+          <div style="font-size:10px;color:var(--mid-grey);margin-top:2px">${f.classified||0} classified / ${f.unclassified||0} missing</div>
+        </td>
+        <td style="padding:10px">
           ${f.proxies > 0
-            ? `<span class="badge badge-warning">⚠ ${VUtils.fmt(f.proxies)} proxy</span>`
-            : '<span class="badge badge-pass">✓ None</span>'}
+            ? `<span style="background:#451a03;color:#fed7aa;border:1px solid #7c2d12;border-radius:4px;padding:2px 7px;font-size:11px;font-weight:600">⚠ ${VUtils.fmt(f.proxies)} proxy</span>`
+            : '<span style="background:#052e1622;color:#86efac;border:1px solid #052e1644;border-radius:4px;padding:2px 7px;font-size:11px">✓ None</span>'}
         </td>
-        <td>
-          <div style="display:flex;gap:6px">
-            <button class="btn btn-ghost" style="padding:3px 10px;font-size:11px"
-              onclick="App.navigate('3d');setTimeout(()=>Viewer3DPage.loadFile('${VUtils.esc(f.name)}'),400)">
-              🧊 View
+        <td style="padding:10px">
+          <span style="font-size:11px;${georef ? 'color:#22c55e' : 'color:#ef4444'}">${georef ? '✓ SVY21/GDM2000' : '✗ Not georeferenced'}</span>
+        </td>
+        <td style="padding:10px">
+          <div style="display:flex;gap:4px;flex-wrap:wrap">
+            <button class="btn btn-ghost" style="padding:3px 8px;font-size:11px" title="View in 3D Viewer"
+              onclick="App.navigate('3d')">
+              🧊 3D
             </button>
-            <button class="btn btn-ghost" style="padding:3px 10px;font-size:11px;color:#B91C1C;border-color:#FECACA"
-              onclick="(function(){if(confirm('Remove ${VUtils.esc(f.name)} from the list?'))VBridge.removeFile('${VUtils.esc(f.name)}')})()">
-              ✕ Remove
+            <button class="btn btn-teal" style="padding:3px 8px;font-size:11px" title="Run Validation"
+              onclick="VBridge.runValidation()">
+              ▶ Validate
+            </button>
+            <button class="btn btn-ghost" style="padding:3px 8px;font-size:11px;color:#f87171;border-color:#f8717155"
+              onclick="(function(){if(confirm('Remove ${VUtils.esc(f.name)}?'))VBridge.send('removeFile',{name:'${VUtils.esc(f.name)}'})})()">
+              ✕
             </button>
           </div>
         </td>
-      </tr>`).join('');
+      </tr>`;
+    }).join('');
 
     return `
       <div>
@@ -59,10 +95,7 @@ const FilesPage = (() => {
           <div class="table-wrap">
             <table>
               <thead><tr>
-                <th>File Name</th>
-                <th>Elements</th>
-                <th>Proxies</th>
-                <th>Actions</th>
+                <th>File</th><th>Elements</th><th>Storeys</th><th>Spaces</th><th>Classification</th><th>Proxies</th><th>Georef</th><th>Actions</th>
               </tr></thead>
               <tbody>${rows}</tbody>
             </table>
@@ -338,7 +371,7 @@ const SettingsPage = (() => {
         <div class="detail-panel">
           <div class="detail-row">
             <span class="detail-label">Singapore Rules</span>
-            <span class="detail-value">IFC+SG Industry Mapping 2025 (COP 3rd Edition, October 2025)</span>
+            <span class="detail-value">IFC+SG Industry Mapping 2025 (COP 3.1 Edition, December 2025)</span>
           </div>
           <div class="detail-row">
             <span class="detail-label">SG Agencies</span>
@@ -507,7 +540,7 @@ const AboutPage = (() => {
             <div>
               <h3 style="margin-bottom:8px">🇸🇬 Singapore</h3>
               <div class="detail-panel" style="margin-top:0">
-                <div class="detail-row"><span class="detail-label">CORENET-X</span><span class="detail-value">COP 3rd Edition, October 2025</span></div>
+                <div class="detail-row"><span class="detail-label">CORENET-X</span><span class="detail-value">COP 3.1 Edition, December 2025</span></div>
                 <div class="detail-row"><span class="detail-label">IFC+SG Mapping</span><span class="detail-value">Industry Mapping 2025 (all 8 agencies)</span></div>
                 <div class="detail-row"><span class="detail-label">BCA Accessibility</span><span class="detail-value">Code on Accessibility 2025</span></div>
                 <div class="detail-row"><span class="detail-label">SCDF Fire Code</span><span class="detail-value">Fire Code 2018 (2023 Amendment)</span></div>

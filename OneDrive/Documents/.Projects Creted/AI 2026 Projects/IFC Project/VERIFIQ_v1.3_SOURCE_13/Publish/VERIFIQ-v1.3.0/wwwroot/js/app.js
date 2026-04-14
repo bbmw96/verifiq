@@ -8,21 +8,27 @@ const App = (() => {
 
   // Page registry - every sidebar nav button must have an entry here
   const pages = {
-    dashboard:   () => DashboardPage.render(),
-    files:       () => FilesPage.render(),
-    validation:  () => renderValidationPage(),
-    results:     () => ResultsPage.render(),
-    critical:    () => ResultsPage.renderCritical(),
-    design:      () => ResultsPage.renderDesignCode(),
-    '3d':        () => Viewer3DPage.render(),
-    export:      () => ExportPage.render(),
-    settings:    () => SettingsPage.render(),
-    licence:     () => renderLicencePage(),
-    rules:       () => renderRulesPage(),
-    about:       () => AboutPage.render(),
-    help:        () => renderHelpPage(),
+    dashboard:      () => DashboardPage.render(),
+    files:          () => FilesPage.render(),
+    validation:     () => renderValidationPage(),
+    results:        () => ResultsPage.render(),
+    critical:       () => ResultsPage.renderCritical(),
+    design:         () => ResultsPage.renderDesignCode(),
+    '3d':           () => Viewer3DPage.render(),
+    export:         () => renderExportPage(),
+    settings:       () => renderSettingsPage(),
+    licence:        () => renderLicencePage(),
+    rules:          () => renderRulesPage(),
+    about:          () => renderAboutPage(),
+    help:           () => renderHelpPage(),
     userguide:      () => renderUserGuidePage(),
     propertyeditor: () => renderPropertyEditorPage(),
+    'import':       () => renderImportMappingPage(),
+    'ids':          () => renderIdsCheckerPage(),
+    'merge':        () => renderIfcMergePage(),
+    'cobie':        () => renderCobiePage(),
+    'search':       () => renderSearchPage(),
+    manual:         () => (window._renderUserManualPage ? window._renderUserManualPage() : '<div><h1 style="padding:40px">Loading manual...</h1></div>'),
   };
 
   // Rules page tab switcher
@@ -67,7 +73,7 @@ const App = (() => {
     } catch (err) {
       console.error('[VERIFIQ] render error on page "' + page + '":', err);
       el.innerHTML = `<div style="padding:32px">
-        <div style="background:#FEF2F2;border:1px solid #FECACA;border-radius:8px;padding:20px">
+        <div style="background:#FEF2F2;border:1px solid #FECACA;border-radius:8px;padding:10px">
           <div style="font-weight:700;color:#B91C1C;margin-bottom:8px">⚠ Page render error - ${page}</div>
           <div style="font-family:monospace;font-size:12px;color:#7F1D1D">${err && err.message ? err.message : String(err)}</div>
           <button class="btn btn-outline" style="margin-top:12px" onclick="App.navigate('dashboard')">← Back to Dashboard</button>
@@ -86,40 +92,76 @@ const App = (() => {
 
     // Initialise the bridge (sets up WebView2 message listener)
     VBridge.init();
+    // Render the initial page immediately
+    render(page);
+    // Re-render after 300ms once the bridge sends stateUpdate 
+    // This ensures dashboard shows populated content on first open
+    setTimeout(() => { try { render(VState.get().currentPage || page); } catch(e){} }, 350);
+
+    // Show welcome tour on first launch (after a short delay so UI renders)
+    setTimeout(() => { if(window.WelcomeTour) WelcomeTour.prompt(); }, 1200);
 
     // Update banner: shown at the top of the page when C# finds a newer version.
     window._showUpdateBanner = (info) => {
       const el = document.getElementById('update-banner');
       if (!el) return;
+
+      const isMandate = info.mandatory;
+      const bg    = isMandate ? '#3b0000' : '#0f2035';
+      const bdr   = isMandate ? '#ef4444' : '#F59E0B';
+      const txt   = isMandate ? '#fca5a5' : '#fde68a';
+
       el.innerHTML = `
-        <div style="background:#FEF3C7;border-bottom:2px solid #F59E0B;padding:8px 20px;
-          display:flex;align-items:center;gap:12px;font-family:Arial;font-size:12px">
+        <div id="vq-update-inner" style="background:${bg};border-bottom:2px solid ${bdr};
+          padding:8px 20px;display:flex;align-items:center;gap:10px;font-size:12px;flex-wrap:wrap">
           <span style="font-size:16px">⬆</span>
-          <span><strong>VERIFIQ ${VUtils.esc(info.latest)} is available</strong>
-            (you have ${VUtils.esc(info.current)}).
-            ${info.notes ? VUtils.esc(info.notes) + ' ' : ''}
-            <a href="${VUtils.esc(info.url)}" target="_blank"
-               style="color:#92400E;font-weight:700">Download →</a>
+          <span>
+            <strong style="color:${txt}">VERIFIQ ${VUtils.esc(info.latest)} is available</strong>
+            ${isMandate ? '<span style="color:#ef4444;font-weight:700"> · Required update</span>' : ''}
+            &nbsp; You have v${VUtils.esc(info.current)}.
+            ${info.releaseDate ? `Released ${VUtils.esc(info.releaseDate)}.` : ''}
+            ${info.sizeMb ? `&nbsp;${VUtils.esc(info.sizeMb)}.` : ''}
           </span>
-          <button onclick="document.getElementById('update-banner').innerHTML=''"
-            style="margin-left:auto;background:none;border:none;cursor:pointer;
-                   font-size:18px;color:#92400E;padding:0 4px">✕</button>
+          ${info.notes ? `<span style="color:var(--mid-grey)">  -  ${VUtils.esc(info.notes)}</span>` : ''}
+          <div style="display:flex;gap:6px;margin-left:auto">
+            <button id="vq-dl-btn" onclick="(function(btn){
+                btn.textContent='⬇ Downloading...';btn.disabled=true;
+                document.getElementById('vq-update-inner').insertAdjacentHTML('beforeend',
+                  '<div id=\"vq-update-progress\" style=\"width:100%;padding:4px 0\"></div>');
+                VBridge.send('downloadAndInstallUpdate',{url:'${VUtils.esc(info.directUrl||info.url)}'});
+              })(this)"
+              style="background:#F59E0B;color:#000;border:none;border-radius:4px;padding:4px 12px;font-size:11px;font-weight:700;cursor:pointer">
+              ⬇ Auto Install Update
+            </button>
+            <button onclick="VBridge.send('openUrl',{url:'${VUtils.esc(info.url)}'})"
+              style="background:transparent;color:var(--mid-grey);border:1px solid var(--border);border-radius:4px;padding:4px 10px;font-size:11px;cursor:pointer">
+              Release Notes
+            </button>
+            ${!isMandate ? `
+            <button onclick="VBridge.send('skipUpdateVersion',{version:'${VUtils.esc(info.latest)}'});document.getElementById('update-banner').innerHTML=''"
+              style="background:transparent;color:var(--mid-grey);border:1px solid var(--border);border-radius:4px;padding:4px 10px;font-size:11px;cursor:pointer"
+              title="Skip v${VUtils.esc(info.latest)}  -  you won't be notified again for this version">
+              Skip v${VUtils.esc(info.latest)}
+            </button>
+            <button onclick="VBridge.send('deferUpdateToClose',{version:'${VUtils.esc(info.latest)}'});document.getElementById('update-banner').innerHTML='<div style=\"padding:6px 20px;background:#0f2035;border-bottom:1px solid #1e3a5f;font-size:11px;color:#94a3b8\">⏰ Update will install when you close VERIFIQ</div>'"
+              style="background:transparent;color:var(--mid-grey);border:1px solid var(--border);border-radius:4px;padding:4px 10px;font-size:11px;cursor:pointer"
+              title="Install when VERIFIQ next closes">
+              ⏰ Defer
+            </button>
+            <button onclick="document.getElementById('update-banner').innerHTML=''"
+              style="background:transparent;color:var(--mid-grey);border:none;padding:4px 8px;font-size:14px;cursor:pointer" title="Remind me later">
+              ✕
+            </button>` : ''}
+          </div>
         </div>`;
-    };
-
-    // Subscribe to state changes that affect the current page
-    VState.subscribe('*', () => refresh());
-
-    // Initial render
-    render(page);
+    }
   }
 
   // ── LICENCE PAGE ─────────────────────────────────────────────────────────
-
   function renderLicencePage() {
-    const state = VState.get();
-    const tier  = state.licence || 'Trial';
-    const isTrial = tier.toLowerCase().includes('trial');
+    const state   = VState.get();
+    const tier    = state.licence || 'Trial';
+    const isTrial = tier === 'Trial';
 
     window._licenceErrorCallback = (msg) => {
       const el = document.getElementById('licence-error');
@@ -211,7 +253,9 @@ const App = (() => {
           </p>
         </div>
       </div>`;
+ 
   }
+
   // ── RULES PAGE ────────────────────────────────────────────────────────────
 
   function renderRulesPage() {
@@ -222,6 +266,20 @@ const App = (() => {
 
     return `<div>
       <h1>Rules Database</h1>
+      <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px">
+        <button class="btn btn-ghost" style="font-size:11px"
+          onclick="VBridge.send('openUrl',{url:'https://info.corenet.gov.sg/ifc-sg/templates--apps-and-more/ifc-sg-excel-mapping-file'})">
+          📥 IFC+SG Excel Mapping (CORENET-X Portal)
+        </button>
+        <button class="btn btn-ghost" style="font-size:11px"
+          onclick="VBridge.send('openUrl',{url:'https://go.gov.sg/ifcsg'})">
+          🌐 go.gov.sg/ifcsg
+        </button>
+        <button class="btn btn-ghost" style="font-size:11px"
+          onclick="VBridge.send('openUrl',{url:'https://go.gov.sg/cxcop'})">
+          📘 COP 3.1 Docs
+        </button>
+      </div>
       <p style="color:var(--mid-grey);font-size:13px;margin-bottom:12px">
         <strong>128 IFC+SG classification codes</strong> embedded - 64 Architectural, 28 Structural,
         18 M&amp;E, 10 Plumbing, 4 Civil, 4 Landscape, plus full Malaysia NBeS codes.
@@ -234,9 +292,9 @@ const App = (() => {
           <span class="card-title">📥 Import BCA Industry Mapping Excel</span>
         </div>
         <p style="font-size:12px;color:var(--mid-grey);margin-bottom:10px">
-          Download the official <strong>IFC+SG Industry Mapping 2025 (COP3)</strong> Excel from
-          <a href="#" onclick="VBridge.send('openUrl',{url:'https://info.corenet.gov.sg'})" style="color:var(--teal)">
-            info.corenet.gov.sg
+          Download the official <strong>IFC+SG Industry Mapping December 2025 (COP3.1) (COP3.1, BCA/GovTech, Dec 2025)</strong> Excel from
+          <a href="#" onclick="VBridge.send('openUrl',{url:'https://go.gov.sg/ifcsg'})" style="color:var(--teal)">
+            go.gov.sg/ifcsg (IFC+SG Resource Kit)
           </a>
           and import it here to ensure VERIFIQ uses the latest official code-to-property mappings.
         </p>
@@ -245,7 +303,7 @@ const App = (() => {
             📂 Browse &amp; Import Excel
           </button>
           <div style="font-size:11px;color:var(--mid-grey)">
-            Accepted: IFC+SG Industry Mapping 2025 (COP3), COP2, or NBeS Industry Mapping Excel
+            Accepted: IFC+SG Industry Mapping December 2025 (COP3.1) (COP3.1, BCA/GovTech, Dec 2025), COP2, or NBeS Industry Mapping Excel
           </div>
         </div>
         <div id="industry-mapping-result" style="margin-top:8px"></div>
@@ -268,7 +326,7 @@ const App = (() => {
           <div class="card">
             <div class="card-header"><span class="card-title">🇸🇬 CORENET-X IFC+SG 2025</span></div>
             <div style="font-size:12px;line-height:1.8">
-              <b>Standard:</b> IFC+SG Industry Mapping 2025 (COP 3rd Edition, October 2025)<br>
+              <b>Standard:</b> IFC+SG Industry Mapping December 2025 (COP3.1) (COP3.1 Edition (Dec 2025)  -  81 identified components, 833 property mappings, December 2025)<br>
               <b>Schema:</b> IFC4 Reference View ADD2 TC1 (IFCXML/IFC/IFCZIP)<br>
               <b>Coordinate:</b> SVY21 (EPSG:3414) - mandatory IfcMapConversion<br>
               <b>Agencies:</b> BCA · URA · LTA · NEA · NParks · PUB · SCDF · SLA<br>
@@ -474,7 +532,7 @@ const App = (() => {
           <div class="card">
             <div class="card-header"><span class="card-title">IFC+SG Export: ArchiCAD</span></div>
             <ol style="font-size:12px;line-height:1.9;padding-left:20px;color:var(--mid-grey)">
-              <li>Download the IFC+SG Export Translator from info.corenet.gov.sg</li>
+              <li>Download the IFC+SG Export Translator from the IFC+SG Resource Kit at go.gov.sg/ifcsg</li>
               <li>Import it via Options > Import Scheme</li>
               <li>Use File > Save as IFC > select the IFC+SG scheme</li>
               <li>Ensure IFC4 Reference View is selected</li>
@@ -484,7 +542,7 @@ const App = (() => {
           <div class="card">
             <div class="card-header"><span class="card-title">IFC+SG Export: Revit</span></div>
             <ol style="font-size:12px;line-height:1.9;padding-left:20px;color:var(--mid-grey)">
-              <li>Download IFC+SG shared parameters from info.corenet.gov.sg</li>
+              <li>Download IFC+SG shared parameter files from the IFC+SG Resource Kit at go.gov.sg/ifcsg</li>
               <li>Load the shared parameter file via Manage > Shared Parameters</li>
               <li>Apply the IFC+SG export settings file</li>
               <li>Export using File > Export > IFC, select IFC4 Reference View</li>
@@ -508,9 +566,11 @@ const App = (() => {
             <table>
               <thead><tr><th>Resource</th><th>Description</th><th>Country</th></tr></thead>
               <tbody>
-                <tr><td>info.corenet.gov.sg</td><td>CORENET-X portal, IFC+SG toolkit, COP downloads</td><td>🇸🇬</td></tr>
+                <tr><td>go.gov.sg/ifcsg</td><td>IFC+SG Resource Kit: Export Translators, Mapping Excel, COP downloads</td><td>🇸🇬</td></tr>
+                <tr><td>go.gov.sg/cxcop</td><td>CORENET-X Code of Practice (COP3.1 Edition)</td><td>🇸🇬</td></tr>
+                <tr><td>code.builtsearch.com/ifcsg-validator</td><td>Official IFC+SG Validator (free, cloud-based)</td><td>🇸🇬</td></tr>
                 <tr><td>IFC+SG Industry Mapping Excel</td><td>500+ parameter mapping from BCA/GovTech</td><td>🇸🇬</td></tr>
-                <tr><td>CORENET-X COP 3rd Edition (Sep 2025)</td><td>Code of Practice for IFC+SG submissions</td><td>🇸🇬</td></tr>
+                <tr><td>CORENET-X COP3.1.1 Edition (December 2025) (Sep 2025)</td><td>Code of Practice for IFC+SG submissions</td><td>🇸🇬</td></tr>
                 <tr><td>Good Practices Guidebook (Dec 2025)</td><td>Practical guidance for IFC+SG preparation</td><td>🇸🇬</td></tr>
                 <tr><td>NBeS portal (CIDB)</td><td>Malaysia BIM e-Submission system</td><td>🇲🇾</td></tr>
                 <tr><td>UBBL 1984 (Act 133)</td><td>Uniform Building By-Laws (Malaysia)</td><td>🇲🇾</td></tr>
@@ -665,7 +725,7 @@ const App = (() => {
         <div>
           <h1 style="margin:0">User Guide</h1>
           <p style="font-size:13px;color:var(--mid-grey);margin-top:3px">
-            VERIFIQ v1.3.0 - IFC Compliance Checker for Singapore CORENET-X and Malaysia NBeS
+            VERIFIQ v2.0.0 - IFC Compliance Checker for Singapore CORENET-X and Malaysia NBeS
           </p>
         </div>
         <button class="btn btn-ghost" onclick="App.navigate('help')">← Back to Help</button>
@@ -780,7 +840,7 @@ const App = (() => {
         <div class="card-header"><span class="card-title">3. Getting Started</span></div>
         <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px">
           ${[
-            ['1','Install VERIFIQ','Download VERIFIQ-v1.3.0-Setup.exe from verifiq.bbmw0.com or GitHub. Run the installer as Administrator. VERIFIQ installs to C:\\Program Files\\VERIFIQ.'],
+            ['1','Install VERIFIQ','Download VERIFIQ-v2.0.0-Setup.exe from verifiq.bbmw0.com or GitHub. Run the installer as Administrator. VERIFIQ installs to C:\\Program Files\\VERIFIQ.'],
             ['2','Activate your licence','Launch VERIFIQ. Go to Licence in the sidebar. Enter your licence key (format: VRFQ-XXXX-XXXX-XXXX-XXXX). Trial mode is active by default and checks up to 10 elements per run.'],
             ['3','Select country mode','Choose Singapore (CORENET-X), Malaysia (NBeS), or SG + MY (Combined) using the mode buttons in the toolbar. Singapore mode uses IFC+SG 2025 rules. Malaysia mode uses UBBL 1984 / NBeS 2024 rules.'],
             ['4','Select gateway or purpose group','For Singapore: select the CORENET-X gateway (Design, Construction, Completion, Piling). For Malaysia: select the UBBL Purpose Group (I-IX). This controls which rules apply.'],
@@ -869,7 +929,7 @@ const App = (() => {
             </div>
             <h3 style="margin-top:14px">Preparing your IFC from ArchiCAD</h3>
             <ol style="font-size:12px;line-height:1.9;color:var(--mid-grey);padding-left:18px">
-              <li>Download the IFC+SG Export Translator from info.corenet.gov.sg</li>
+              <li>Download the IFC+SG Export Translator from the IFC+SG Resource Kit at go.gov.sg/ifcsg</li>
               <li>In ArchiCAD: File > Save as IFC</li>
               <li>Select the IFC+SG Export Translator scheme</li>
               <li>Schema: IFC4 Reference View</li>
@@ -879,7 +939,7 @@ const App = (() => {
           <div>
             <h3>Preparing your IFC from Revit</h3>
             <ol style="font-size:12px;line-height:1.9;color:var(--mid-grey);padding-left:18px">
-              <li>Download IFC+SG shared parameter files from info.corenet.gov.sg</li>
+              <li>Download IFC+SG shared parameter files from the IFC+SG Resource Kit at go.gov.sg/ifcsg</li>
               <li>Load via Manage > Shared Parameters</li>
               <li>File > Export > IFC > IFC4 Reference View</li>
               <li>Apply the IFC+SG export settings (.json)</li>
@@ -1105,7 +1165,7 @@ const App = (() => {
           M&amp;E (HVAC, fire systems, electrical), plumbing (with PUB WELS ratings),
           civil, landscape, and full Malaysia NBeS codes (UBBL 1984 / MS 1184 / JBPM).</p>
           <p style="margin-top:8px"><strong>Import updates from BCA:</strong> Rules Database → Import BCA Industry Mapping Excel
-          - browse to the official Excel from info.corenet.gov.sg. VERIFIQ auto-detects columns and
+          - Browse to the official Industry Mapping Excel from go.gov.sg/ifcsg (BCA, Dec 2025, COP3.1 aligned, 833 property mappings). VERIFIQ auto-detects columns and
           merges codes into the runtime library immediately. Re-run validation to use the updated rules.</p>
         </div>
       </div>
@@ -1168,9 +1228,11 @@ const App = (() => {
         <div style="margin-top:14px;padding:12px;background:var(--teal)08;border-radius:8px;border:1px solid var(--teal)20">
           <div style="font-weight:700;font-size:12px;color:var(--teal);margin-bottom:6px">Official Resources</div>
           <div style="font-size:12px;line-height:1.9;color:var(--mid-grey)">
-            CORENET-X portal and IFC+SG toolkit: <strong>info.corenet.gov.sg</strong><br>
+            IFC+SG Resource Kit (Export Translators, Mapping): <strong>go.gov.sg/ifcsg</strong><br>
+            CORENET-X Code of Practice (COP3.1): <strong>go.gov.sg/cxcop</strong><br>
+            Official IFC+SG Validator (free): <strong>code.builtsearch.com/ifcsg-validator</strong><br>
             Industry Mapping Excel (master rules reference): downloadable from the IFC+SG Resource Kit<br>
-            CORENET-X COP 3rd Edition (October 2025): the definitive submission standard<br>
+            CORENET-X COP3.1.1 Edition (December 2025) (December 2025): the definitive submission standard<br>
             Good Practices Guidebook (December 2025): practical workflow guidance
           </div>
         </div>
@@ -1273,7 +1335,7 @@ const App = (() => {
                     ['CORENET-X','Singapore multi-agency building regulatory approval platform (BCA/URA/GovTech)'],
                     ['NBeS','National BIM e-Submission system for Malaysia (CIDB)'],
                     ['UBBL','Uniform Building By-Laws 1984 - primary building regulation in Malaysia'],
-                    ['COP','Code of Practice - the CORENET-X submission guide (COP 3rd Edition, Oct 2025)'],
+                    ['COP','Code of Practice - the CORENET-X submission guide (COP3.1 Edition (Dec 2025)  -  81 identified components, 833 property mappings, Dec 2025)'],
                     ['BCA','Building and Construction Authority (Singapore)'],
                     ['URA','Urban Redevelopment Authority (Singapore)'],
                     ['SCDF','Singapore Civil Defence Force (fire safety)'],
@@ -1298,13 +1360,13 @@ const App = (() => {
         <div style="display:flex;flex-direction:column;gap:10px">
           ${[
             ['Does VERIFIQ submit my model to CORENET-X for me?',
-             'No. VERIFIQ is a pre-submission checker only. You still upload your validated IFC file to the CORENET-X portal (info.corenet.gov.sg) yourself. VERIFIQ helps you identify and fix issues before submission.'],
+             'No. VERIFIQ is a pre-submission checker only. You still upload your validated IFC file to the CORENET-X submission portal yourself. VERIFIQ helps you identify and fix all issues before submission, so your model passes the automated checker first time.'],
             ['If VERIFIQ gives a passing result, does that mean my submission will be approved?',
              'No. A VERIFIQ pass means your IFC data meets the technical requirements checked by VERIFIQ. Regulatory approval is determined by BCA, URA, SCDF and other agencies reviewing the full submission. Your Qualified Person remains responsible for all compliance determinations.'],
             ['Can I use VERIFIQ without an internet connection?',
              'Yes. All validation, 3D viewing, and report export functions work 100% offline. The only feature that requires internet is the optional software update check, which runs silently in the background and can be disabled.'],
             ['My IFC file was exported from ArchiCAD but VERIFIQ shows many errors. What do I do?',
-             'Ensure you are using the IFC+SG Export Translator from info.corenet.gov.sg (not the default ArchiCAD IFC export). The default export does not include SGPset_ property sets. Download and import the IFC+SG translator, then re-export.'],
+             'Ensure you are using the IFC+SG Export Translator from go.gov.sg/ifcsg (not the default ArchiCAD IFC export). The default export does not include SGPset_ property sets. Download and import the IFC+SG translator (IFC4 Reference View), then re-export. Note: In ArchiCAD, the IFC entity is defined by the classification code you assign in the Classification Manager, not by the native element type. A slab with classification A-WAL-EXW-01 exports as IfcWall. VERIFIQ validates based on the exported IFC entity and its classification code combination.'],
             ['What is the difference between a Critical and an Error finding?',
              'Critical means the submission will definitely be rejected - the element is fundamentally non-compliant. Error means it will likely cause rejection or significant review comments. Both should be fixed before submission. Warnings are advisory.'],
             ['Can VERIFIQ check models from Tekla Structures?',
@@ -1423,7 +1485,507 @@ const App = (() => {
     return html;
   }
 
-  return { init, navigate, refresh, render };
+
+  // ─── IMPORT MAPPING PAGE ──────────────────────────────────────────────────
+  function renderImportMappingPage() {
+    return `<div>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+        <div>
+          <h1 style="margin:0">📥 Import BCA Industry Mapping</h1>
+          <p style="font-size:13px;color:var(--mid-grey);margin-top:3px">
+            Import the official BCA IFC+SG Industry Mapping Excel to update classification codes and property requirements
+          </p>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px">
+        <div class="card" style="padding:20px">
+          <div style="font-weight:700;font-size:13px;color:var(--teal);margin-bottom:12px">📥 Import Excel File</div>
+          <p style="font-size:12px;color:var(--mid-grey);margin-bottom:16px;line-height:1.7">
+            Download the latest <strong>IFC+SG Industry Mapping Excel</strong> from the BCA/GovTech portal,
+            then import it here to update your local rules database.
+          </p>
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <button class="btn btn-teal" onclick="VBridge.send('openUrl',{url:'https://go.gov.sg/ifcsg'})"
+              style="font-size:12px">🌐 Download from go.gov.sg/ifcsg</button>
+            <button class="btn btn-primary" onclick="VBridge.send('openFileForImport',{purpose:'industryMapping'})"
+              style="font-size:12px">📂 Browse for Excel file (.xlsx)</button>
+          </div>
+        </div>
+
+        <div class="card" style="padding:20px">
+          <div style="font-weight:700;font-size:13px;color:var(--amber);margin-bottom:12px">ℹ️ What gets imported</div>
+          <div style="font-size:11px;color:var(--mid-grey);line-height:1.9">
+            ✓ Classification codes (all 196 COP3.1 entries)<br>
+            ✓ Mandatory property sets per IFC entity<br>
+            ✓ Required property values and accepted enumerations<br>
+            ✓ Agency assignments (BCA / SCDF / URA / NEA / PUB / SLA / LTA / JTC)<br>
+            ✓ Gateway requirements (G1 / G1.5 / G2 / G3)<br>
+            ✓ Singapore-specific SGPset_ property sets
+          </div>
+        </div>
+      </div>
+
+      <div class="card" style="padding:20px;margin-bottom:16px">
+        <div style="font-weight:700;font-size:13px;color:var(--white);margin-bottom:10px">📋 What is the IFC+SG Industry Mapping?</div>
+        <p style="font-size:12px;color:var(--mid-grey);line-height:1.8;margin-bottom:10px">
+          The IFC+SG Industry Mapping is the official BCA/GovTech Excel spreadsheet that defines how every
+          building component in Singapore must be described in IFC format for CORENET-X submission.
+          It maps each IFC entity class to its required classification code (from the IFC+SG Classification System),
+          mandatory property sets (Pset_ and SGPset_), required properties, and accepted values.
+        </p>
+        <p style="font-size:12px;color:var(--mid-grey);line-height:1.8">
+          The current edition is <strong style="color:var(--teal)">COP 3.1 (December 2025)</strong> which covers
+          833 rows and 81 identified building components. VERIFIQ ships with this edition embedded,
+          but you can import a newer version at any time.
+        </p>
+      </div>
+
+      <div class="card" style="padding:20px">
+        <div style="font-weight:700;font-size:13px;color:var(--white);margin-bottom:10px">🔗 Key Links</div>
+        <div style="display:flex;flex-wrap:wrap;gap:8px">
+          ${[
+            ['CORENET-X Portal', 'https://portal.corenet.gov.sg'],
+            ['IFC+SG Downloads', 'https://go.gov.sg/ifcsg'],
+            ['COP 3.1 Documentation', 'https://go.gov.sg/cxcop'],
+            ['CORENET-X Info', 'https://go.gov.sg/cx'],
+            ['IFC+SG Validator', 'https://code.builtsearch.com/ifcsg-validator'],
+          ].map(function(item) { var label=item[0], url=item[1]; return '<button class="btn btn-ghost" style="font-size:11px" onclick="VBridge.send(\'openUrl\',{url:\''+url+'\'})">🔗 '+label+'</button>'; }).join('')}
+        </div>
+      </div>
+
+      <div id="import-result-panel"></div>
+    </div>`;
+  }
+
+
+  // ─── SEARCH AND SELECT PAGE ──────────────────────────────────────────────
+  function renderSearchPage() {
+    const state   = VState.get();
+    const session = state.session;
+    const elements= (session?.findings || []);
+    return `<div>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+        <div>
+          <h1 style="margin:0">Search and Select</h1>
+          <p style="font-size:12px;color:var(--mid-grey);margin-top:3px">Search elements by name, GUID, IFC class, classification code, or storey</p>
+        </div>
+      </div>
+      <div class="card" style="padding:16px;margin-bottom:12px">
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+          <input id="search-query" type="text" placeholder="Search by name, GUID, IFC class, classification code..."
+            style="flex:1;min-width:200px;height:34px;padding:0 12px;font-size:13px;border:1px solid var(--border);border-radius:6px;background:#081322;color:#e2e8f0"
+            oninput="SearchPage.run(this.value)" autofocus/>
+          <select id="search-field" onchange="SearchPage.run(document.getElementById('search-query').value)"
+            style="height:34px;padding:0 8px;font-size:12px;border:1px solid #2d4a6e;border-radius:5px;background:#081322;color:#e2e8f0">
+            <option value="all">All fields</option>
+            <option value="name">Element Name</option>
+            <option value="guid">GUID</option>
+            <option value="cls">IFC Class</option>
+            <option value="code">Classification Code</option>
+            <option value="storey">Storey</option>
+          </select>
+          <button class="btn btn-ghost" style="font-size:12px" onclick="document.getElementById('search-query').value='';SearchPage.run('')">Clear</button>
+        </div>
+      </div>
+      <div id="search-results" class="card" style="padding:12px">
+        ${!session ? '<div style="color:var(--mid-grey);font-size:13px;padding:20px;text-align:center">Run validation first to enable element search.</div>'
+          : '<div style="color:var(--mid-grey);font-size:13px;padding:20px;text-align:center">Type in the search box above to find elements.</div>'}
+      </div>
+    </div>`;
+  }
+
+  window.SearchPage = {
+    run(query) {
+      const el = document.getElementById('search-results');
+      if (!el) return;
+      const field = document.getElementById('search-field')?.value || 'all';
+      const q = (query || '').toLowerCase().trim();
+      const session = VState.get().session;
+      if (!session) return;
+
+      const findings = session.findings || [];
+      // Deduplicate by guid
+      const seen = new Set();
+      const elements = findings.filter(f => {
+        if (seen.has(f.guid)) return false;
+        seen.add(f.guid); return true;
+      });
+
+      const matched = q ? elements.filter(f => {
+        if (field === 'name'   || field === 'all') if ((f.name||'').toLowerCase().includes(q)) return true;
+        if (field === 'guid'   || field === 'all') if ((f.guid||'').toLowerCase().includes(q)) return true;
+        if (field === 'cls'    || field === 'all') if ((f.cls||'').toLowerCase().includes(q))  return true;
+        if (field === 'code'   || field === 'all') if ((f.cls||'').split('|')[1]?.toLowerCase().includes(q)) return true;
+        if (field === 'storey' || field === 'all') if ((f.storey||'').toLowerCase().includes(q)) return true;
+        return false;
+      }) : elements.slice(0, 50);
+
+      if (!q) { el.innerHTML = '<div style="color:var(--mid-grey);font-size:13px;padding:20px;text-align:center">Type to search. Showing first 50 elements.</div>'; }
+
+      const rows = matched.slice(0, 200).map(f => {
+        const [cls,,sub] = (f.cls||'').split('|');
+        const sev = f.severity || '';
+        const col = {Critical:'#ef4444',Error:'#f97316',Warning:'#eab308',Pass:'#22c55e'}[sev]||'#6b7280';
+        return `<tr style="border-bottom:1px solid var(--border);cursor:pointer" onclick="App.navigate('3d')">
+          <td style="padding:6px 10px"><span style="background:${col}22;color:${col};border:1px solid ${col}44;border-radius:3px;padding:1px 6px;font-size:10px">${VUtils.esc(sev||'-')}</span></td>
+          <td style="padding:6px 10px;font-size:12px;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${VUtils.esc(f.name||'-')}</td>
+          <td style="padding:6px 10px"><span style="background:#0e2a4a;color:#60a5fa;border-radius:3px;padding:1px 6px;font-size:10px;font-family:monospace">${VUtils.esc(cls||'-')}</span></td>
+          <td style="padding:6px 10px;font-size:11px;color:var(--mid-grey)">${VUtils.esc(sub||'-')}</td>
+          <td style="padding:6px 10px;font-size:11px;color:var(--mid-grey)">${VUtils.esc(f.storey||'-')}</td>
+          <td style="padding:6px 10px;font-size:10px;color:#475569;font-family:monospace">${VUtils.esc((f.guid||'').slice(0,12)+'...')}</td>
+          <td style="padding:6px 10px">
+            <button class="btn btn-ghost" style="font-size:10px;padding:2px 7px"
+              onclick="event.stopPropagation();App.navigate('results');setTimeout(()=>{const i=document.getElementById('filter-search');if(i){i.value='${VUtils.esc(f.guid||'')}';i.dispatchEvent(new Event('input'))}},400)">
+              Findings
+            </button>
+          </td>
+        </tr>`;
+      }).join('');
+
+      el.innerHTML = `
+        <div style="font-size:11px;color:var(--mid-grey);margin-bottom:8px">${matched.length} element${matched.length!==1?'s':''} found${matched.length>200?' (showing first 200)':''}</div>
+        <div style="overflow-x:auto">
+          <table style="width:100%;border-collapse:collapse;font-size:12px">
+            <thead><tr style="background:var(--navy-dark)">
+              <th style="padding:6px 10px;text-align:left;font-size:10px;color:var(--mid-grey)">Sev</th>
+              <th style="padding:6px 10px;text-align:left;font-size:10px;color:var(--mid-grey)">Element Name</th>
+              <th style="padding:6px 10px;text-align:left;font-size:10px;color:var(--mid-grey)">IFC Class</th>
+              <th style="padding:6px 10px;text-align:left;font-size:10px;color:var(--mid-grey)">SubType</th>
+              <th style="padding:6px 10px;text-align:left;font-size:10px;color:var(--mid-grey)">Storey</th>
+              <th style="padding:6px 10px;text-align:left;font-size:10px;color:var(--mid-grey)">GUID</th>
+              <th style="padding:6px 10px"></th>
+            </tr></thead>
+            <tbody>${rows || '<tr><td colspan="7" style="padding:20px;text-align:center;color:var(--mid-grey)">No elements matched</td></tr>'}</tbody>
+          </table>
+        </div>`;
+    }
+  };
+
+  // ─── IDS CHECKER PAGE ─────────────────────────────────────────────────────
+  function renderIdsCheckerPage() {
+    return `<div>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+        <div>
+          <h1 style="margin:0">IDS Checker</h1>
+          <p style="font-size:12px;color:var(--mid-grey);margin-top:3px">Information Delivery Specification (IDS) validation - check your IFC model against a custom IDS XML requirements file</p>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px">
+        <div class="card" style="padding:20px">
+          <div style="font-weight:700;font-size:13px;color:var(--teal);margin-bottom:10px">1. Load IDS File (.ids or .xml)</div>
+          <p style="font-size:12px;color:var(--mid-grey);margin-bottom:12px;line-height:1.7">IDS (Information Delivery Specification) is an ISO 21597 standard format for specifying exactly what IFC data a building model must contain. Import an IDS file to validate your model against custom requirements beyond CORENET-X.</p>
+          <button class="btn btn-primary" style="font-size:12px" onclick="VBridge.send('openFileForImport',{purpose:'idsFile',filter:'IDS Files|*.ids;*.xml;*.IDS|All Files|*.*'})">
+            📂 Browse for IDS File (.ids / .xml)
+          </button>
+        </div>
+        <div class="card" style="padding:20px">
+          <div style="font-weight:700;font-size:13px;color:var(--amber);margin-bottom:10px">What IDS checks</div>
+          <div style="font-size:11px;color:var(--mid-grey);line-height:1.9">
+            An IDS file can specify:<br>
+            - Required entity types and their properties<br>
+            - Mandatory classification codes<br>
+            - Specific property values and ranges<br>
+            - Material requirements<br>
+            - Custom project-specific rules beyond CORENET-X
+          </div>
+          <p style="font-size:11px;color:var(--mid-grey);margin-top:10px">Create IDS files using the <a href="#" onclick="VBridge.send('openUrl',{url:'https://github.com/buildingSMART/IDS'})" style="color:var(--teal)">buildingSMART IDS repository</a></p>
+        </div>
+      </div>
+      <div id="ids-result" class="card" style="padding:16px">
+        <div style="color:var(--mid-grey);font-size:13px;text-align:center;padding:20px">Load an IDS file to begin validation</div>
+      </div>
+    </div>`;
+  }
+
+  // ─── IFC MERGE PAGE ──────────────────────────────────────────────────────
+  function renderIfcMergePage() {
+    return `<div>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+        <div>
+          <h1 style="margin:0">IFC Merge</h1>
+          <p style="font-size:12px;color:var(--mid-grey);margin-top:3px">Merge multiple IFC files into a single federated model for combined compliance checking</p>
+        </div>
+      </div>
+      <div class="card" style="padding:20px;margin-bottom:12px">
+        <div style="font-weight:700;font-size:13px;color:var(--teal);margin-bottom:10px">How to merge IFC files</div>
+        <ol style="font-size:12px;color:var(--mid-grey);line-height:2;margin-left:18px">
+          <li>Load your first IFC file via Open IFC File in the toolbar</li>
+          <li>Click Add Files to load additional discipline models (architectural, structural, MEP)</li>
+          <li>VERIFIQ validates all files together - findings reference the source file for each element</li>
+          <li>Export reports cover the entire federated model</li>
+          <li>Use the Loaded Files page to remove any file from the session</li>
+        </ol>
+      </div>
+      <div class="card" style="padding:20px">
+        <div style="font-weight:700;font-size:13px;color:var(--white);margin-bottom:10px">Currently loaded files</div>
+        ${(()=>{ const files = VState.get().filesLoaded || [];
+          if (!files.length) return '<div style="color:var(--mid-grey);font-size:12px">No files loaded. Use Open IFC File to load models.</div>';
+          return files.map(f=>`<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border)">
+            <span style="background:#0e2a4a;color:#60a5fa;border-radius:3px;padding:1px 8px;font-size:10px">IFC</span>
+            <span style="font-size:13px;flex:1">${VUtils.esc(f.name)}</span>
+            <span style="font-size:11px;color:var(--mid-grey)">${VUtils.fmt(f.elements)} elements</span>
+          </div>`).join('');
+        })()}
+        <button class="btn btn-primary" style="margin-top:14px;font-size:12px" onclick="VBridge.openFile()">+ Add Another IFC File</button>
+      </div>
+    </div>`;
+  }
+
+  // ─── COBIE EXPORTER PAGE ─────────────────────────────────────────────────
+  function renderCobiePage() {
+    return `<div>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+        <div>
+          <h1 style="margin:0">COBie Exporter</h1>
+          <p style="font-size:12px;color:var(--mid-grey);margin-top:3px">Export Construction Operations Building Information Exchange (COBie) data for asset management handover</p>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px">
+        <div class="card" style="padding:20px">
+          <div style="font-weight:700;font-size:13px;color:var(--teal);margin-bottom:10px">COBie Export</div>
+          <p style="font-size:12px;color:var(--mid-grey);margin-bottom:14px;line-height:1.7">COBie captures asset data from your IFC model for building operations and facility management. VERIFIQ extracts space, equipment, and component data from loaded IFC files.</p>
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <button class="btn btn-teal" style="font-size:12px"
+              onclick="App.navigate('export')">
+              📊 Export Reports (includes COBie formats)
+            </button>
+            <p style="font-size:11px;color:var(--mid-grey);margin:4px 0">
+              COBie Excel and XML export is available in the Export Reports page.
+              Select the COBie template and choose your output format there.
+            </p>
+          </div>
+        </div>
+        <div class="card" style="padding:20px">
+          <div style="font-weight:700;font-size:13px;color:var(--amber);margin-bottom:10px">COBie data extracted</div>
+          <div style="font-size:11px;color:var(--mid-grey);line-height:1.9">
+            Facility - Project, site, and building info<br>
+            Floor - Each IfcBuildingStorey<br>
+            Space - Each IfcSpace with area and category<br>
+            Component - Mechanical and equipment elements<br>
+            Type - Element type classifications<br>
+            Attribute - Property set values<br>
+            Document - Linked document references
+          </div>
+        </div>
+      </div>
+      <div class="card" style="padding:16px">
+        <div style="font-weight:700;font-size:12px;color:var(--mid-grey);margin-bottom:8px">COBie readiness check</div>
+        ${(()=>{ const s=VState.get(); const f=s.filesLoaded||[];
+          if (!f.length) return '<div style="color:var(--mid-grey);font-size:12px">Load an IFC file to check COBie readiness.</div>';
+          const spaces = f.reduce((a,b)=>a+(b.spaces||0),0);
+          const elems  = f.reduce((a,b)=>a+(b.elements||0),0);
+          return `<div style="font-size:12px;color:var(--mid-grey)">
+            Loaded: ${VUtils.fmt(elems)} elements, ${VUtils.fmt(spaces)} spaces across ${f.length} file(s).
+            Run validation first to check COBie property completeness.
+          </div>`;
+        })()}
+      </div>
+    </div>`;
+  }
+
+
+
+  
+  // ─── EXPORT PAGE ─────────────────────────────────────────────────────────
+  function renderExportPage() {
+    const state   = VState.get();
+    const session = state.session;
+    const mode    = state.countryMode || 'Singapore';
+    if (!session) return `<div>
+      <h1>Export Reports</h1>
+      ${VUtils.emptyState('📤','No results to export','Run validation first to generate compliance results.',
+        '<button class="btn btn-teal" style="margin-top:14px" onclick="VBridge.runValidation()">▶ Run Validation</button>')}
+    </div>`;
+
+    const score = session.complianceScore || session.score || 0;
+    const col   = score>=95?'#22c55e':score>=80?'#eab308':'#ef4444';
+
+    return `<div>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+        <div>
+          <h1 style="margin:0">Export Compliance Reports</h1>
+          <p style="font-size:12px;color:var(--mid-grey);margin-top:3px">
+            Score: <strong style="color:${col}">${score.toFixed(1)}%</strong>
+            &nbsp;|&nbsp; ${VUtils.fmt(session.findings?.length||0)} findings
+            &nbsp;|&nbsp; ${VUtils.esc(mode)} mode
+          </p>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px">
+        <div class="card" style="padding:20px">
+          <div style="font-weight:700;font-size:13px;color:var(--teal);margin-bottom:12px">Report Template</div>
+          <div id="export-template-sel" style="display:flex;flex-direction:column;gap:6px">
+            ${[['Professional','Full branded report with cover page, TOC, executive summary, all findings','professional'],
+               ['Executive Summary','High-level overview for project managers and clients','executive'],
+               ['BCA Submission','Formatted for BCA CORENET-X submission review','bca'],
+               ['SCDF Submission','Fire safety elements formatted for SCDF review','scdf'],
+               ['NBeS Submission','Formatted for Malaysia NBeS submission','nbes'],
+               ['Technical','Detailed technical findings for BIM coordinators','technical'],
+               ['Audit','Complete audit trail with element-level detail','audit'],
+               ['Minimal','Compact single-page summary only','minimal']
+            ].map(([label,desc,val],i) => `
+              <label style="display:flex;align-items:flex-start;gap:10px;padding:8px;border:1px solid var(--border);border-radius:6px;cursor:pointer;background:${i===0?'rgba(14,124,134,.1)':'transparent'}">
+                <input type="radio" name="tmpl" value="${val}" ${i===0?'checked':''} style="margin-top:2px;flex-shrink:0">
+                <div>
+                  <div style="font-size:12px;font-weight:600;color:var(--white)">${label}</div>
+                  <div style="font-size:10px;color:var(--mid-grey);margin-top:2px">${desc}</div>
+                </div>
+              </label>`).join('')}
+          </div>
+        </div>
+
+        <div class="card" style="padding:20px">
+          <div style="font-weight:700;font-size:13px;color:var(--teal);margin-bottom:12px">Export Formats</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:16px">
+            ${[['Word (.docx)','word','📝'],['Excel (.xlsx)','excel','📊'],
+               ['PDF','pdf','📄'],['CSV (.csv)','csv','📋'],
+               ['JSON','json','{}'],['HTML (.html)','html','🌐'],
+               ['BCF (.bcf)','bcf','🏗'],['Markdown','markdown','#']
+              ].map(([label,val,icon]) => `
+              <label style="display:flex;align-items:center;gap:8px;padding:6px 8px;border:1px solid var(--border);border-radius:5px;cursor:pointer">
+                <input type="checkbox" name="fmt" value="${val}" checked style="flex-shrink:0">
+                <span style="font-size:12px">${icon} ${label}</span>
+              </label>`).join('')}
+          </div>
+          <button class="btn btn-teal" style="width:100%;font-size:13px;padding:10px"
+            onclick="(function(){
+              const tmpl = document.querySelector('input[name=tmpl]:checked')?.value || 'professional';
+              const fmts = [...document.querySelectorAll('input[name=fmt]:checked')].map(i=>i.value);
+              if(!fmts.length){alert('Select at least one format');return;}
+              VBridge.send('export',{template:tmpl,formats:fmts});
+            })()">
+            📤 Export Reports
+          </button>
+          <p style="font-size:11px;color:var(--mid-grey);margin-top:8px;text-align:center">
+            Reports are saved to a folder you choose
+          </p>
+        </div>
+      </div>
+    </div>`;
+  }
+
+  // ─── SETTINGS PAGE ────────────────────────────────────────────────────────
+  function renderSettingsPage() {
+    const state = VState.get();
+    const proxy = state.proxySettings || {};
+    const mode  = state.countryMode || 'Singapore';
+    const gw    = state.sgGateway || 'Design';
+
+    return `<div>
+      <h1 style="margin-bottom:16px">Settings</h1>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+
+        <div class="card" style="padding:20px">
+          <div style="font-weight:700;font-size:13px;color:var(--teal);margin-bottom:12px">Validation Settings</div>
+
+          <div style="margin-bottom:14px">
+            <div style="font-size:12px;font-weight:600;margin-bottom:6px">Default Country Mode</div>
+            <div style="display:flex;gap:8px;flex-wrap:wrap">
+              ${['Singapore','Malaysia','Combined'].map(m =>
+                `<button class="btn ${mode===m?'btn-teal':'btn-ghost'}" style="font-size:11px;padding:5px 12px"
+                  onclick="VBridge.send('setCountryMode',{mode:'${m}'})">${m}</button>`
+              ).join('')}
+            </div>
+          </div>
+
+          <div style="margin-bottom:14px">
+            <div style="font-size:12px;font-weight:600;margin-bottom:6px">Singapore Gateway</div>
+            <div style="display:flex;gap:6px;flex-wrap:wrap">
+              ${['Design','Piling','Construction','Completion'].map(g =>
+                `<button class="btn ${gw===g?'btn-teal':'btn-ghost'}" style="font-size:11px;padding:5px 12px"
+                  onclick="VBridge.send('setGateway',{gateway:'${g}'})">${g}</button>`
+              ).join('')}
+            </div>
+          </div>
+
+          <div>
+            <div style="font-size:12px;font-weight:600;margin-bottom:6px">Updates</div>
+            <button class="btn btn-ghost" style="font-size:11px"
+              onclick="VBridge.send('checkForUpdates',{})">
+              🔄 Check for Updates
+            </button>
+            <button class="btn btn-ghost" style="font-size:11px;margin-left:6px"
+              onclick="(function(){localStorage.removeItem('verifiq_tour_v2');if(window.WelcomeTour){WelcomeTour.prompt();}else{var b=event.target;b.textContent='Tour will show on next open';setTimeout(()=>b.textContent='🚀 Reset Welcome Tour',3000);}})()">
+              🚀 Reset Welcome Tour
+            </button>
+          </div>
+        </div>
+
+        <div class="card" style="padding:20px">
+          <div style="font-weight:700;font-size:13px;color:var(--teal);margin-bottom:12px">Network and Proxy</div>
+          <div style="font-size:12px;color:var(--mid-grey);margin-bottom:10px">
+            Status: <span style="color:${state.online?'#22c55e':'#ef4444'}">${state.online?'Online':'Offline'}</span>
+          </div>
+          <label style="display:flex;align-items:center;gap:8px;margin-bottom:12px;cursor:pointer">
+            <input type="checkbox" id="use-proxy" ${proxy.useProxy?'checked':''}>
+            <span style="font-size:12px">Use proxy server</span>
+          </label>
+          <input id="proxy-url" type="text" value="${VUtils.esc(proxy.proxyUrl||'')}"
+            placeholder="http://proxy.example.com:8080"
+            style="width:100%;height:32px;padding:0 10px;font-size:12px;border:1px solid var(--border);border-radius:5px;background:#081322;color:#e2e8f0;margin-bottom:8px">
+          <button class="btn btn-teal" style="font-size:11px;width:100%"
+            onclick="(function(){
+              var useProxy = document.getElementById('use-proxy') ? document.getElementById('use-proxy').checked : false;
+              var proxyUrl = document.getElementById('proxy-url') ? document.getElementById('proxy-url').value : '';
+              VBridge.send('saveProxySettings',{useProxy:useProxy,proxyUrl:proxyUrl,username:'',password:'',bypassList:'',ignoreSslErrors:false,customUpdateServerUrl:''});
+              var btn=event.target; btn.textContent='Saved!'; btn.style.background='#22c55e'; setTimeout(()=>{btn.textContent='Save Network Settings';btn.style.background='';},2000);
+            })()">
+            Save Network Settings
+          </button>
+        </div>
+      </div>
+    </div>`;
+  }
+
+  // ─── ABOUT PAGE ───────────────────────────────────────────────────────────
+  function renderAboutPage() {
+    return `<div>
+      <div style="text-align:center;padding:40px 0 24px">
+        <div style="width:72px;height:72px;background:#0E7C86;border-radius:14px;margin:0 auto 16px;display:flex;align-items:center;justify-content:center">
+          <span style="font-size:28px;font-weight:900;color:white">VQ</span>
+        </div>
+        <h1 style="font-size:28px;margin:0">VERIFIQ</h1>
+        <p style="font-size:15px;color:var(--mid-grey);margin:6px 0">IFC Compliance Checker</p>
+        <span style="background:#0E7C86;color:white;border-radius:20px;padding:3px 14px;font-size:12px;font-weight:700">v2.0.0</span>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:20px">
+        ${[
+          ['Publisher','BBMW0 Technologies'],
+          ['Developer','Jia Wen Gan'],
+          ['Contact','bbmw0@hotmail.com'],
+          ['Website','bbmw0.com'],
+          ['Singapore','CORENET-X IFC+SG COP 3.1 (December 2025)'],
+          ['Malaysia','NBeS IFC Mapping 2024 (CIDB 2nd Edition)'],
+          ['IFC Standard','IFC4 Reference View ADD2 TC1'],
+          ['Licence','Commercial - All Rights Reserved'],
+          ['Built with','WPF, WebView2, Three.js, ClosedXML, Open XML SDK'],
+        ].map(([k,v]) => `
+          <div class="card" style="padding:12px">
+            <div style="font-size:10px;color:var(--mid-grey);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px">${k}</div>
+            <div style="font-size:12px;color:var(--white);font-weight:600">${v}</div>
+          </div>`).join('')}
+      </div>
+
+      <div class="card" style="padding:20px;text-align:center">
+        <div style="font-size:12px;color:var(--mid-grey);line-height:1.8">
+          VERIFIQ checks IFC models against Singapore CORENET-X (IFC+SG COP 3.1) and Malaysia NBeS regulations.<br>
+          <strong style="color:var(--white)">Copyright 2026 BBMW0 Technologies. All rights reserved.</strong><br>
+          <a href="#" onclick="VBridge.send('openUrl',{url:'https://bbmw0.com'})" style="color:var(--teal)">bbmw0.com</a>
+          &nbsp;|&nbsp;
+          <a href="#" onclick="VBridge.send('openUrl',{url:'https://github.com/bbmw96/verifiq'})" style="color:var(--teal)">GitHub</a>
+          &nbsp;|&nbsp;
+          <a href="#" onclick="VBridge.send('openUrl',{url:'mailto:bbmw0@hotmail.com'})" style="color:var(--teal)">bbmw0@hotmail.com</a>
+        </div>
+      </div>
+    </div>`;
+  }
+
+
+    return { init, navigate, refresh, render };
 })();
 
 
@@ -1485,3 +2047,712 @@ window.App = App;
 
 // Bootstrap on DOM ready
 document.addEventListener('DOMContentLoaded', App.init);
+
+// ─── PROPERTY EDITOR MODULE ──────────────────────────────────────────────────
+// Manages a queue of IFC property fixes. Each fix is applied to the IFC STEP
+// file by the C# IfcPropertyWriter and saved as a new _VERIFIQ_FIXED.ifc file.
+const PropertyEditor = (() => {
+  let _queue = [];  // Array of fix objects
+
+  // Add a fix to the queue (called from the ✏️ Fix button in results rows)
+  function addToQueue(fix) {
+    if (!fix || !fix.guid) return;
+    // Avoid duplicates
+    const exists = _queue.some(f => f.guid === fix.guid && f.pset === fix.pset && f.prop === fix.prop);
+    if (!exists) {
+      _queue.push({ ...fix, newValue: fix.fix || '', status: 'pending' });
+    }
+    _renderQueueInPanel();
+  }
+
+  function showPanel() {
+    // Navigate to property editor and render
+    App.navigate('propertyeditor');
+  }
+
+  function clearQueue() {
+    _queue = [];
+    _renderQueueInPanel();
+  }
+
+  function removeFromQueue(idx) {
+    _queue.splice(idx, 1);
+    _renderQueueInPanel();
+  }
+
+  function setNewValue(idx, val) {
+    if (_queue[idx]) _queue[idx].newValue = val;
+  }
+
+  // Render the fix queue inside the property editor panel
+  function renderPanel() {
+    const el = document.getElementById('prop-editor-panel');
+    if (!el) return;
+
+    const pending = _queue.filter(f => f.status === 'pending');
+    const applied = _queue.filter(f => f.status === 'applied');
+
+    if (_queue.length === 0) {
+      el.innerHTML = `
+        <div style="padding:32px;text-align:center;color:var(--mid-grey);border:2px dashed var(--border);border-radius:8px">
+          <div style="font-size:28px;margin-bottom:10px">✏️</div>
+          <div style="font-size:14px;font-weight:600;margin-bottom:6px;color:var(--white)">Fix Queue is Empty</div>
+          <div style="font-size:12px;line-height:1.7">
+            Go to <button class="btn btn-ghost" style="font-size:12px;padding:2px 10px" onclick="App.navigate('critical')">Critical Issues</button>
+            or <button class="btn btn-ghost" style="font-size:12px;padding:2px 10px" onclick="App.navigate('results')">All Results</button>
+            and click <strong style="color:var(--teal)">✏️ Fix</strong> on any property finding to add it here.
+          </div>
+        </div>`;
+      return;
+    }
+
+    const rows = _queue.map((f, i) => {
+      const sev = f.severity || 'Error';
+      const sevCol = { Critical:'#ef4444', Error:'#f97316', Warning:'#eab308', Pass:'#22c55e' }[sev] || '#6b7280';
+      return `
+        <tr style="border-bottom:1px solid var(--border);background:${f.status==='applied'?'rgba(34,197,94,.06)':''}">
+          <td style="padding:8px 10px">
+            <span style="background:${sevCol}22;color:${sevCol};border:1px solid ${sevCol}44;border-radius:4px;padding:2px 7px;font-size:10px;font-weight:700">${VUtils.esc(sev)}</span>
+          </td>
+          <td style="padding:8px 10px;font-size:11px;max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${VUtils.esc(f.name||'')}">
+            ${VUtils.esc((f.name||'').substring(0,30))}
+          </td>
+          <td style="padding:8px 10px;font-family:monospace;font-size:10px;color:var(--teal)">
+            ${VUtils.esc(f.pset||'-')}<br>
+            <span style="color:var(--mid-grey)">↳ ${VUtils.esc(f.prop||'-')}</span>
+          </td>
+          <td style="padding:8px 10px;font-size:11px;color:var(--mid-grey);max-width:120px">${VUtils.esc((f.message||'').substring(0,40))}…</td>
+          <td style="padding:8px 10px">
+            ${f.status === 'applied'
+              ? `<span style="color:#22c55e;font-size:11px">✓ Applied</span>`
+              : `<input type="text" value="${VUtils.esc(f.newValue||'')}"
+                  oninput="PropertyEditor.setNewValue(${i},this.value)"
+                  placeholder="Enter correct value…"
+                  style="width:140px;height:28px;padding:0 8px;font-size:12px;border:1px solid var(--border);border-radius:4px;background:var(--card);color:var(--white)">`
+            }
+          </td>
+          <td style="padding:8px 10px">
+            ${f.status === 'applied'
+              ? ''
+              : `<button onclick="PropertyEditor.removeFromQueue(${i})" style="background:transparent;border:1px solid var(--border);border-radius:4px;color:var(--mid-grey);padding:2px 8px;font-size:11px;cursor:pointer">✕</button>`
+            }
+          </td>
+        </tr>`;
+    }).join('');
+
+    el.innerHTML = `
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+        <div>
+          <span style="font-size:13px;font-weight:700">${pending.length} fix${pending.length!==1?'es':''} queued</span>
+          ${applied.length ? `<span style="font-size:11px;color:#22c55e;margin-left:8px">✓ ${applied.length} already applied</span>` : ''}
+        </div>
+        <div style="display:flex;gap:8px">
+          <button class="btn btn-ghost" style="font-size:12px" onclick="PropertyEditor.clearQueue()">🗑 Clear All</button>
+          <button class="btn btn-teal" style="font-size:12px;padding:6px 18px"
+            onclick="PropertyEditor.applyFixes()"
+            ${pending.length===0?'disabled':''}>
+            ⚡ Apply ${pending.length} Fix${pending.length!==1?'es':''}
+          </button>
+        </div>
+      </div>
+      <div style="overflow-x:auto">
+        <table style="width:100%;border-collapse:collapse;font-size:12px">
+          <thead>
+            <tr style="background:var(--navy-dark)">
+              <th style="padding:8px 10px;text-align:left;font-size:10px;color:var(--mid-grey);text-transform:uppercase">Severity</th>
+              <th style="padding:8px 10px;text-align:left;font-size:10px;color:var(--mid-grey);text-transform:uppercase">Element</th>
+              <th style="padding:8px 10px;text-align:left;font-size:10px;color:var(--mid-grey);text-transform:uppercase">Property Set → Property</th>
+              <th style="padding:8px 10px;text-align:left;font-size:10px;color:var(--mid-grey);text-transform:uppercase">Issue</th>
+              <th style="padding:8px 10px;text-align:left;font-size:10px;color:var(--mid-grey);text-transform:uppercase">New Value</th>
+              <th style="padding:8px 10px"></th>
+            </tr>
+          </thead>
+          <tbody>${rows}</tbody>
+        </table>
+      </div>`;
+  }
+
+  function applyFixes() {
+    const pending = _queue.filter(f => f.status === 'pending');
+    if (!pending.length) return;
+
+    // Validate all have values
+    const noVal = pending.filter(f => !f.newValue || !f.newValue.trim());
+    if (noVal.length) {
+      alert(`${noVal.length} fix${noVal.length!==1?'es':''} still need a value. Please fill in all "New Value" fields before applying.`);
+      return;
+    }
+
+    const edits = pending.map(f => ({
+      stepId:   f.stepId || 0,
+      psetName: f.pset   || '',
+      propName: f.prop   || '',
+      newValue: (f.newValue || '').trim(),
+      guid:     f.guid   || '',
+    }));
+
+    // Send to C# IfcPropertyWriter
+    VBridge.send('applyPropertyEdits', { edits });
+
+    // Mark as applied optimistically
+    pending.forEach(f => f.status = 'applied');
+    renderPanel();
+  }
+
+  function onEditsApplied(result) {
+    const el = document.getElementById('prop-editor-panel');
+    if (!el) return;
+    const banner = document.createElement('div');
+    banner.style.cssText = `background:${result.success?'rgba(34,197,94,.12)':'rgba(239,68,68,.12)'};border:1px solid ${result.success?'#22c55e':'#ef4444'};border-radius:6px;padding:10px 14px;margin-bottom:12px;font-size:12px;color:${result.success?'#86efac':'#fca5a5'}`;
+    banner.innerHTML = result.success
+      ? `✓ <strong>${result.editsApplied || pending.length} fixes applied.</strong> Corrected file saved as <code style="font-size:11px">${VUtils.esc(result.outputFile||'*_VERIFIQ_FIXED.ifc')}</code>.
+         <button class="btn btn-teal" style="margin-left:12px;font-size:11px;padding:3px 10px" onclick="VBridge.openFile()">📂 Open Fixed File</button>`
+      : `✗ <strong>Apply failed:</strong> ${VUtils.esc(result.error||'Unknown error')}`;
+    el.prepend(banner);
+  }
+
+  return {
+    addToQueue, showPanel, clearQueue, removeFromQueue, setNewValue,
+    renderPanel, applyFixes, onEditsApplied,
+  };
+})();
+window.PropertyEditor = PropertyEditor;
+
+// ─── WELCOME TOUR ─────────────────────────────────────────────────────────────
+const WelcomeTour = (() => {
+  const TOUR_KEY = 'verifiq_tour_v2';
+
+  const STEPS = [
+    // Step 0 - Welcome
+    { icon:'VQ', title:'Welcome to VERIFIQ v2.0',
+      body:'VERIFIQ checks your IFC models against Singapore CORENET-X (IFC+SG COP 3.1, December 2025) and Malaysia NBeS/UBBL 1984 regulations. It runs 20 compliance checks on every single element. This tour covers every section of the software. Takes about 2 minutes.',
+      nav: null },
+    // Step 1 - Loaded Files
+    { icon:'F', title:'Step 1: Load Your IFC File',
+      body:'Go to Loaded Files in the sidebar. Click Open IFC File in the toolbar or use File in the menu. VERIFIQ accepts .ifc, .ifczip, .ifcxml and .ifc+sg files. The file list shows element count, storeys, spaces, classification coverage percentage, proxy count, and georeferencing status. Everything processes offline.',
+      nav:'files' },
+    // Step 2 - Validation
+    { icon:'V', title:'Step 2: Run Validation',
+      body:'Choose your country mode first: Singapore (CORENET-X), Malaysia (NBeS), or Combined. Then click Run Validation. VERIFIQ checks every element across 20 levels: IFC entity class, PredefinedType, classification reference, classification edition, mandatory Pset_, SGPset_, property values, data types, enumerations, spatial containment, materials, and georeferencing.',
+      nav:'validation' },
+    // Step 3 - All Results
+    { icon:'R', title:'Step 3: All Compliance Results',
+      body:'Every finding appears here with a compliance score at the top. Use the 7 filter dropdowns: Severity, Discipline (ARC/STR/MEP/EXT/CIV), IFC Entity, Agency (BCA/SCDF/URA etc.), Storey, Gateway (G1/G1.5/G2/G3), and Check Type. Each row shows IFC Entity badge, SubType badge, Classification Code badge, the property that failed, the expected value, the actual value, and the full finding detail.',
+      nav:'results' },
+    // Step 4 - Critical Issues
+    { icon:'!', title:'Step 4: Critical Issues',
+      body:'Critical findings will cause automatic rejection by the CORENET-X or NBeS checker. The same 7 filters work here. Click the Guide button on any row to see exactly how to fix it in Revit, ArchiCAD, Tekla, or Bentley. Click the Fix button on property errors to add them to the Property Editor queue.',
+      nav:'critical' },
+    // Step 5 - Property Editor
+    { icon:'E', title:'Step 5: Property Editor',
+      body:'Property fixes queued from Critical Issues or All Results appear here as a table. Enter the correct value in the New Value column for each fix, then click Apply Fixes. VERIFIQ writes a corrected IFC file alongside your original. Your original file is never modified. The corrected copy is saved as filename_VERIFIQ_FIXED.ifc.',
+      nav:'propertyeditor' },
+    // Step 6 - 3D Viewer
+    { icon:'3', title:'Step 6: 3D Viewer',
+      body:'Your model displays colour-coded by compliance: red for Critical, orange for Error, yellow for Warning, green for Pass, grey for unchecked. Left drag to orbit, right drag to pan, scroll to zoom, click to select an element and inspect its findings. Press F for fullscreen, R to reset the view. Use the Walk button for first-person navigation with WASD keys.',
+      nav:'3d' },
+    // Step 7 - Design Code
+    { icon:'D', title:'Step 7: Design Code Compliance',
+      body:'After validation the Design Code tab shows dimension and parameter checks: URA room sizes, BCA accessibility door widths and ramp gradients, SCDF travel distances and exit widths, NEA ventilation rates, PUB sanitary fitting ratios, and BCA Green Mark thermal values. Every rule references the published regulation with a section number.',
+      nav:'design' },
+    // Step 8 - Import BCA Mapping
+    { icon:'I', title:'Step 8: Import BCA Industry Mapping',
+      body:'Download the latest BCA IFC+SG Industry Mapping Excel from go.gov.sg/ifcsg and import it here. This updates your local rules database with the newest classification codes, property set requirements, accepted enumeration values, and agency assignments. VERIFIQ ships with COP 3.1 December 2025 embedded so import is only needed when a new edition is released.',
+      nav:'import' },
+    // Step 9 - Export Reports
+    { icon:'X', title:'Step 9: Export Compliance Reports',
+      body:'Export your results in Word (.docx), PDF, Excel (.xlsx), CSV, JSON, HTML, Markdown, or BCF format. Choose from 8 report templates: Professional (cover page, TOC, full findings), Executive Summary, BCA Submission, SCDF Submission, NBeS Submission, Technical, Audit, and Minimal. Multiple formats can be exported at once.',
+      nav:'export' },
+    // Step 10 - Rules Database
+    { icon:'B', title:'Step 10: Rules Database',
+      body:'Browse all embedded rules: IFC+SG property set requirements for every COP 3.1 entity type, all 196 classification codes (81 identified components), Singapore agency requirements by entity (BCA/SCDF/URA/NEA/PUB/SLA/LTA/JTC), UBBL 1984 Malaysia rules, all 20 check level descriptions, and the complete design code parameter list.',
+      nav:'rules' },
+    // Step 11 - Settings
+    { icon:'S', title:'Step 11: Settings and Network',
+      body:'Configure proxy settings for corporate network environments, set a custom update server URL, choose your default country mode, and adjust validation options. The network status indicator in the status bar shows your connection state. VERIFIQ works fully offline.',
+      nav:'settings' },
+    // Step 12 - User Guide
+    { icon:'G', title:'Step 12: User Guide and Manual',
+      body:'The User Guide contains the complete reference manual: all 20 check levels explained, how to export from Revit and ArchiCAD correctly, understanding findings and severity levels, how to use the Property Editor, Design Code interpretation, FAQ, and a glossary of IFC+SG terms. Always accessible from the sidebar.',
+      nav:'userguide' },
+    // Step 13 - Licence
+    { icon:'K', title:'Step 13: Licence Management',
+      body:'Trial mode validates the first 10 elements per run. Activate a full licence (format VRFQ-XXXX-XXXX-XXXX-XXXX) to unlock unlimited validation. Tiers available: Individual (1 device), Practice (5 devices), Enterprise (25 devices), and Site (unlimited). All paid tiers are perpetual and include both Singapore and Malaysia modes.',
+      nav:'licence' },
+    // Step 14 - Done
+    { icon:'OK', title:"You're Ready to Use VERIFIQ",
+      body:'Open an IFC file and click Run Validation to begin. The sidebar gives you access to every section covered in this tour. For support contact bbmw0@hotmail.com or visit bbmw0.com. You can restart this tour at any time from the User Guide page.',
+      nav: null },
+  ];
+
+  let _step = 0;
+
+  function shouldShow() {
+    try { return !localStorage.getItem(TOUR_KEY); } catch { return true; }
+  }
+  function markSeen() { try { localStorage.setItem(TOUR_KEY, '1'); } catch {} }
+
+  function prompt() {
+    if (!shouldShow()) return;
+    const d = document.createElement('div');
+    d.id = 'tour-prompt';
+    d.style.cssText = 'position:fixed;inset:0;z-index:99998;background:rgba(0,0,0,.7);display:flex;align-items:center;justify-content:center;backdrop-filter:blur(4px)';
+    d.innerHTML = `
+      <div style="background:#0a1628;border:1px solid #00c4a0;border-radius:14px;padding:36px 44px;max-width:500px;width:92vw;text-align:center;box-shadow:0 24px 64px rgba(0,0,0,.9)">
+        <div style="font-size:52px;margin-bottom:14px">🎉</div>
+        <h2 style="color:#00c4a0;font-size:22px;margin:0 0 10px;font-family:Arial">Welcome to VERIFIQ v2.0</h2>
+        <p style="color:#94a3b8;font-size:13px;line-height:1.8;margin-bottom:8px">
+          <strong style="color:#e2e8f0">IFC Compliance Checker</strong> for Singapore CORENET-X (COP 3.1) and Malaysia NBeS.
+        </p>
+        <p style="color:#64748b;font-size:12px;line-height:1.7;margin-bottom:24px">
+          Would you like a guided tour of all features? Takes about 90 seconds.<br>
+          You can also open the <strong style="color:#00c4a0">User Guide</strong> from the sidebar at any time.
+        </p>
+        <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
+          <button onclick="WelcomeTour.start()" style="background:#00c4a0;color:#000;border:none;border-radius:7px;padding:11px 26px;font-size:13px;font-weight:700;cursor:pointer">
+            🚀 Yes, show me around
+          </button>
+          <button onclick="App.navigate('userguide');WelcomeTour.skip();" style="background:#0e2a4a;color:#93c5fd;border:1px solid #1e3a5f;border-radius:7px;padding:11px 20px;font-size:13px;cursor:pointer">
+            📖 Open User Guide
+          </button>
+          <button onclick="WelcomeTour.skip()" style="background:transparent;color:#64748b;border:1px solid #1e3a5f;border-radius:7px;padding:11px 16px;font-size:12px;cursor:pointer">
+            Skip
+          </button>
+        </div>
+        <div style="margin-top:14px">
+          <label style="font-size:11px;color:#475569;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px">
+            <input type="checkbox" id="tour-dont-show" style="cursor:pointer">
+            Don't show this again
+          </label>
+        </div>
+      </div>`;
+    document.body.appendChild(d);
+  }
+
+  function skip() {
+    const cb = document.getElementById('tour-dont-show');
+    if (cb && cb.checked) markSeen();
+    document.getElementById('tour-prompt')?.remove();
+  }
+
+  function start() {
+    // Remove all prompt/overlay elements
+    const prompt = document.getElementById('tour-prompt');
+    if (prompt) prompt.remove();
+    // Remove any lingering overlays
+    document.querySelectorAll('[id^="tour-"]').forEach(e => e.remove());
+    _step = 0;
+    // Small delay so the prompt fully unmounts before rendering first step
+    setTimeout(_showStep, 100);
+  }
+
+  function _showStep() {
+    document.getElementById('tour-tooltip')?.remove();
+    if (_step >= STEPS.length) { _finish(); return; }
+    const s = STEPS[_step];
+
+    // Navigate to the relevant page first, then show the tooltip after render
+    const _render = () => {
+      document.getElementById('tour-tooltip')?.remove();
+      const d = document.createElement('div');
+      d.id = 'tour-tooltip';
+      d.style.cssText = 'position:fixed;bottom:24px;left:50%;transform:translateX(-50%);z-index:99999;max-width:500px;width:92vw;font-family:Arial';
+      d.innerHTML = `
+        <div style="background:#061221;border:1.5px solid #00c4a0;border-radius:10px;padding:18px 22px;box-shadow:0 12px 40px rgba(0,0,0,.8)">
+          <div style="display:flex;align-items:flex-start;gap:12px;margin-bottom:14px">
+            <span style="font-size:22px;flex-shrink:0;margin-top:1px">${s.icon}</span>
+            <div style="flex:1;min-width:0">
+              <div style="font-weight:700;font-size:13px;color:#e2e8f0;margin-bottom:5px">${s.title}</div>
+              <div style="font-size:11.5px;color:#94a3b8;line-height:1.65">${s.body}</div>
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:8px">
+            <div style="display:flex;gap:3px;align-items:center">
+              ${STEPS.map((_,i) => `<span style="width:${i===_step?'16px':'6px'};height:6px;border-radius:3px;background:${i===_step?'#00c4a0':'#1e3a5f'};transition:width .2s"></span>`).join('')}
+              <span style="font-size:10px;color:#475569;margin-left:6px">${_step+1}/${STEPS.length}</span>
+            </div>
+            <div style="display:flex;gap:6px;flex-shrink:0">
+              ${_step > 0 ? `<button onclick="WelcomeTour.prev()" style="background:transparent;color:#94a3b8;border:1px solid #1e3a5f;border-radius:5px;padding:5px 12px;font-size:11px;cursor:pointer">← Back</button>` : ''}
+              <button onclick="WelcomeTour.next()" style="background:#00c4a0;color:#000;border:none;border-radius:5px;padding:5px 18px;font-size:11px;font-weight:700;cursor:pointer">
+                ${_step < STEPS.length-1 ? 'Next →' : '✓ Done'}
+              </button>
+              <button onclick="WelcomeTour._finish()" style="background:transparent;color:#475569;border:none;font-size:11px;cursor:pointer;padding:5px 8px" title="Exit tour">✕</button>
+            </div>
+          </div>
+        </div>`;
+      document.body.appendChild(d);
+    };
+
+    if (s.nav) {
+      App.navigate(s.nav);
+      setTimeout(_render, 350);  // Wait for page to render
+    } else {
+      _render();
+    }
+  }
+
+  function next() { _step++; _showStep(); }
+  function prev() { if (_step > 0) { _step--; _showStep(); } }
+
+  function _finish() {
+    document.getElementById('tour-tooltip')?.remove();
+    markSeen();
+    App.navigate('dashboard');
+    const msg = document.createElement('div');
+    msg.style.cssText = 'position:fixed;bottom:24px;right:24px;z-index:99999;background:#052e16;border:1px solid #22c55e;border-radius:8px;padding:12px 18px;font-size:12px;color:#86efac;box-shadow:0 8px 24px rgba(0,0,0,.5);font-family:Arial';
+    msg.innerHTML = '✓ Tour complete! Open an IFC file to begin. <button onclick="this.parentElement.remove()" style="background:transparent;border:none;color:#86efac;cursor:pointer;margin-left:8px">✕</button>';
+    document.body.appendChild(msg);
+    setTimeout(() => msg?.remove(), 6000);
+  }
+
+  // Allow restarting the tour from Settings or Help page
+  function restart() { markSeen(); localStorage.removeItem(TOUR_KEY); _step=0; _showStep(); }
+
+  return { prompt, start, skip, next, prev, _finish, restart, shouldShow };
+})();
+window.WelcomeTour = WelcomeTour;
+
+
+// ─── USER GUIDE (Interactive, in-context walkthrough helper) ─────────────────
+// Replaces the existing renderUserGuidePage with a richer interactive version
+// NOTE: renderUserGuidePage() already exists in the App IIFE above and is used
+// by the pages router. This window.UserGuideHelper augments it.
+
+window.UserGuideHelper = {
+  // Quick-access interactive card shown in every section
+  contextCard(section) {
+    const tips = {
+      files:    { icon:'📁', title:'Loaded Files Tips', tips:['Open multiple IFC files at once to validate them together as a federated model.','Check the Classification % column - anything under 80% means many elements are missing classification codes.','Red georef status means the model is not positioned in SVY21 (Singapore) or GDM2000 (Malaysia).'] },
+      results:  { icon:'📋', title:'Reading Results Tips', tips:['Use the Severity filter to focus on Critical first - these cause automatic rejection.','Click the Guide button on any row to see Revit/ArchiCAD/Tekla/Bentley fix instructions.','Use the Gateway filter to see only findings relevant to your current submission stage.'] },
+      critical: { icon:'🚨', title:'Critical Issues Tips', tips:["Every Critical finding must be resolved before submitting to CORENET-X or NBeS.",'Click Fix on property errors to send them to the Property Editor.','Proxy elements (IfcBuildingElementProxy) must be changed to the correct IFC class in your BIM software.'] },
+      '3d':     { icon:'🧊', title:'3D Viewer Tips', tips:['Left drag to orbit, right drag to pan, scroll to zoom.','Click an element to inspect its compliance status and findings.','Use Colour Mode to switch between compliance colours, IFC type colours, storey colours, or discipline colours.'] },
+      validation:{ icon:'✅', title:'Validation Tips', tips:['Choose your country mode before running validation - Singapore for CORENET-X, Malaysia for NBeS.','Select the correct gateway for Singapore submissions (G1 Outline, G1.5 Piling, G2 Structural, G3 Construction).','Trial mode validates the first 10 elements. Activate a licence for unlimited validation.'] },
+    };
+    const t = tips[section];
+    if (!t) return '';
+    return `<div class="card" style="padding:14px;margin-bottom:12px;background:rgba(14,124,134,.08);border:1px solid rgba(14,124,134,.3)">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+        <span style="font-size:16px">${t.icon}</span>
+        <span style="font-size:12px;font-weight:700;color:var(--teal)">${t.title}</span>
+        <button onclick="this.closest('.card').remove()" style="margin-left:auto;background:transparent;border:none;color:var(--mid-grey);cursor:pointer;font-size:14px">✕</button>
+      </div>
+      ${t.tips.map(tip=>`<div style="font-size:11px;color:var(--mid-grey);padding:3px 0 3px 12px;border-left:2px solid rgba(14,124,134,.4)">${tip}</div>`).join('')}
+    </div>`;
+  }
+};
+
+// ─── USER MANUAL PAGE (Comprehensive reference documentation) ────────────────
+// This is separate from renderUserGuidePage() which is the step-by-step guide.
+// The manual is a full searchable reference document.
+
+(function() {
+  // Inject into App module by attaching to window for access from pages router
+  // renderUserManualPage is called by pages['manual']
+  window._renderUserManualPage = function renderUserManualPage() {
+    const SECTIONS = [
+      {
+        id:'overview', icon:'🏗', title:'Software Overview',
+        content:`
+          <h3>What is VERIFIQ?</h3>
+          <p>VERIFIQ is an IFC compliance checker for Singapore CORENET-X (IFC+SG COP 3.1, December 2025) and Malaysia NBeS/UBBL 1984. It validates every element in your IFC model across 20 compliance check levels and produces actionable findings with specific remediation guidance.</p>
+
+          <h3>System Requirements</h3>
+          <table class="manual-table">
+            <tr><td>Operating System</td><td>Windows 10 (version 1903) or later, 64-bit</td></tr>
+            <tr><td>Microsoft WebView2 Runtime</td><td>Required (automatically installed with VERIFIQ)</td></tr>
+            <tr><td>RAM</td><td>4 GB minimum, 8 GB recommended for large models</td></tr>
+            <tr><td>Storage</td><td>200 MB for installation, additional space for reports</td></tr>
+            <tr><td>Internet</td><td>Not required. VERIFIQ is 100% offline. Internet needed only for update checks.</td></tr>
+          </table>
+
+          <h3>Supported File Formats</h3>
+          <table class="manual-table">
+            <tr><td>.ifc</td><td>IFC STEP Physical File (IFC2x3 and IFC4)</td></tr>
+            <tr><td>.ifczip</td><td>Compressed IFC file</td></tr>
+            <tr><td>.ifcxml</td><td>IFC XML encoding</td></tr>
+            <tr><td>.ifc+sg</td><td>IFC+SG extended format</td></tr>
+          </table>`
+      },
+      {
+        id:'workflow', icon:'▶', title:'Step-by-Step Workflow',
+        content:`
+          <h3>Complete Workflow</h3>
+          <ol class="manual-list">
+            <li><strong>Configure export in your BIM software</strong> - Install the IFC+SG Translator (ArchiCAD) or Shared Parameters (Revit) from go.gov.sg/ifcsg. Assign classification codes to all elements.</li>
+            <li><strong>Export IFC</strong> - Export from your BIM software using IFC4 Reference View with the IFC+SG configuration. Ensure PredefinedType values are mapped and SGPset_ properties are included.</li>
+            <li><strong>Open VERIFIQ</strong> - Click Open IFC File or use File menu. Multiple files can be opened together for federated validation.</li>
+            <li><strong>Set Country Mode</strong> - Choose Singapore (CORENET-X), Malaysia (NBeS), or Combined in the toolbar.</li>
+            <li><strong>Select Gateway (Singapore)</strong> - Choose G1 Outline, G1.5 Piling, G2 Structural, or G3 Construction depending on your submission stage.</li>
+            <li><strong>Run Validation</strong> - Click Run Validation. VERIFIQ runs 20 check levels on every element. Progress is shown in the toolbar.</li>
+            <li><strong>Review Critical Issues</strong> - Go to Critical Issues. Every Critical finding causes CORENET-X automated rejection. Address these first.</li>
+            <li><strong>Fix Property Errors</strong> - Click Fix on property findings to queue them in the Property Editor. Enter correct values and click Apply Fixes.</li>
+            <li><strong>Review All Results</strong> - Use the 7 filters (Severity, Discipline, IFC Entity, Agency, Storey, Gateway, Check Type) to work through all findings systematically.</li>
+            <li><strong>Re-validate</strong> - Open the corrected IFC file (saved as filename_VERIFIQ_FIXED.ifc) and run validation again to confirm fixes.</li>
+            <li><strong>Export Report</strong> - Go to Export Reports and export a compliance report in your required format.</li>
+          </ol>`
+      },
+      {
+        id:'checks', icon:'✅', title:'All 20 Compliance Checks',
+        content:`
+          <h3>Check Level Reference</h3>
+          <table class="manual-table">
+            <tr><th>Level</th><th>Name</th><th>Description</th><th>Countries</th></tr>
+            ${[
+              ['L1','IFC Entity Class','Checks that every element uses a specific IFC class, not IfcBuildingElementProxy','SG + MY'],
+              ['L2','PredefinedType','Checks that PredefinedType is set to a specific permitted value, not NOTDEFINED','SG + MY'],
+              ['L3','ObjectType (UserDefined)','When PredefinedType=USERDEFINED, verifies ObjectType is populated','SG + MY'],
+              ['L4','Classification Reference','Checks that an IfcClassificationReference is attached to the element','SG + MY'],
+              ['L5','Classification Edition','Checks that the classification references the current COP3.1 edition, not a deprecated one','SG + MY'],
+              ['L6','Mandatory Pset_','Checks that all required IFC standard property sets (Pset_) are present','SG + MY'],
+              ['L7','SGPset_ (Singapore)','Checks that all required Singapore-specific property sets (SGPset_) are present','SG only'],
+              ['L8','Property Values Populated','Checks that required property values are not empty or NOTDEFINED','SG + MY'],
+              ['L9','Data Type Validation','Checks that property values match their required data type (string, boolean, number, measure)','SG + MY'],
+              ['L10','Enumeration Values','Checks that enum properties use a value from the permitted list for that property','SG + MY'],
+              ['L11','Spatial Containment','Checks that every element is contained within a valid IfcBuildingStorey','SG + MY'],
+              ['L12','Storey Elevations','Checks that IfcBuildingStorey elements have correct elevation values','SG + MY'],
+              ['L13','Georeferencing (SG)','Checks for IfcMapConversion to SVY21 (EPSG:3414)','SG only'],
+              ['L13','Georeferencing (MY)','Checks for IfcMapConversion to GDM2000','MY only'],
+              ['L14','Site and Building Hierarchy','Checks that IfcProject, IfcSite, IfcBuilding hierarchy is complete and correct','SG + MY'],
+              ['L16','Material Assignment','Checks that structural elements have an IfcMaterial or IfcMaterialLayerSetUsage','SG + MY'],
+              ['L17','Space Boundary','Checks that IfcSpace elements have space boundary relationships','SG + MY'],
+              ['L18','Geometry Validity','Checks that element bounding boxes are non-degenerate','SG + MY'],
+            ].map(r=>`<tr><td style="color:var(--teal);font-weight:700">${r[0]}</td><td style="font-weight:600">${r[1]}</td><td>${r[2]}</td><td style="font-size:11px">${r[3]}</td></tr>`).join('')}
+          </table>`
+      },
+      {
+        id:'severity', icon:'🔴', title:'Severity Levels Explained',
+        content:`
+          <h3>Understanding Finding Severity</h3>
+          <table class="manual-table">
+            <tr><th>Severity</th><th>Meaning</th><th>Action Required</th></tr>
+            <tr><td><span style="background:#ef444422;color:#ef4444;border:1px solid #ef444444;border-radius:3px;padding:1px 8px;font-size:11px;font-weight:700">Critical</span></td>
+                <td>The CORENET-X or NBeS automated checker will reject the model outright without human review. No exceptions.</td>
+                <td>Must fix before submission. No workarounds accepted.</td></tr>
+            <tr><td><span style="background:#f9731622;color:#f97316;border:1px solid #f9731644;border-radius:3px;padding:1px 8px;font-size:11px;font-weight:700">Error</span></td>
+                <td>Significant non-compliance. May pass the automated check but will be flagged at agency review stage.</td>
+                <td>Should fix before submission. May cause delay or rejection at agency review.</td></tr>
+            <tr><td><span style="background:#eab30822;color:#eab308;border:1px solid #eab30844;border-radius:3px;padding:1px 8px;font-size:11px;font-weight:700">Warning</span></td>
+                <td>Best-practice violation. Unlikely to cause rejection but indicates missing or incomplete data.</td>
+                <td>Review and fix where possible. Document reasons if not fixing.</td></tr>
+            <tr><td><span style="background:#22c55e22;color:#22c55e;border:1px solid #22c55e44;border-radius:3px;padding:1px 8px;font-size:11px;font-weight:700">Pass</span></td>
+                <td>Compliant. The check passed for this element.</td>
+                <td>No action required.</td></tr>
+          </table>
+
+          <h3>Compliance Score Formula</h3>
+          <p>The compliance score is calculated as:</p>
+          <div style="background:#0a1628;border:1px solid var(--border);border-radius:6px;padding:12px;font-family:monospace;font-size:12px;margin:8px 0">
+            Score = (PassChecks / TotalChecks) × 100%<br>
+            where Critical counts as 3× weight, Error as 2× weight, Warning as 1× weight
+          </div>
+          <p>A score of 95% or above is shown in green. 80-95% in amber. Below 80% in red.</p>`
+      },
+      {
+        id:'bim', icon:'💻', title:'Exporting from BIM Software',
+        content:`
+          <h3>Autodesk Revit</h3>
+          <ol class="manual-list">
+            <li>Download the IFC+SG Shared Parameters file from <strong>go.gov.sg/ifcsg</strong></li>
+            <li>In Revit: Manage tab → Shared Parameters → Browse to the downloaded file</li>
+            <li>Add the IFC+SG parameters to your project categories</li>
+            <li>Assign classification codes to elements using the shared parameter fields</li>
+            <li>File → Export → IFC. Select IFC4 Reference View.</li>
+            <li>In IFC Export Settings: enable "Export IFC+SG shared parameters"</li>
+            <li>Verify SGPset_ properties appear in the export preview</li>
+          </ol>
+
+          <h3>Graphisoft ArchiCAD</h3>
+          <ol class="manual-list">
+            <li>Download the IFC+SG Translator from <strong>go.gov.sg/ifcsg</strong></li>
+            <li>In ArchiCAD: File → Interoperability → IFC → IFC Translators → Import the downloaded translator</li>
+            <li>Open the Classification Manager (Options menu) and import the IFC+SG classification system</li>
+            <li>Assign codes to elements via the Classification panel in element settings</li>
+            <li>File → Save as → IFC 2x3 or IFC 4 with the IFC+SG translator selected</li>
+          </ol>
+
+          <h3>Tekla Structures</h3>
+          <ol class="manual-list">
+            <li>Download IFC+SG property set definitions from go.gov.sg/ifcsg</li>
+            <li>Import property set definitions: File → Catalogs → User-defined Attributes</li>
+            <li>Add classification codes via the User Properties panel</li>
+            <li>Export: File → Export → IFC → select IFC4 format</li>
+          </ol>
+
+          <h3>Bentley OpenBuildings</h3>
+          <ol class="manual-list">
+            <li>Configure IFC export settings for IFC4 Reference View</li>
+            <li>Add IFC+SG property mappings in the export configuration</li>
+            <li>Assign classification codes via element properties</li>
+            <li>Export via File → Export → IFC</li>
+          </ol>`
+      },
+      {
+        id:'agencies', icon:'🇸🇬', title:'Singapore Regulatory Agencies',
+        content:`
+          <h3>CORENET-X Agencies and Their Requirements</h3>
+          <p>Singapore CORENET-X submissions are reviewed by up to 8 regulatory agencies simultaneously. Each agency checks specific elements and properties:</p>
+          <table class="manual-table">
+            <tr><th>Agency</th><th>Full Name</th><th>Key Elements</th><th>Key Properties</th></tr>
+            <tr><td><strong>BCA</strong></td><td>Building and Construction Authority</td><td>All structural elements, IfcBuilding, IfcSite</td><td>LoadBearing, IsExternal, FireRating, structural Pset_</td></tr>
+            <tr><td><strong>SCDF</strong></td><td>Singapore Civil Defence Force</td><td>IfcWall (fire-rated), IfcDoor (fire-rated), IfcStair, IfcSpace</td><td>SGPset_WallFireRating, SGPset_DoorFireRating, FireResistancePeriod</td></tr>
+            <tr><td><strong>URA</strong></td><td>Urban Redevelopment Authority</td><td>IfcSpace, IfcSite, IfcBuilding</td><td>SGPset_SpaceGFA, GFACategory, GrossPlannedArea, PlotRatio</td></tr>
+            <tr><td><strong>NEA</strong></td><td>National Environment Agency</td><td>IfcSpace (ventilation), IfcDuctSegment</td><td>SGPset_SpaceVentilation, AirChangeRate, NaturalVentilationArea</td></tr>
+            <tr><td><strong>PUB</strong></td><td>Public Utilities Board</td><td>IfcSanitaryTerminal, IfcPipeSegment</td><td>SGPset_SanitaryFittingWELS, WELSRating, SanitaryFittingCount</td></tr>
+            <tr><td><strong>SLA</strong></td><td>Singapore Land Authority</td><td>IfcSite</td><td>SVY21 coordinates, IfcMapConversion, EPSG:3414</td></tr>
+            <tr><td><strong>LTA</strong></td><td>Land Transport Authority</td><td>IfcSpace (carpark)</td><td>SGPset_ParkingLot, ParkingLotType, Dimensions</td></tr>
+            <tr><td><strong>JTC</strong></td><td>JTC Corporation</td><td>Industrial development elements</td><td>SGPset_JTCFloor, IndustrialUse, FloorLoadCapacity</td></tr>
+          </table>`
+      },
+      {
+        id:'malaysia', icon:'🇲🇾', title:'Malaysia NBeS Requirements',
+        content:`
+          <h3>Malaysia NBeS (National BIM e-Submission)</h3>
+          <p>Malaysia mode checks against <strong>NBeS IFC Mapping 2024 (CIDB Malaysia, 2nd Edition)</strong> and <strong>UBBL 1984</strong>.</p>
+
+          <h3>UBBL 1984 Purpose Groups</h3>
+          <table class="manual-table">
+            <tr><th>Code</th><th>Use</th><th>Key Requirements</th></tr>
+            <tr><td>PG1</td><td>Residential</td><td>Bedroom min 9m², living room min 12m², ceiling height min 2.4m</td></tr>
+            <tr><td>PG2</td><td>Assembly</td><td>Exit widths, travel distances, means of escape per UBBL Part VII</td></tr>
+            <tr><td>PG3</td><td>Institutional</td><td>Accessibility per MS 1184:2014, fire compartmentation</td></tr>
+            <tr><td>PG4</td><td>Office</td><td>Natural lighting min 10% of floor area, ventilation</td></tr>
+            <tr><td>PG5</td><td>Shop / Retail</td><td>Means of escape, fire compartment max 2000m2</td></tr>
+            <tr><td>PG6</td><td>Factory / Industrial</td><td>Structural requirements, fire safety per JBPM</td></tr>
+            <tr><td>PG7</td><td>Storage</td><td>Fire rating, compartmentation, sprinkler requirements</td></tr>
+            <tr><td>PG8</td><td>Carpark</td><td>Ramp gradients, bay dimensions, ventilation</td></tr>
+          </table>
+
+          <h3>Key Malaysia Standards Referenced</h3>
+          <ul class="manual-list">
+            <li><strong>UBBL 1984</strong> - Uniform Building By-Laws, Third Schedule fire resistance</li>
+            <li><strong>MS 1184:2014</strong> - Code of Practice on Access for Disabled Persons</li>
+            <li><strong>MS 1525:2019</strong> - Code of Practice on Energy Efficiency and Use of Renewable Energy for Non-Residential Buildings</li>
+            <li><strong>JBPM Fire Safety Requirements 2020</strong> - Garis Panduan Persyaratan Keselamatan Kebakaran</li>
+            <li><strong>GBI Malaysia</strong> - Green Building Index (Non-Residential NC V1.0)</li>
+          </ul>`
+      },
+      {
+        id:'troubleshoot', icon:'🔧', title:'Troubleshooting',
+        content:`
+          <h3>Common Issues and Fixes</h3>
+          <table class="manual-table">
+            <tr><th>Issue</th><th>Cause</th><th>Fix</th></tr>
+            <tr><td>0% classification on all elements</td><td>No IfcClassificationReference attached. Export configuration not set up.</td><td>Install IFC+SG Translator or Shared Parameters. Assign codes before export.</td></tr>
+            <tr><td>68 or more proxy elements</td><td>Elements exported as IfcBuildingElementProxy. IFC mapping not configured.</td><td>In your BIM software, set the correct IFC type for each element category. Do not use Generic Models without IFC mapping.</td></tr>
+            <tr><td>No georeferencing</td><td>IfcMapConversion missing. SVY21 not configured in export.</td><td>In Revit: IFC Export → Advanced → set Project Base Point to SVY21. In ArchiCAD: set origin to SVY21 in Coordinates dialog.</td></tr>
+            <tr><td>SGPset_ sets missing</td><td>IFC+SG translator not applied or wrong translator version.</td><td>Re-export with the latest IFC+SG Translator from go.gov.sg/ifcsg.</td></tr>
+            <tr><td>PredefinedType is NOTDEFINED</td><td>Element type not mapped to IFC PredefinedType in BIM software.</td><td>In element settings, set the specific PredefinedType (e.g. PARAPET for a parapet wall, HOLLOWCORE for a hollow-core slab).</td></tr>
+            <tr><td>3D viewer shows nothing</td><td>Model data not received from C# or bounding boxes are null.</td><td>Run validation first - model geometry is sent with the validation results.</td></tr>
+            <tr><td>Property Editor shows empty queue</td><td>No fixes have been added.</td><td>Go to Critical Issues or All Results, find a property error (Level 8, 9, or 10), click Fix.</td></tr>
+            <tr><td>Software crashes on startup</td><td>WebView2 Runtime missing or outdated.</td><td>Download and install Microsoft WebView2 Runtime from microsoft.com/en-us/edge/webview2</td></tr>
+          </table>`
+      },
+      {
+        id:'glossary', icon:'📚', title:'Glossary of Terms',
+        content:`
+          <h3>Key Terms</h3>
+          <table class="manual-table">
+            <tr><th>Term</th><th>Definition</th></tr>
+            <tr><td><strong>IFC</strong></td><td>Industry Foundation Classes - open BIM standard (ISO 16739) for exchanging building data between software applications.</td></tr>
+            <tr><td><strong>IFC+SG</strong></td><td>Singapore's national IFC extension - adds SGPset_ property sets, classification system, and submission requirements on top of IFC4.</td></tr>
+            <tr><td><strong>COP 3.1</strong></td><td>Code of Practice for BIM e-Submission, 3rd Edition December 2025. The current Singapore CORENET-X standard.</td></tr>
+            <tr><td><strong>CORENET-X</strong></td><td>Construction and Real Estate Network - X. Singapore's online building plan submission system.</td></tr>
+            <tr><td><strong>NBeS</strong></td><td>National BIM e-Submission. Malaysia's IFC-based building submission system administered by CIDB.</td></tr>
+            <tr><td><strong>Pset_</strong></td><td>IFC standard property set. Defined in the IFC4 schema. Required for all compliant models.</td></tr>
+            <tr><td><strong>SGPset_</strong></td><td>Singapore-specific property set. Defined in the IFC+SG Industry Mapping. Required only for Singapore submissions.</td></tr>
+            <tr><td><strong>PredefinedType</strong></td><td>A specific sub-type within an IFC entity class. E.g. IfcWall.PARAPET, IfcBeam.JOIST. NOTDEFINED is not acceptable for CORENET-X.</td></tr>
+            <tr><td><strong>IfcBuildingElementProxy</strong></td><td>Generic IFC fallback class. Should never be used in a compliant model - every element must have a specific class.</td></tr>
+            <tr><td><strong>Classification Code</strong></td><td>An alphanumeric code from the IFC+SG or NBeS classification system identifying the building component type. E.g. A-WAL-EXW-01 (external wall).</td></tr>
+            <tr><td><strong>SVY21</strong></td><td>Singapore Coordinate Reference System (EPSG:3414). All Singapore IFC models must be georeferenced in SVY21.</td></tr>
+            <tr><td><strong>GDM2000</strong></td><td>Geodetic Datum Malaysia 2000. Malaysia's coordinate reference system for IFC georeferencing.</td></tr>
+            <tr><td><strong>Gateway</strong></td><td>Submission stage in CORENET-X. G1=Outline/Planning, G1.5=Piling, G2=Structural, G3=Construction.</td></tr>
+            <tr><td><strong>BCF</strong></td><td>BIM Collaboration Format. Open standard for communicating model issues between BIM tools.</td></tr>
+            <tr><td><strong>COBie</strong></td><td>Construction Operations Building Information Exchange. Standard for handover of asset data to facilities management.</td></tr>
+            <tr><td><strong>IDS</strong></td><td>Information Delivery Specification. ISO 21597 standard for defining what data a model must contain.</td></tr>
+          </table>`
+      },
+    ];
+
+    const searchId = 'manual-search-' + Date.now();
+
+    return `<div>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px">
+        <div>
+          <h1 style="margin:0">User Manual</h1>
+          <p style="font-size:12px;color:var(--mid-grey);margin-top:3px">
+            Complete authoritative reference for VERIFIQ v2.0.0
+          </p>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center">
+          <input id="${searchId}" type="text" placeholder="Search manual..."
+            style="height:30px;padding:0 10px;font-size:12px;border:1px solid var(--border);border-radius:5px;background:#081322;color:#e2e8f0;width:200px"
+            oninput="ManualSearch.run(this.value,'manual-content')"/>
+          <button class="btn btn-ghost" style="font-size:11px"
+            onclick="App.navigate('userguide')">
+            Interactive Guide
+          </button>
+        </div>
+      </div>
+
+      <!-- Jump links -->
+      <div class="card" style="padding:12px 16px;margin-bottom:16px;background:var(--navy-dark)">
+        <div style="font-size:10px;color:var(--mid-grey);text-transform:uppercase;margin-bottom:8px">Jump to section</div>
+        <div style="display:flex;flex-wrap:wrap;gap:6px">
+          ${SECTIONS.map(s=>`<a href="#manual-${s.id}" style="font-size:11px;color:var(--teal);text-decoration:none;padding:3px 8px;border:1px solid rgba(14,124,134,.3);border-radius:4px;background:rgba(14,124,134,.08)">${s.icon} ${s.title}</a>`).join('')}
+        </div>
+      </div>
+
+      <div id="manual-content" style="display:flex;flex-direction:column;gap:16px">
+        ${SECTIONS.map(s=>`
+          <div id="manual-${s.id}" class="card" style="padding:20px;scroll-margin-top:20px">
+            <h2 style="font-size:15px;margin:0 0 14px;color:var(--white);display:flex;align-items:center;gap:8px;padding-bottom:10px;border-bottom:1px solid var(--border)">
+              <span>${s.icon}</span> ${s.title}
+            </h2>
+            <div class="manual-body" style="font-size:12px;color:var(--mid-grey);line-height:1.8">
+              ${s.content}
+            </div>
+          </div>`).join('')}
+      </div>
+
+      <style>
+        .manual-table { width:100%;border-collapse:collapse;margin:8px 0 }
+        .manual-table th { background:#0a1628;padding:7px 10px;text-align:left;font-size:11px;color:var(--teal);font-weight:700;border-bottom:2px solid var(--border) }
+        .manual-table td { padding:7px 10px;font-size:11px;border-bottom:1px solid var(--border);vertical-align:top }
+        .manual-table tr:hover td { background:rgba(255,255,255,.02) }
+        .manual-body h3 { font-size:13px;color:var(--white);margin:14px 0 8px;font-weight:700 }
+        .manual-body p { margin:6px 0 }
+        .manual-list { margin:6px 0 6px 18px;padding:0 }
+        .manual-list li { margin-bottom:5px }
+        .manual-highlight { background:#F59E0B44;border-radius:2px }
+      </style>
+    </div>`;
+  };
+
+  window.ManualSearch = {
+    run(query, containerId) {
+      const el = document.getElementById(containerId);
+      if (!el) return;
+      if (!query || query.length < 2) {
+        el.querySelectorAll('.manual-highlight').forEach(e => {
+          e.outerHTML = e.textContent;
+        });
+        return;
+      }
+      // Highlight matching text in manual body sections
+      el.querySelectorAll('.manual-body').forEach(section => {
+        const walker = document.createTreeWalker(section, NodeFilter.SHOW_TEXT);
+        const nodes = [];
+        while (walker.nextNode()) nodes.push(walker.currentNode);
+        nodes.forEach(node => {
+          if (!node.textContent.toLowerCase().includes(query.toLowerCase())) return;
+          const span = document.createElement('span');
+          span.innerHTML = node.textContent.replace(
+            new RegExp(query.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'), 'gi'),
+            m => `<mark class="manual-highlight">${m}</mark>`
+          );
+          node.parentNode.replaceChild(span, node);
+        });
+      });
+    }
+  };
+})();
