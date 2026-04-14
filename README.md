@@ -9,7 +9,7 @@
 
 <br/><br/>
 
-# VERIFIQ — IFC Compliance Checker
+# VERIFIQ IFC Compliance Checker
 
 **The professional IFC model validation tool for Singapore CORENET-X and Malaysia NBeS submissions.**
 
@@ -34,15 +34,15 @@ VERIFIQ runs **20 sequential check levels** on every element and produces findin
 
 ## What's New in v2.1.0
 
-- **Full CORENET-X COP 3.1 (December 2025)** implementation — all 62 Identified Components, 970 property rules, 196 classification codes
+- **Full CORENET-X COP 3.1 (December 2025)** implementation all 62 Identified Components, 970 property rules, 196 classification codes
 - **192 Singapore design code rules** across all 9 agencies: SCDF Fire Code 2023, Code on Accessibility 2025, URA GFA Handbook 2024, BCA Green Mark 2021, PUB SSW Code 2019, LTA Parking Code 2019, NParks LUSH 3.0, JTC Guidelines, SLA SVY21
-- **52 Malaysia design code rules** — UBBL 1984, MS 1184:2014, JBPM Fire Safety 2020, GBI, MSMA 2nd Edition, CIDB NBeS 2024
-- **Full GFA category enumeration** — all 25 `AGF_DevelopmentUse` categories, full `AGF_Name` lists per development use, all 10 bonus GFA scheme types
-- **JTC industrial rules** — floor loading, ceiling height, loading bay provision
-- **G4 Completion gateway rules** — as-built Mark, structural completion, agency clearances
-- **IFC+SG rules auto-update engine** — checks `info.corenet.gov.sg` and `go.gov.sg/ifcsg` daily
-- **Malaysia NBeS 2024 expanded** — 21 MY classification codes, full structural property coverage, GDM2000 georeferencing checks
-- **Modelling guidance** — COP 3.1 Section 4 modelling notes for all 17 key component types, accessible from every finding
+- **52 Malaysia design code rules** UBBL 1984, MS 1184:2014, JBPM Fire Safety 2020, GBI, MSMA 2nd Edition, CIDB NBeS 2024
+- **Full GFA category enumeration** all 25 `AGF_DevelopmentUse` categories, full `AGF_Name` lists per development use, all 10 bonus GFA scheme types
+- **JTC industrial rules** floor loading, ceiling height, loading bay provision
+- **G4 Completion gateway rules** as-built Mark, structural completion, agency clearances
+- **IFC+SG rules auto-update engine** checks `info.corenet.gov.sg` and `go.gov.sg/ifcsg` daily
+- **Malaysia NBeS 2024 expanded** 21 MY classification codes, full structural property coverage, GDM2000 georeferencing checks
+- **Modelling guidance** COP 3.1 Section 4 modelling notes for all 17 key component types, accessible from every finding
 
 ---
 
