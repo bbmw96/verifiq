@@ -273,12 +273,216 @@ public static class KnowledgeLibrary
                 => "Set FireRating per SCDF Fire Code Table 4.2. " +
                    "Floor slabs bounding fire compartments require FRR 60–90 minimum. " +
                    "Roof slabs: FRR 30 minimum (non-sprinklered residential).",
-            _   => $"Add the required property '{propName}' to property set '{psetName}' " +
+            // ── STRUCTURAL ─────────────────────────────────────────────
+            ("SGPset_Beam", "BeamSpanType")
+                => "Set BeamSpanType: Single, End, Interior or Cantilever. Mandatory for all beams.",
+            ("SGPset_BeamReinforcement", _) or ("SGPset_ColumnReinforcement", _) or
+            ("SGPset_SlabReinforcement", _) or ("SGPset_WallReinforcement", _) or
+            ("SGPset_StairReinforcement", _)
+                => $"Set {propName} rebar notation (e.g. 3H25, 2H32+2H20). Use NA for steel elements.",
+            ("SGPset_PileFoundation", "PileType")
+                => "Set PileType: BORED, DRIVEN, JETGROUTING, MICROPILE or CAISSON. Mandatory at Piling Gateway.",
+            ("SGPset_PileFoundation", "CutOffLevel_SHD")
+                => "Set cut-off level in SHD metres. Mandatory for all piles at Piling Gateway.",
+            ("SGPset_PileStructuralLoad", _)
+                => $"Set {propName} in kN. Refer to BC 3:2013 and Eurocode 7 for pile load calculations.",
+            // ── FIRE ───────────────────────────────────────────────────────
+            ("SGPset_WallFireRating", "FireRating") or ("SGPset_DoorFireDoor", "FireRating") or
+            ("SGPset_SlabFireRating", "FireRating") or ("SGPset_RoofFireRating", "FireRating") or
+            ("SGPset_WindowFireRating", "FireRating") or ("SGPset_StairFireEscape", "FireRating")
+                => $"Set FireRating in hours (0.5, 1, 1.5, 2, 3 or 4). " +
+                   "Refer to SCDF Fire Code 2023 for minimum FRR by building type and element position.",
+            ("SGPset_StairFireEscape", "FireExit")
+                => "Set TRUE if this stair is a protected means of escape. " +
+                   "Fire escape stairs require FRR >= 60 min enclosure per SCDF Fire Code 2023 sec 5.4.",
+            // ── ACCESSIBILITY ──────────────────────────────────────────────
+            ("SGPset_DoorAccessibility", _) or ("SGPset_RampAccessibility", _) or
+            ("SGPset_StairAccessibility", _) or ("SGPset_RailingAccessibility", _) or
+            ("SGPset_LiftAccessibility", _)
+                => $"Set {propName} per Code on Accessibility 2025 and SS 553. " +
+                   "Accessible doors min 850mm clear width, ramps max 1:12 gradient.",
+            // ── WATER / PUB ────────────────────────────────────────────────
+            ("SGPset_SanitaryTerminal", "WELS")
+                => "Set WELS rating (1, 2 or 3 ticks). WCs: min 3-tick. Basins/showers: min 2-tick. " +
+                   "Refer to PUB WELS requirements and SS 608-2:2020.",
+            ("SGPset_SanitaryTerminal", "SystemType")
+                => "Set SystemType for this fitting: POTABLE_WATER, SOIL_WASTE, FOUL_WATER or STORMWATER.",
+            // ── URA / GFA ──────────────────────────────────────────────────
+            ("SGPset_SpaceGFA", "GFACategory")
+                => "Set GFACategory from the COP 3.1 approved list. " +
+                   "This is MANDATORY for all IfcSpace elements. URA uses it to verify Gross Plot Ratio. " +
+                   "Missing GFACategory causes automatic submission rejection.",
+            ("SGPset_SpaceGFA", "GrossArea")
+                => "Set GrossArea in square metres matching the planning approval. " +
+                   "Refer to URA Handbook on Gross Floor Area 2024.",
+            // ── NEA / VENTILATION ──────────────────────────────────────────
+            ("SGPset_Space", "AirChangeRate")
+                => "Set AirChangeRate in ACH. Min: offices 6 ACH, car parks 6 ACH, kitchens 20 ACH. " +
+                   "Refer to NEA EPH Regulations and SS 553:2016.",
+            ("SGPset_Space", "SprinklerProvided")
+                => "Set TRUE if sprinkler system is provided. Required by SCDF Fire Code for applicable occupancies.",
+            // ── SLA / GEOREFERENCING ───────────────────────────────────────
+            ("SGPset_Site", "LandLotNumber")
+                => "Set to the cadastral lot number matching the SLA land register and planning approval.",
+            // ── LTA / PARKING ──────────────────────────────────────────────
+            ("SGPset_BuildingElementProxy", "BayWidth")
+                => "Set BayWidth in mm. LTA minimum: 2400mm standard, 3600mm accessible (PWD). " +
+                   "Refer to LTA Code of Practice for Vehicle Parking Provision 2019.",
+            ("SGPset_BuildingElementProxy", "BayLength")
+                => "Set BayLength in mm. LTA minimum: 4800mm standard. " +
+                   "Refer to LTA Code of Practice for Vehicle Parking Provision 2019.",
+            // ── NPARKS / LANDSCAPE ─────────────────────────────────────────
+            ("SGPset_GeographicElement", "PlantSpecies")
+                => "Set the full botanical name (e.g. Terminalia mantaly). " +
+                   "Refer to NParks Flora and Fauna Web for the approved species list.",
+            // ── STRUCTURAL GENERAL ─────────────────────────────────────────
+            (var ps, "Mark") when ps.StartsWith("SGPset_")
+                => "Set Mark (element label) matching the structural drawings. " +
+                   "Must be unique within each element type. Required by BCA for all structural elements.",
+            (var ps, "ConstructionMethod") when ps.StartsWith("SGPset_")
+                => "Set ConstructionMethod: CIS (Cast-In-Situ), PC (Precast), PT (Post-Tensioned), " +
+                   "PPVC or PF. Required for all structural elements.",
+            (var ps, "MaterialGrade") when ps.StartsWith("SGPset_")
+                => "Set MaterialGrade per SS EN notation: concrete C32/40, C40/50 etc; " +
+                   "steel S275, S355 etc. Required by BCA.",
+            // ── DRAINAGE ──────────────────────────────────────────────────
+            ("SGPset_PipeSegment", "InvertLevel") or ("SGPset_CivilElement", "InvertLevel")
+                => "Set InvertLevel in SHD metres. This is the internal bottom of the pipe or drain. " +
+                   "Required by PUB to verify adequate gradient for drainage flow.",
+            ("SGPset_PipeSegment", "Gradient") or ("SGPset_CivilElement", "Gradient")
+                => "Set Gradient as ratio (e.g. 0.01 for 1:100). " +
+                   "PUB minimum: 1:100 foul water, 1:200 stormwater. " +
+                   "Refer to PUB Code of Practice on Sewerage and Sanitary Works 2019.",
+                        _   => $"Add the required property '{propName}' to property set '{psetName}' " +
                    $"on all {ifcClass} elements. Refer to the IFC+SG Industry Mapping " +
                    "Excel from go.gov.sg/ifcsg for the complete parameter list and permitted values."
         };
 
     /// <summary>Get UBBL remediation guidance specific to the failing parameter.</summary>
+    /// <summary>
+    /// Returns the modelling guidance for a component type, extracted from 
+    /// CORENET-X COP 3.1 Edition December 2025, Section 4, Identified Components.
+    /// These are the "how to model" notes from pp.250-440.
+    /// </summary>
+    public static string GetModellingGuidance(string ifcClass, string subType, string compName) =>
+        (ifcClass.ToUpperInvariant(), (subType ?? "").ToUpperInvariant(), (compName ?? "").ToLower()) switch
+        {
+            // ── ACCESSIBLE ROUTE ─────────────────────────────────────────────
+            ("IFCSPACE", "ACCESSIBLEROUTE", _)
+                => "COP 3.1 p.251: Model with Generic Models (Revit), Model Element (ArchiCAD), or Object (OpenBuildings). " +
+                   "Other components with positive BarrierFreeAccessibility may also represent accessible routes: Lift, Ramp, Space, Vehicle Parking.",
+            // ── BEAM ──────────────────────────────────────────────────────────
+            ("IFCBEAM", _, _) or (_, _, "beam")
+                => "COP 3.1 p.252: All beam elements must have marks and design information embedded in every element. " +
+                   "Multiple beam elements shall be modelled from support to support for continuous spans. " +
+                   "2D detail drawings allowed for irregular, cranked or complex beams using ReferTo2DDetail. " +
+                   "Mirrored beams must have new marks - using same mark for mirrored beams is disallowed.",
+            // ── BOREHOLE ──────────────────────────────────────────────────────
+            ("IFCBUILDINGELEMENTPROXY", "BOREHOLE", _)
+                => "COP 3.1 p.262: Model boreholes as IfcBuildingElementProxy with SubType BOREHOLE. " +
+                   "Each borehole requires: BoreholeID, BoreholeType (Rotary/Percussion/Washboring/HandAuger), " +
+                   "LocationE (SVY21 Eastings), LocationN (SVY21 Northings), Depth, ElevationTop (SHD m). " +
+                   "Ground investigation reports and borehole logs must be referenced.",
+            // ── COLUMN ────────────────────────────────────────────────────────
+            ("IFCCOLUMN", _, _) or (_, _, "column")
+                => "COP 3.1 p.267: All column elements must have marks and design information in every element. " +
+                   "2D detail drawings for complex or irregular columns using ReferTo2DDetail. " +
+                   "Mirrored columns require new marks. For steel columns, connection details (pinned/fixed/free) required.",
+            // ── DOOR ──────────────────────────────────────────────────────────
+            ("IFCDOOR", _, _)
+                => "COP 3.1 p.278: FireAccessOpening must be TRUE for all doors/openings serving SCDF fire engine access. " +
+                   "FireExit must be TRUE for all doors on escape routes. " +
+                   "Egress Indicator Box (EIB) must be tagged to all exit and exit access doors showing the clear width. " +
+                   "EIB shall exclude door leaf that is bolted.",
+            // ── FOOTING / PILECAP ─────────────────────────────────────────────
+            ("IFCFOOTING", _, _) or (_, _, "footing")
+                => "COP 3.1 p.295: All footing/pilecap elements must have marks and design info. " +
+                   "ReferTo2DDetail required for complex or irregular geometries. " +
+                   "NumberOfPiles must be specified for pilecaps. ConstructionMethod (CIS/PC/PT) required.",
+            // ── PILE ──────────────────────────────────────────────────────────
+            ("IFCPILE", _, _)
+                => "COP 3.1 p.316-322: Full piling model required at Gateway G1.5. " +
+                   "Every pile individually modelled with: Mark, PileType (BORED/DRIVEN/JETGROUTING/MICROPILE), " +
+                   "PileShape, Diameter, CutOffLevel_SHD, ToeLevel_SHD, WorkingLoad, DA1-1_CompressionCapacity. " +
+                   "Ground investigation (boreholes) must be co-submitted per BCA Circular APPBCA-2016-08.",
+            // ── SLAB ──────────────────────────────────────────────────────────
+            ("IFCSLAB", _, _) or (_, _, "slab")
+                => "COP 3.1 p.353: All slab elements with marks and design info. " +
+                   "Multiple slab elements for different thicknesses. " +
+                   "Two-way slabs need reinforcement in both X and Y directions. " +
+                   "ReferTo2DDetail for complex geometry.",
+            // ── SPACE (AREA_GFA) ─────────────────────────────────────────────
+            ("IFCSPACE", "AREA_GFA", _)
+                => "COP 3.1 p.356-381: Every space must have AREA_GFA subtype for URA GFA evaluation. " +
+                   "AGF_DevelopmentUse MUST be set from the 25 approved categories. " +
+                   "AVF_IncludeAsGFA MUST be checked for all areas proposed as GFA. " +
+                   "URA cross-checks all GrossArea values against approved Plot Ratio. " +
+                   "IfcSpace is broken into two sub-sections: Area Schemes (AREA_GFA) and Usage (SPACE).",
+            // ── SPACE (USAGE) ─────────────────────────────────────────────────
+            ("IFCSPACE", "SPACE", _)
+                => "COP 3.1 p.360-417: SpaceUsage must be from the approved list in the SpaceNames Excel. " +
+                   "SCDF requires OccupancyType tagged to the correct SpaceName per the IfcSpaceValues.xlsx. " +
+                   "DischargePoint must be tagged to all exit points at discharge level. " +
+                   "FireExit must be set for doors opening to exit staircases.",
+            // ── STAIRCASE ─────────────────────────────────────────────────────
+            ("IFCSTAIR", _, _) or ("IFCSTAIRFLIGHT", _, _) or (_, _, "stair")
+                => "COP 3.1 p.420: IfcStair is the container; IfcStairFlight holds geometry and data. " +
+                   "Each stair flight modelled separately. " +
+                   "Risers and goings must be consistent within a flight. " +
+                   "FireExit TRUE for protected escape staircases. " +
+                   "EffectiveWidth minimum 1100mm (buildings <= 24m) or 1200mm (> 24m).",
+            // ── WALL ──────────────────────────────────────────────────────────
+            ("IFCWALL", _, _) or (_, _, "wall")
+                => "COP 3.1 p.430: ConstructionMethod required for all walls (CIS/PC/PT/MASONRY/LIGHTWEIGHT). " +
+                   "IsPartyWall TRUE for walls shared with adjacent properties - these require FRR >= 2hr. " +
+                   "IsExternal TRUE for all external walls - requires ThermalTransmittance per Green Mark.",
+            // ── WINDOW ────────────────────────────────────────────────────────
+            ("IFCWINDOW", _, _)
+                => "COP 3.1 p.438: FireAccessOpening MUST be set (TRUE/FALSE) on all windows for SCDF. " +
+                   "SCDF requires indication of all fire access openings in the model. " +
+                   "Circular windows require InnerDiameter and OuterDiameter instead of width/height.",
+            // ── SANITARY APPLIANCES ───────────────────────────────────────────
+            ("IFCSANITARYTERMINAL", _, _)
+                => "COP 3.1 p.340: WELS field must be set for all fittings (PUB mandatory). " +
+                   "WCs: minimum 3-tick WELS. Wash basins and showers: minimum 2-tick WELS. " +
+                   "SystemType must indicate whether fitting connects to potable water, soil or foul system.",
+            // ── PARKING LOT ───────────────────────────────────────────────────
+            ("IFCBUILDINGELEMENTPROXY", "CARGENERALPARKINGLOT", _) or
+            ("IFCBUILDINGELEMENTPROXY", "CARPWDPARKINGLOT", _) or
+            ("IFCBUILDINGELEMENTPROXY", "LORRYLOT", _)
+                => "COP 3.1 p.312: Each parking lot modelled as individual element with subtype. " +
+                   "Standard bay: BayWidth >= 2400mm, BayLength >= 4800mm. " +
+                   "PWD bay: BayWidth >= 3600mm. Lorry lot: BayLength >= 9000mm. " +
+                   "Headroom minimum 2100mm for standard, 4500mm for lorry lots.",
+            // ── GEOREFERENCING ────────────────────────────────────────────────
+            ("IFCSITE", _, _)
+                => "COP 3.1 p.348: IfcSite must have SVY21 Easting and Northing coordinates. " +
+                   "Coordinate datum: SVY21 (Singapore Geodetic Reference System 1995). " +
+                   "Height datum: SHD (Singapore Height Datum). " +
+                   "LandLotNumber must match SLA land register format exactly.",
+            // ── LANDSCAPE ────────────────────────────────────────────────────
+            ("IFCGEOGRAPHICELEMENT", _, _)
+                => "COP 3.1 p.309-327: All trees, palms and significant plants must use botanical names. " +
+                   "NParks requires full botanical name (genus and species) from Flora & Fauna Web. " +
+                   "For transplanted trees: GirthSize minimum 150mm. Soil depth for planted areas: minimum 600mm. " +
+                   "LUSH 3.0 Programme greenery features must use approved ALS_GreeneryFeatures values.",
+            // ── LIFT ─────────────────────────────────────────────────────────
+            ("IFCTRANSPORTELEMENT", _, _)
+                => "COP 3.1 p.310: All lifts modelled as IfcTransportElement with LIFT subtype. " +
+                   "FireFightersLift TRUE for lifts serving fireman's lift function. " +
+                   "Buildings above 24m require at least one fireman's lift with minimum capacity 630kg. " +
+                   "Accessible lifts require car size >= 1100mm x 1400mm.",
+            // ── PIPE / DRAINAGE ───────────────────────────────────────────────
+            ("IFCPIPESEGMENT", _, _)
+                => "COP 3.1 p.320: All pipes/drains must have InvertLevel (SHD m) and Gradient. " +
+                   "PUB minimum gradients: foul water 1:100, stormwater 1:200. " +
+                   "SystemType must indicate: POTABLE_WATER, SOIL_WASTE, FOUL_WATER, STORMWATER, or FIRE. " +
+                   "InvertLevel is measured at the internal pipe invert (bottom inside of pipe).",
+            // DEFAULT ─────────────────────────────────────────────────────────
+            _   => $"Refer to CORENET-X COP 3.1 Edition December 2025, Section 4 for modelling guidance on {ifcClass}/{subType}. " +
+                   "Download the IFC+SG Resource Kit from go.gov.sg/ifcsg for software-specific export guides."
+        };
+
     public static string GetMyRemediationGuidance(string ifcClass, string psetName, string propName) =>
         (psetName, propName) switch
         {

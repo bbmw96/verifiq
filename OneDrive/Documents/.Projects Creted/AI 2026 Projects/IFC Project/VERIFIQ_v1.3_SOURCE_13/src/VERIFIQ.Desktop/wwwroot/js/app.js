@@ -513,77 +513,103 @@ const App = (() => {
 
   function renderHelpPage() {
     return `
-      <div>
-        <h1>Help & Documentation</h1>
-        <div class="two-col">
-          <div class="card">
-            <div class="card-header"><span class="card-title">Getting Started</span></div>
-            <ol style="font-size:12px;line-height:1.9;padding-left:20px;color:var(--mid-grey)">
-              <li>Select your country mode - Singapore (CORENET-X), Malaysia (NBeS), or Combined</li>
-              <li>Click <strong>Open IFC File</strong> and select your .ifc, .ifczip, or .ifcxml file</li>
-              <li>Use <strong>Check All - Singapore</strong> on the Dashboard for a single-click full audit</li>
-              <li>Or click <strong>Run Validation</strong> to check compliance</li>
-              <li>Review findings in Critical Issues, All Results, and the Director's Report</li>
-              <li>Click <strong>✏️ Fix</strong> on any finding to open the IFC Property Editor</li>
-              <li>Apply fixes and save a corrected IFC file without returning to ArchiCAD or Revit</li>
-              <li>Click <strong>Export Reports</strong> to generate PDF/Excel/BCF compliance documents</li>
+      <div style="padding:24px;max-width:1100px;margin:0 auto">
+        <h1 style="font-size:28px;font-weight:800;color:var(--white);margin-bottom:4px">Help &amp; Documentation</h1>
+        <p style="color:var(--mid-grey);margin-bottom:24px;font-size:12px">VERIFIQ v2.1.0 &mdash; CORENET-X COP 3.1 December 2025 &amp; Malaysia NBeS 2024 &mdash; 192 SG rules &mdash; 52 MY rules</p>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px">
+          <div class="card" style="padding:20px">
+            <div style="font-weight:700;font-size:12px;color:var(--teal);margin-bottom:10px">&#128640; Getting Started</div>
+            <ol style="font-size:12px;line-height:2;padding-left:18px;color:var(--mid-grey)">
+              <li>Select <strong style="color:var(--white)">Country Mode</strong> &mdash; Singapore (CORENET-X) or Malaysia (NBeS)</li>
+              <li>Select <strong style="color:var(--white)">Submission Gateway</strong> &mdash; G1, G1.5 Piling, G2 Construction, or G3/G4 Completion</li>
+              <li>Click <strong style="color:var(--white)">Add Files</strong> and load your .ifc / .ifczip / .ifcxml file</li>
+              <li>Click <strong style="color:var(--white)">Run Validation</strong> &mdash; all 20 check levels run automatically</li>
+              <li><strong style="color:#ef4444">Critical</strong> findings block CORENET-X submission &mdash; fix these first</li>
+              <li>Click <strong style="color:var(--white)">Fix</strong> on property findings to open the Property Editor</li>
+              <li>Re-run validation on the corrected IFC file, then export your report</li>
             </ol>
           </div>
-          <div class="card">
-            <div class="card-header"><span class="card-title">IFC+SG Export: ArchiCAD</span></div>
-            <ol style="font-size:12px;line-height:1.9;padding-left:20px;color:var(--mid-grey)">
-              <li>Download the IFC+SG Export Translator from the IFC+SG Resource Kit at go.gov.sg/ifcsg</li>
-              <li>Import it via Options > Import Scheme</li>
-              <li>Use File > Save as IFC > select the IFC+SG scheme</li>
-              <li>Ensure IFC4 Reference View is selected</li>
-              <li>Load the exported .ifc file into VERIFIQ</li>
-            </ol>
-          </div>
-          <div class="card">
-            <div class="card-header"><span class="card-title">IFC+SG Export: Revit</span></div>
-            <ol style="font-size:12px;line-height:1.9;padding-left:20px;color:var(--mid-grey)">
-              <li>Download IFC+SG shared parameter files from the IFC+SG Resource Kit at go.gov.sg/ifcsg</li>
-              <li>Load the shared parameter file via Manage > Shared Parameters</li>
-              <li>Apply the IFC+SG export settings file</li>
-              <li>Export using File > Export > IFC, select IFC4 Reference View</li>
-              <li>Load the .ifc file into VERIFIQ</li>
-            </ol>
-          </div>
-          <div class="card">
-            <div class="card-header"><span class="card-title">Understanding the Results</span></div>
-            <div style="font-size:12px;line-height:1.7;color:var(--mid-grey)">
-              <p><span class="badge badge-critical">Critical</span> : Submission will be rejected. Fix before submitting.</p>
-              <p style="margin-top:6px"><span class="badge badge-error">Error</span> : Likely to cause rejection. Fixing is strongly recommended.</p>
-              <p style="margin-top:6px"><span class="badge badge-warning">Warning</span> : May cause issues. Review and fix if applicable.</p>
-              <p style="margin-top:6px"><span class="badge badge-pass">Pass</span> : Element meets all requirements for this check.</p>
+          <div class="card" style="padding:20px">
+            <div style="font-weight:700;font-size:12px;color:var(--teal);margin-bottom:10px">&#128196; Two Questions VERIFIQ Answers</div>
+            <div style="font-size:12px;color:var(--mid-grey);line-height:1.8;margin-bottom:12px">
+              <strong style="color:var(--white)">Q1 — Is the IFC model complete?</strong><br>
+              Every element has the entity class, classification code, all Pset_ and SGPset_ properties, and correct values all 9 Singapore agencies require simultaneously.
+            </div>
+            <div style="font-size:12px;color:var(--mid-grey);line-height:1.8">
+              <strong style="color:var(--white)">Q2 — Is the classification chain complete?</strong><br>
+              When a classification code is present (e.g. A-WAL-FRW), all linked SGPset_ property sets and required values are also present. 196 COP 3.1 codes, per agency, per gateway.
             </div>
           </div>
         </div>
 
-        <div class="card">
-          <div class="card-header"><span class="card-title">Key References</span></div>
-          <div class="table-wrap">
-            <table>
-              <thead><tr><th>Resource</th><th>Description</th><th>Country</th></tr></thead>
-              <tbody>
-                <tr><td>go.gov.sg/ifcsg</td><td>IFC+SG Resource Kit: Export Translators, Mapping Excel, COP downloads</td><td>🇸🇬</td></tr>
-                <tr><td>go.gov.sg/cxcop</td><td>CORENET-X Code of Practice (COP3.1 Edition)</td><td>🇸🇬</td></tr>
-                <tr><td>code.builtsearch.com/ifcsg-validator</td><td>Official IFC+SG Validator (free, cloud-based)</td><td>🇸🇬</td></tr>
-                <tr><td>IFC+SG Industry Mapping Excel</td><td>500+ parameter mapping from BCA/GovTech</td><td>🇸🇬</td></tr>
-                <tr><td>CORENET-X COP3.1.1 Edition (December 2025) (Sep 2025)</td><td>Code of Practice for IFC+SG submissions</td><td>🇸🇬</td></tr>
-                <tr><td>Good Practices Guidebook (Dec 2025)</td><td>Practical guidance for IFC+SG preparation</td><td>🇸🇬</td></tr>
-                <tr><td>NBeS portal (CIDB)</td><td>Malaysia BIM e-Submission system</td><td>🇲🇾</td></tr>
-                <tr><td>UBBL 1984 (Act 133)</td><td>Uniform Building By-Laws (Malaysia)</td><td>🇲🇾</td></tr>
-                <tr><td>bbmw0.com</td><td>VERIFIQ product page and support</td><td>Both</td></tr>
-              </tbody>
-            </table>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:16px">
+          <div class="card" style="padding:18px">
+            <div style="font-weight:700;font-size:12px;color:var(--teal);margin-bottom:10px">&#127981; ArchiCAD Export</div>
+            <ol style="font-size:11px;line-height:1.9;padding-left:16px;color:var(--mid-grey)">
+              <li>Download IFC+SG Translator from <strong>go.gov.sg/ifcsg</strong></li>
+              <li>Options &gt; Import Scheme &mdash; import the translator</li>
+              <li>Assign IFC+SG classification codes to all elements</li>
+              <li>File &gt; Save as IFC &gt; select IFC+SG translator</li>
+              <li>Verify IFC4 Reference View is selected</li>
+            </ol>
+          </div>
+          <div class="card" style="padding:18px">
+            <div style="font-weight:700;font-size:12px;color:var(--teal);margin-bottom:10px">&#127963; Revit Export</div>
+            <ol style="font-size:11px;line-height:1.9;padding-left:16px;color:var(--mid-grey)">
+              <li>Download IFC+SG Shared Parameters from <strong>go.gov.sg/ifcsg</strong></li>
+              <li>Manage &gt; Shared Parameters &mdash; load the file</li>
+              <li>Add parameters to all families needing SGPset_ data</li>
+              <li>File &gt; Export &gt; IFC &gt; IFC+SG 2025 configuration &gt; IFC4</li>
+            </ol>
+          </div>
+          <div class="card" style="padding:18px">
+            <div style="font-weight:700;font-size:12px;color:var(--teal);margin-bottom:10px">&#128209; Key Links</div>
+            <div style="font-size:11px;color:var(--mid-grey);line-height:2.1">
+              <div><a href="#" onclick="VBridge.send('openUrl',{url:'https://go.gov.sg/ifcsg'})" style="color:var(--teal)">go.gov.sg/ifcsg</a> &mdash; IFC+SG Resource Kit</div>
+              <div><a href="#" onclick="VBridge.send('openUrl',{url:'https://go.gov.sg/cxcop'})" style="color:var(--teal)">go.gov.sg/cxcop</a> &mdash; COP 3.1 Document</div>
+              <div><a href="#" onclick="VBridge.send('openUrl',{url:'https://info.corenet.gov.sg'})" style="color:var(--teal)">info.corenet.gov.sg</a> &mdash; CORENET-X Portal</div>
+              <div><a href="#" onclick="VBridge.send('openUrl',{url:'https://verifiq.bbmw0.com'})" style="color:var(--teal)">verifiq.bbmw0.com</a> &mdash; Product Website</div>
+            </div>
           </div>
         </div>
-      </div>`;
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px">
+          <div class="card" style="padding:18px">
+            <div style="font-weight:700;font-size:12px;color:var(--teal);margin-bottom:10px">&#127480;&#127468; Singapore &mdash; 9 Agencies, 4 Gateways</div>
+            <div style="font-size:11px;color:var(--mid-grey);line-height:1.9">
+              <div><strong style="color:var(--white)">G1</strong> &mdash; BCA, URA: GFA categories (25 approved), room sizes</div>
+              <div><strong style="color:var(--white)">G1.5 Piling</strong> &mdash; Every pile: 37+ properties, CutOffLevel_SHD, DA1-1_CompressionCapacity</div>
+              <div><strong style="color:var(--white)">G2 Construction</strong> &mdash; All 9 agencies: full SGPset_, SCDF fire, NEA ventilation, PUB WELS, LTA parking, SLA SVY21</div>
+              <div><strong style="color:var(--white)">G3/G4 Completion</strong> &mdash; As-built Mark, agency clearances</div>
+              <div style="margin-top:8px;padding:7px;background:rgba(0,196,160,.08);border-left:3px solid var(--teal);border-radius:4px;font-size:11px">
+                <strong style="color:var(--teal)">GFA Critical:</strong> AGF_DevelopmentUse + AVF_IncludeAsGFA mandatory on every IfcSpace/AREA_GFA. Missing = URA rejection.
+              </div>
+            </div>
+          </div>
+          <div class="card" style="padding:18px">
+            <div style="font-weight:700;font-size:12px;color:var(--teal);margin-bottom:10px">&#127474;&#127486; Malaysia &mdash; NBeS 2024</div>
+            <div style="font-size:11px;color:var(--mid-grey);line-height:1.9">
+              <div><strong style="color:var(--white)">UBBL 1984</strong> &mdash; Room sizes, ceiling heights, fire escape, structural</div>
+              <div><strong style="color:var(--white)">MS 1184:2014</strong> &mdash; OKU: ramp 1:12, door 800mm, lift 1100&times;1400mm</div>
+              <div><strong style="color:var(--white)">JBPM 2020</strong> &mdash; FRR 1hr min, Bomba access 4500mm, hydrant 90m</div>
+              <div><strong style="color:var(--white)">CIDB NBeS</strong> &mdash; Mark, MaterialGrade, ConstructionMethod (incl. IBS)</div>
+              <div><strong style="color:var(--white)">GDM2000</strong> &mdash; Malaysia coordinate system (not SVY21)</div>
+            </div>
+          </div>
+        </div>
+
+        <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;padding:14px 18px;background:var(--card-bg);border-radius:8px;border:1px solid var(--border)">
+          <button class="btn btn-teal" style="font-size:11px" onclick="App.navigate('manual')">&#128218; Full User Manual</button>
+          <button class="btn btn-ghost" style="font-size:11px" onclick="VBridge.send('openUrl',{url:'https://verifiq.bbmw0.com'})">&#127760; Website</button>
+          <button class="btn btn-ghost" style="font-size:11px" onclick="VBridge.send('openUrl',{url:'https://github.com/bbmw96/verifiq/releases'})">&#128196; Release Notes</button>
+          <button class="btn btn-ghost" style="font-size:11px" onclick="VBridge.send('openUrl',{url:'https://go.gov.sg/ifcsg'})">&#127970; IFC+SG Resource Kit</button>
+          <span style="flex:1"></span>
+          <span style="font-size:11px;color:var(--mid-grey)"><strong style="color:var(--white)">bbmw0@hotmail.com</strong> &nbsp;|&nbsp; +44 7920 212 969</span>
+        </div>
+      </div>
+    `;
   }
-
-  // ── VALIDATION PAGE ───────────────────────────────────────────────────────
-
   function renderValidationPage() {
     const state   = VState.get();
     const files   = state.filesLoaded  || [];
@@ -1914,6 +1940,40 @@ const App = (() => {
           </div>
         </div>
 
+        <!-- ── RULES UPDATE ─────────────────────────────────────────────── -->
+        <div class="card" style="padding:20px" id="rules-update-card">
+          <div style="font-weight:700;font-size:13px;color:var(--teal);margin-bottom:12px">
+            IFC+SG Rules Database
+          </div>
+          <div id="rules-version-info" style="font-size:11px;color:var(--mid-grey);background:var(--bg2);border-radius:6px;padding:8px 10px;margin-bottom:12px;line-height:1.8">
+            Loading rules version...
+          </div>
+          <div id="rules-update-banner" style="display:none;background:rgba(0,196,160,.12);border:1px solid var(--teal);border-radius:6px;padding:10px 12px;margin-bottom:12px;font-size:12px;color:var(--teal)">
+            <span style="font-weight:700">Update available: </span>
+            <span class="rules-update-msg"></span>
+          </div>
+          <div id="rules-update-status" style="font-size:11px;margin-bottom:10px;color:var(--mid-grey)"></div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+            <button class="btn btn-teal" style="font-size:11px" id="rules-check-btn"
+              onclick="VBridge.send('checkRulesUpdate',{})">
+              &#x1F504; Check for Rules Update
+            </button>
+            <button class="btn btn-ghost" style="font-size:11px"
+              onclick="VBridge.send('getRulesVersion',{})">
+              &#x2139; Show Version
+            </button>
+            <a href="#" style="font-size:11px;color:var(--teal);margin-left:4px"
+              onclick="VBridge.send('openUrl',{url:'https://go.gov.sg/ifcsg'});return false;">
+              &#x1F4E5; Manual Import from go.gov.sg/ifcsg
+            </a>
+          </div>
+          <div style="font-size:10px;color:var(--mid-grey);margin-top:10px;line-height:1.6">
+            VERIFIQ checks info.corenet.gov.sg daily for new IFC+SG Industry Mapping editions.
+            Updates are applied automatically. Currently embedded: COP 3.1 (December 2025),
+            196 classification codes, 946 property rules across all 8 Singapore agencies.
+          </div>
+        </div>
+
         <div class="card" style="padding:20px">
           <div style="font-weight:700;font-size:13px;color:var(--teal);margin-bottom:12px">Network and Proxy</div>
           <div style="font-size:12px;color:var(--mid-grey);margin-bottom:10px">
@@ -2755,4 +2815,90 @@ window.UserGuideHelper = {
       });
     }
   };
-})();
+})();    window._renderUserManualPage = function renderUserManualPage() {
+      var SECTIONS = [
+        { id:'overview',    icon:'&#128269;', title:'Software Overview' },
+        { id:'workflow',    icon:'&#9654;',   title:'Step-by-Step Workflow' },
+        { id:'checks',      icon:'&#10003;',  title:'All 20 Check Levels' },
+        { id:'severity',    icon:'&#9888;',   title:'Findings &amp; Severity' },
+        { id:'bimexport',   icon:'&#128194;', title:'BIM Export Guides' },
+        { id:'singapore',   icon:'&#127480;&#127468;', title:'Singapore &mdash; COP 3.1' },
+        { id:'malaysia',    icon:'&#127474;&#127486;', title:'Malaysia &mdash; NBeS 2024' },
+        { id:'designcode',  icon:'&#128200;', title:'Design Code Engine' },
+        { id:'rulesdb',     icon:'&#128257;', title:'Rules Database &amp; Auto-Update' },
+        { id:'troubleshoot',icon:'&#128295;', title:'Troubleshooting' },
+        { id:'glossary',    icon:'&#128218;', title:'Glossary' },
+      ];
+
+      var CONTENT = {
+        overview: '<h3>What is VERIFIQ?</h3><p>VERIFIQ v2.1.0 is a Windows desktop IFC compliance checker for Singapore CORENET-X (COP 3.1, December 2025) and Malaysia NBeS 2024 (CIDB 2nd Edition). It runs 20 sequential check levels on every element in your IFC model and produces actionable findings with specific regulation clause references and remediation guidance.</p><h3>System Requirements</h3><table class="manual-table"><tr><td>OS</td><td>Windows 10 (v1903+) or Windows 11, 64-bit</td></tr><tr><td>.NET 8 Desktop Runtime</td><td>Installed automatically</td></tr><tr><td>WebView2 Runtime</td><td>Installed automatically</td></tr><tr><td>RAM</td><td>4 GB minimum; 8 GB recommended for models over 200 MB</td></tr><tr><td>Internet</td><td>Not required for validation. Optional for rules auto-update.</td></tr></table><h3>File Formats</h3><table class="manual-table"><tr><td>.ifc / .ifczip / .ifcxml</td><td>IFC STEP, compressed IFC, IFC XML &mdash; IFC2x3 and IFC4.x</td></tr><tr><td>.ids</td><td>buildingSMART IDS for custom requirements (Check Level 16)</td></tr><tr><td>.bcf</td><td>BCF 2.1 for issue import and export</td></tr><tr><td>.xlsx</td><td>IFC+SG Industry Mapping Excel (import via Settings)</td></tr></table><h3>Embedded Data (v2.1.0)</h3><table class="manual-table"><tr><td>COP Version</td><td>CORENET-X COP 3.1 (December 2025)</td></tr><tr><td>Classification codes</td><td>206 &mdash; SG 117, CX 68, MY 21</td></tr><tr><td>IFC+SG property rules</td><td>970 across all 62 COP 3.1 Identified Components</td></tr><tr><td>IFC entity types</td><td>39 with all 122 COP 3.1 subtypes</td></tr><tr><td>Singapore design rules</td><td>192 &mdash; SCDF, URA, BCA, NEA, PUB, SLA, LTA, NParks, JTC</td></tr><tr><td>Malaysia design rules</td><td>52 &mdash; UBBL, MS 1184, JBPM, GBI, MSMA, CIDB NBeS</td></tr><tr><td>GFA categories</td><td>25 AGF_DevelopmentUse values + full AGF_Name lists per development use</td></tr></table>',
+
+        workflow: '<h3>Complete Workflow</h3><ol class="manual-list"><li><strong>Set Country Mode</strong> &mdash; Singapore (CORENET-X) or Malaysia (NBeS) in the toolbar</li><li><strong>Set Gateway</strong> &mdash; G1 Design, G1.5 Piling, G2 Construction, or G3/G4 Completion</li><li><strong>Load IFC files</strong> &mdash; Add Files or drag and drop (.ifc / .ifczip / .ifcxml). Multiple files for multi-discipline validation.</li><li><strong>Run Validation</strong> &mdash; All 20 check levels run. Cancel anytime for partial results.</li><li><strong>Fix Critical findings first</strong> &mdash; Every Critical finding causes automatic CORENET-X or NBeS rejection.</li><li><strong>Use Property Editor</strong> &mdash; Click Fix on any property finding. Enter correct value, click Apply Edit, then Apply All Edits. Output: [filename]-fixed.ifc in the same folder.</li><li><strong>Review all findings</strong> &mdash; Use the 7 filters: Severity, Discipline, IFC Entity, Agency, Storey, Gateway, Check Type.</li><li><strong>Re-validate</strong> &mdash; Load the corrected file and confirm findings are resolved.</li><li><strong>Export report</strong> &mdash; PDF, Excel, or BCF from the Export panel.</li></ol><h3>Gateway-Specific Notes</h3><table class="manual-table"><tr><td><strong>G1.5 Piling</strong></td><td>Every pile individually modelled with 37+ properties: Mark, PileType (BORED/DRIVEN/JETGROUTING/MICROPILE), PileShape, Diameter, CutOffLevel_SHD, ToeLevel_SHD, DA1-1_CompressionCapacity, DA1-1_CompressionDesignLoad, BoreholeRef. Ground investigation boreholes must be co-submitted per BCA Circular APPBCA-2016-08.</td></tr><tr><td><strong>G2 Construction</strong></td><td>All 9 Singapore agencies active. AGF_DevelopmentUse on every IfcSpace/AREA_GFA. AVF_IncludeAsGFA = Yes. WELS ratings on all sanitary fittings. FireExit on exit doors. FireAccessOpening on all windows.</td></tr><tr><td><strong>G3/G4 Completion</strong></td><td>As-built Mark on all structural elements. BCA: Notice of Completion and test records. LTA: as-built topographic survey. NEA: ventilation compliance evidence.</td></tr></table>',
+
+        checks: '<h3>All 20 Check Levels</h3><table class="manual-table"><tr><th>Level</th><th>Name</th><th>Severity</th><th>What it checks</th></tr><tr><td><strong>L1</strong></td><td>IFC Entity Class</td><td>Critical</td><td>IFC class of every element against COP 3.1 approved class for its classification code. IfcBuildingElementProxy is valid for 14 types including Borehole, Tactile Tile, and all parking lot types.</td></tr><tr><td><strong>L2</strong></td><td>GUID Uniqueness</td><td>Critical</td><td>Every element GlobalId unique within and across all loaded files. Duplicates cause automatic CORENET-X rejection.</td></tr><tr><td><strong>L3</strong></td><td>Spatial Containment</td><td>Critical</td><td>Every physical element contained within an IfcBuildingStorey.</td></tr><tr><td><strong>L4</strong></td><td>Classification Reference</td><td>Critical/Error</td><td>Classification code present and references the correct system (CORENET-X for SG, NBeS for MY).</td></tr><tr><td><strong>L5</strong></td><td>Classification Edition</td><td>Error</td><td>Classification edition matches current approved mapping. Outdated COP 2.x codes flagged.</td></tr><tr><td><strong>L6</strong></td><td>Mandatory Pset_</td><td>Critical/Error</td><td>All standard IFC4 property sets required for the element type are present (Pset_WallCommon, Pset_DoorCommon, etc.).</td></tr><tr><td><strong>L7</strong></td><td>SGPset_ / NBeS Pset_</td><td>Critical</td><td>All Singapore SGPset_ or Malaysia NBeS property sets required by COP 3.1 are present.</td></tr><tr><td><strong>L8</strong></td><td>Classification-to-Property Chain</td><td>Critical/Error</td><td>When a classification code is present, all SGPset_ property sets linked to that code are also present. 196 COP 3.1 codes.</td></tr><tr><td><strong>L9</strong></td><td>Property Values</td><td>Error</td><td>Required property values are populated (not blank or null).</td></tr><tr><td><strong>L10</strong></td><td>Enumeration Values</td><td>Error</td><td>Text properties contain only approved values from COP 3.1 enumeration lists (e.g. ConstructionMethod: CIS/PC/PT/PPVC/PF/Spun).</td></tr><tr><td><strong>L11</strong></td><td>Data Types</td><td>Error</td><td>Property values match declared data type.</td></tr><tr><td><strong>L12</strong></td><td>Georeferencing</td><td>Critical</td><td>IfcMapConversion present with SVY21 (SG) or GDM2000 (MY) coordinates within national spatial bounds.</td></tr><tr><td><strong>L13</strong></td><td>Coordinate Reference System</td><td>Warning</td><td>Declared CRS matches SVY21 (SG) or GDM2000/RSO (MY).</td></tr><tr><td><strong>L14</strong></td><td>Geometry Validity</td><td>Warning</td><td>Bounding box checked for zero-extent, NaN, or infinite values.</td></tr><tr><td><strong>L15</strong></td><td>Storey Elevations</td><td>Warning</td><td>IfcBuildingStorey elevations non-zero and ascending.</td></tr><tr><td><strong>L16</strong></td><td>IDS Compliance</td><td>Variable</td><td>Elements checked against loaded IDS specification. Severity follows the IDS file.</td></tr><tr><td><strong>L17</strong></td><td>BCF Cross-Reference</td><td>Info</td><td>Loaded BCF issues linked to the elements they reference.</td></tr><tr><td><strong>L18</strong></td><td>Design Code</td><td>Variable</td><td>192 SG + 52 MY rules: dimensions, areas, fire ratings, WELS, parking, accessibility, georeferencing bounds, structural grades.</td></tr><tr><td><strong>L19</strong></td><td>IFC Schema Version</td><td>Error</td><td>Schema version verified. CORENET-X requires IFC4 ADD2 TC1 or later. IFC2x3 raises a submission-blocking Error.</td></tr><tr><td><strong>L20</strong></td><td>Model Quality</td><td>Warning</td><td>COP 3.1 Model Quality Checklist: storey GFA consistency, space adjacency to walls, cadastral lot boundaries, SVY21 export, IFC+SG parameter units.</td></tr></table>',
+
+        severity: '<h3>Severity Levels</h3><table class="manual-table"><tr><td style="color:#ef4444"><strong>Critical</strong></td><td>Automatic CORENET-X or NBeS rejection. Must resolve before submission.</td></tr><tr><td style="color:#f59e0b"><strong>Error</strong></td><td>Missing or incorrect data. Likely to cause agency delays or resubmission. Should resolve.</td></tr><tr><td style="color:#eab308"><strong>Warning</strong></td><td>Incomplete or non-recommended data. Review and resolve where possible.</td></tr><tr><td style="color:#22c55e"><strong>Info</strong></td><td>Informational. No action required.</td></tr></table><h3>Finding Columns</h3><table class="manual-table"><tr><td>Element GUID</td><td>GlobalId for cross-reference in BIM authoring tool</td></tr><tr><td>IFC Class / Storey</td><td>Entity class and containing building storey</td></tr><tr><td>Property Set</td><td>Pset_ or SGPset_ where the issue was found</td></tr><tr><td>Property Name</td><td>The specific failing property</td></tr><tr><td>Expected / Actual</td><td>Correct value per COP 3.1 vs what the file contains</td></tr><tr><td>Agency</td><td>Regulatory agency the finding relates to</td></tr><tr><td>Code Reference</td><td>Specific regulation clause (e.g. SCDF Fire Code 2023 &sect;5.4.2)</td></tr><tr><td>Remediation</td><td>Guidance on how to fix the issue</td></tr></table><h3>7 Result Filters</h3><p>Severity &mdash; Discipline (A/S/M/C/L) &mdash; IFC Entity &mdash; Agency (BCA/URA/SCDF/NEA/PUB/SLA/LTA/NParks/JTC) &mdash; Storey &mdash; Gateway &mdash; Check Type</p>',
+
+        bimexport: '<h3>ArchiCAD &mdash; IFC+SG Export</h3><ol class="manual-list"><li>Download IFC+SG Export Translator (2025 edition) from <strong>go.gov.sg/ifcsg</strong> &gt; IFC+SG Resource Kit</li><li>In ArchiCAD: Options &gt; Import Scheme &mdash; import the translator file</li><li>Assign IFC+SG classification codes to all elements. In ArchiCAD, the classification drives the IFC entity class.</li><li>File &gt; Save as IFC &gt; select the IFC+SG translator &gt; IFC4 Reference View</li><li>After export, verify SGPset_ properties appear on elements in an IFC viewer</li></ol><h3>Revit &mdash; IFC+SG Export</h3><ol class="manual-list"><li>Download IFC+SG Shared Parameters from <strong>go.gov.sg/ifcsg</strong></li><li>In Revit: Manage &gt; Shared Parameters &gt; load the file</li><li>Add shared parameters to all families needing SGPset_ data</li><li>Set classification codes via the Uniformat Classification field</li><li>File &gt; Export &gt; IFC &gt; Modify Setup &gt; select IFC+SG 2025 &gt; IFC4 schema &gt; export</li></ol><h3>Tekla Structures</h3><ol class="manual-list"><li>Download the Tekla IFC+SG profile from <strong>go.gov.sg/ifcsg</strong></li><li>Apply in File &gt; Export &gt; IFC &gt; settings</li><li>Verify Mark, MaterialGrade, ConstructionMethod are mapped to SGPset_ attributes</li></ol><h3>OpenBuildings Designer</h3><ol class="manual-list"><li>Download the OpenBuildings IFC+SG configuration from <strong>go.gov.sg/ifcsg</strong></li><li>Apply in the IFC export settings</li><li>Verify all SGPset_ structural parameters are mapped</li></ol>',
+
+        singapore: '<h3>9 Regulatory Agencies</h3><table class="manual-table"><tr><th>Agency</th><th>VERIFIQ checks</th></tr><tr><td><strong>BCA</strong></td><td>Mark, MaterialGrade, ConstructionMethod on all structural elements; Code on Accessibility 2025 dimensions; Green Mark U-values (wall &le;0.5, roof &le;0.4, window &le;3.5 W/m&sup2;K); IFC+SG COP 3.1 data completeness</td></tr><tr><td><strong>URA</strong></td><td>AGF_DevelopmentUse (25 approved categories mandatory), AVF_IncludeAsGFA (Yes/No), GrossArea, AGF_BonusGFAType, room size minimums, balcony depth max 1.5m</td></tr><tr><td><strong>SCDF</strong></td><td>FireExit on exit doors, FireAccessOpening on windows, SpaceName + OccupancyType on spaces, fire engine accessway width &ge;4000mm, compartment areas, travel distances, exit staircase widths, fire door and wall FRR</td></tr><tr><td><strong>NEA</strong></td><td>AirChangeRate (offices/car parks min 6 ACH, kitchens min 20 ACH), bin centre min area, grease interceptor capacity</td></tr><tr><td><strong>PUB</strong></td><td>WELSRating (WC min 3 ticks, basins/showers/urinals min 2 ticks), drain Gradient (foul 1:100, stormwater 1:200), pipe InvertLevel, SystemType</td></tr><tr><td><strong>SLA</strong></td><td>SVY21 Easting 2,667&ndash;49,001m; Northing 12,727&ndash;55,796m; RefElevation (SHD -10 to 200m); LandLotNumber format</td></tr><tr><td><strong>LTA</strong></td><td>Car bay 2400&times;4800mm, PWD bay min 3600mm, lorry lot min 3500&times;9000mm, motorcycle lot min 1000&times;2200mm, coach lot min 3500&times;12000mm</td></tr><tr><td><strong>NParks</strong></td><td>Botanical PlantSpecies names (NParks Flora &amp; Fauna Web), transplanted tree GirthSize min 150mm, planted area soil depth min 600mm, LUSH 3.0 ALS_GreeneryFeatures</td></tr><tr><td><strong>JTC</strong></td><td>Industrial slab ImposedLoad min 10 kN/m&sup2; (B2), factory clear height min 5m, loading bay provision</td></tr></table><h3>GFA Categories (URA &mdash; Critical)</h3><p>Every <strong>IfcSpace / AREA_GFA</strong> must have <strong>AGF_DevelopmentUse</strong> set from the 25 approved URA categories: Agriculture, Beach Area, Business Park, Business 1, Business 2, Cemetery, Civic &amp; Community Institution, Commercial, Educational Institution, Health &amp; Medical Care, Hotel, Open Space, Park, Place of Worship, Port/Airport, Rapid Transit, Reserve Site, Residential (Landed), Residential (Non-landed), Road, Special Use, Sports &amp; Recreation, Transport Facilities, Utility, Waterbody. Missing = automatic URA rejection. <strong>AVF_IncludeAsGFA</strong> must be Yes/True for all areas proposed as GFA.</p>',
+
+        malaysia: '<h3>Malaysia NBeS 2024 &mdash; Codes Checked</h3><table class="manual-table"><tr><th>Code</th><th>VERIFIQ checks</th></tr><tr><td><strong>UBBL 1984</strong></td><td>Room areas (bedroom min 9m&sup2;, kitchen min 4.5m&sup2;), ceiling heights (habitable min 2.6m), window/ventilation ratios, fire escape widths and travel distances, structural minimums (slab min 125mm, wall min 150mm)</td></tr><tr><td><strong>MS 1184:2014</strong></td><td>OKU ramp gradient max 1:12, door clear width min 800mm, corridor min 1500mm, lift car 1100&times;1400mm, accessible toilet 1600&times;2000mm, OKU parking bay min 3700mm</td></tr><tr><td><strong>JBPM Fire Safety 2020</strong></td><td>Compartment wall FRR min 1hr, fire door FRR min 1hr, exit door min 850mm, hydrant coverage within 90m, Bomba access road min 4500mm width and headroom</td></tr><tr><td><strong>CIDB NBeS 2024</strong></td><td>Mark on all structural elements, MaterialGrade (C30/C35/Grade 43/Grade 50/S275/S355), ConstructionMethod including IBS declaration, GDM2000 georeferencing</td></tr><tr><td><strong>GBI</strong></td><td>External wall U-value &le;2.0, roof U-value &le;0.4, window U-value &le;4.0 W/m&sup2;K</td></tr><tr><td><strong>MSMA 2nd Ed. 2012</strong></td><td>Stormwater drain gradient min 1:333 (0.3%), on-site detention tank for sites over 1 hectare</td></tr></table><h3>Georeferencing &mdash; GDM2000</h3><p>Malaysian models must use <strong>GDM2000</strong> (Geocentric Datum of Malaysia 2000), not SVY21. Peninsular Malaysia: RSO (Rectified Skew Orthomorphic) projection. Sabah and Sarawak: Timbalai 1948 RSO. VERIFIQ checks IfcMapConversion contains GDM2000 coordinates and flags if SVY21 is mistakenly used.</p>',
+
+        designcode: '<h3>Design Code Engine (Check Level 18)</h3><p>Checks that actual dimensional values, areas, fire ratings, and counts in the IFC model meet the minimum or maximum required by the applicable regulation. Runs after all data completeness checks.</p><h3>Singapore &mdash; 192 Rules</h3><table class="manual-table"><tr><th>Category</th><th>Rules</th><th>Key requirements</th></tr><tr><td>SCDF Fire Code 2023</td><td>40+</td><td>Compartment area &le;500m&sup2; (non-sprinklered); travel distance &le;30m; exit stair width &ge;1100mm (&le;24m) / &ge;1200mm (&gt;24m); wall/floor/door FRR; fire engine accessway &ge;4000mm</td></tr><tr><td>URA / GFA</td><td>7</td><td>AGF_DevelopmentUse from 25 categories; AVF_IncludeAsGFA mandatory; GrossArea &gt;0; balcony depth &le;1.5m</td></tr><tr><td>URA Room Sizes</td><td>8</td><td>Living room &ge;16m&sup2; HDB / &ge;13m&sup2; private; bedroom &ge;9m&sup2;; master bedroom &ge;12.5m&sup2;; kitchen &ge;4.5m&sup2;; bathroom &ge;2.5m&sup2;</td></tr><tr><td>BCA Accessibility</td><td>12</td><td>Accessible toilet &ge;2.7m&sup2;; ramp gradient max 1:12; door clear width &ge;850mm; lift car &ge;1100&times;1400mm</td></tr><tr><td>BCA Green Mark</td><td>6</td><td>External wall U-value &le;0.5; roof U-value &le;0.4; window U-value &le;3.5 W/m&sup2;K</td></tr><tr><td>BCA Structural</td><td>6</td><td>Concrete min C25/30; steel min S275; stair riser max 175mm; tread min 250mm; ceiling height &ge;2.4m habitable</td></tr><tr><td>NEA Ventilation</td><td>3</td><td>Car park AirChangeRate &ge;6 ACH; kitchen &ge;20 ACH; office &ge;6 ACH</td></tr><tr><td>PUB WELS / Drainage</td><td>8</td><td>WC &ge;3 ticks; basin/shower &ge;2 ticks; urinal &ge;2 ticks; foul drain gradient &ge;1:100; stormwater &ge;1:200</td></tr><tr><td>LTA Parking</td><td>7</td><td>Car bay 2400&times;4800mm; PWD bay &ge;3600mm; lorry &ge;9000mm; motorcycle &ge;1000&times;2200mm</td></tr><tr><td>NParks LUSH 3.0</td><td>6</td><td>Botanical names required; transplanted tree girth &ge;150mm; soil depth &ge;600mm</td></tr><tr><td>JTC Industrial</td><td>5</td><td>Floor loading &ge;10 kN/m&sup2; (B2); factory height &ge;5m; loading bay required</td></tr><tr><td>SLA Georeferencing</td><td>3</td><td>SVY21 Easting 2,667&ndash;49,001m; Northing 12,727&ndash;55,796m; SHD elevation -10 to 200m</td></tr><tr><td>G4 Completion</td><td>5</td><td>As-built Mark on structural elements; LTA as-built survey; NEA clearances</td></tr></table><h3>Malaysia &mdash; 52 Rules</h3><p>UBBL room/ceiling/structural (14 rules), MS 1184 accessibility (8), JBPM fire (7), CIDB NBeS completeness (4), GBI thermal (4), MSMA drainage (2), Bomba access (2), UBBL fire escape (6), UBBL sanitary (3), GBI tank (2).</p>',
+
+        rulesdb: '<h3>IFC+SG Rules Database</h3><p>VERIFIQ ships with the complete CORENET-X COP 3.1 (December 2025) rules database embedded. The auto-update engine checks for new versions 8 seconds after each application startup.</p><h3>Auto-Update Process</h3><ol class="manual-list"><li>Checks the VERIFIQ version manifest at <strong>bbmw0.com/verifiq/rules-version.json</strong></li><li>Falls back to scraping <strong>info.corenet.gov.sg</strong> for a new Excel download link</li><li>If a newer version is available, a notification banner appears in the application</li><li>Click the banner to download and import the new mapping &mdash; no restart required</li></ol><h3>Manual Update</h3><ol class="manual-list"><li>Settings (gear icon) &gt; IFC+SG Rules Database panel</li><li>Panel shows: COP Version, Edition Date, Total Codes, Total Properties, Source</li><li>Click <strong>Check for Rules Update</strong> to force an immediate check</li><li>Or click <strong>Manual Import</strong> to import an Excel downloaded from <strong>go.gov.sg/ifcsg</strong></li></ol><p style="margin-top:12px"><em>Downloaded rules are cached at <strong>%LOCALAPPDATA%\\VERIFIQ\\RulesCache\\</strong>. Updates apply to the current session immediately.</em></p>',
+
+        troubleshoot: '<table class="manual-table"><tr><th>Issue</th><th>Solution</th></tr><tr><td><strong>Licence not recognised</strong></td><td>Exactly 29 characters: VRFQ-XXXX-XXXX-0000-XXXXXXXX. No extra spaces. Trial key: VRFQ-TRIAL-DEMO0-0000-00000001. Contact bbmw0@hotmail.com.</td></tr><tr><td><strong>IFC file will not load</strong></td><td>Extension must be .ifc, .ifczip, or .ifcxml. Rename .zip files to .ifczip. Files over 500 MB may take 2+ minutes.</td></tr><tr><td><strong>3D viewer blank</strong></td><td>Settings &gt; Download 3D Viewer. One-time internet download required. Restart VERIFIQ after.</td></tr><tr><td><strong>Zero findings</strong></td><td>Verify Country Mode matches the model. Ensure at least one element has a classification code assigned.</td></tr><tr><td><strong>Integrity error on launch</strong></td><td>Delete %LOCALAPPDATA%\\VERIFIQ\\integrity.manifest and relaunch. Reinstall if persists.</td></tr><tr><td><strong>Rules update fails</strong></td><td>Configure proxy: Settings &gt; Network. Or manually import from go.gov.sg/ifcsg via Settings &gt; IFC+SG Rules Database &gt; Manual Import.</td></tr><tr><td><strong>Property Editor no output</strong></td><td>Click <strong>Apply All Edits</strong> (not just Apply Edit). Output: [filename]-fixed.ifc in same folder as original.</td></tr><tr><td><strong>All elements Critical (L1)</strong></td><td>BIM software is not mapping classification codes to correct IFC entity classes. Re-export using the correct IFC+SG translator settings.</td></tr><tr><td><strong>URA Critical &mdash; GFA</strong></td><td>Set AGF_DevelopmentUse on every IfcSpace/AREA_GFA from the 25 approved categories. Most common Singapore Critical finding.</td></tr><tr><td><strong>BCF import fails</strong></td><td>VERIFIQ supports BCF 2.1. Downgrade BCF 3.0 files in your BCF tool before import.</td></tr></table><p>Support: <strong>bbmw0@hotmail.com</strong> &nbsp;|&nbsp; +44 7920 212 969 &nbsp;|&nbsp; verifiq.bbmw0.com</p>',
+
+        glossary: '<table class="manual-table"><tr><th>Term</th><th>Definition</th></tr><tr><td><strong>IFC</strong></td><td>Industry Foundation Classes &mdash; open BIM data exchange standard. CORENET-X uses IFC4 ADD2 TC1 or later.</td></tr><tr><td><strong>IFC+SG</strong></td><td>Singapore extension of IFC4. Adds SGPset_ property sets and the IFC+SG classification code system.</td></tr><tr><td><strong>SGPset_</strong></td><td>Singapore-specific IFC4 property sets (e.g. SGPset_WallFireRating, SGPset_Beam, SGPset_SpaceGFA). Defined in COP 3.1 Section 4.</td></tr><tr><td><strong>Pset_</strong></td><td>Standard IFC4 property sets (Pset_WallCommon, Pset_DoorCommon, etc.). Required in addition to SGPset_.</td></tr><tr><td><strong>AREA_GFA</strong></td><td>IfcSpace PredefinedType for GFA spaces. Must have AGF_DevelopmentUse + AVF_IncludeAsGFA.</td></tr><tr><td><strong>AGF_DevelopmentUse</strong></td><td>URA development use category. One of 25 approved values. Mandatory on all IfcSpace/AREA_GFA.</td></tr><tr><td><strong>AVF_IncludeAsGFA</strong></td><td>Boolean (Yes/No). Must be Yes for all spaces proposed to count as GFA.</td></tr><tr><td><strong>SVY21</strong></td><td>Singapore Geodetic Reference System 1995. Coordinate system for all Singapore IFC submissions.</td></tr><tr><td><strong>GDM2000</strong></td><td>Geocentric Datum of Malaysia 2000. Coordinate system for Malaysian IFC submissions.</td></tr><tr><td><strong>SHD</strong></td><td>Singapore Height Datum. Vertical datum for elevation values in Singapore IFC models.</td></tr><tr><td><strong>CORENET-X</strong></td><td>Singapore one-stop digital regulatory approval platform. Led by BCA and URA, supported by GovTech.</td></tr><tr><td><strong>NBeS</strong></td><td>National BIM e-Submission (Malaysia). Managed by CIDB.</td></tr><tr><td><strong>COP 3.1</strong></td><td>CORENET-X Code of Practice 3.1, December 2025. Primary source for all Singapore requirements in VERIFIQ.</td></tr><tr><td><strong>FRR</strong></td><td>Fire Resistance Rating in hours (0.5, 1, 1.5, 2, 3, 4).</td></tr><tr><td><strong>WELS</strong></td><td>Water Efficiency Labelling Scheme (PUB). WCs min 3 ticks; basins/showers min 2 ticks.</td></tr><tr><td><strong>IBS</strong></td><td>Industrialised Building System (Malaysia). Declared via ConstructionMethod=IBS for CIDB IBS Score.</td></tr><tr><td><strong>LUSH 3.0</strong></td><td>Landscaping for Urban Spaces and High-Rises. NParks Singapore programme, version 3.0.</td></tr><tr><td><strong>RABW</strong></td><td>Regulatory Approval of Building Works &mdash; the overall CORENET-X approval process.</td></tr><tr><td><strong>QP</strong></td><td>Qualified Person &mdash; Registered Architect or Professional Engineer who is the statutory submitter.</td></tr></table>',
+      };
+
+      var activeSection = 'overview';
+
+      function renderSection(id) {
+        activeSection = id;
+        var html = CONTENT[id] || '';
+        document.getElementById('manual-content').innerHTML = html;
+        document.querySelectorAll('.manual-nav-item').forEach(function(el) {
+          var active = el.dataset.id === id;
+          el.style.background = active ? 'rgba(0,196,160,.15)' : 'transparent';
+          el.style.color = active ? 'var(--teal)' : 'var(--mid-grey)';
+          el.style.borderLeft = active ? '3px solid var(--teal)' : '3px solid transparent';
+        });
+      }
+
+      var navItems = SECTIONS.map(function(s) {
+        return '<div class="manual-nav-item" data-id="' + s.id + '"'
+             + ' onclick="renderSection(\'' + s.id + '\')"'
+             + ' style="padding:10px 14px;cursor:pointer;font-size:12px;display:flex;align-items:center;gap:8px;'
+             + 'border-left:3px solid transparent;transition:all .15s;border-radius:0 6px 6px 0">'
+             + '<span>' + s.icon + '</span><span>' + s.title + '</span></div>';
+      }).join('');
+
+      setTimeout(function() { renderSection('overview'); }, 50);
+
+      return `
+        <div style="display:flex;height:calc(100vh - 56px);overflow:hidden">
+          <div style="width:228px;flex-shrink:0;background:var(--card-bg);border-right:1px solid var(--border);overflow-y:auto;padding:14px 0">
+            <div style="padding:10px 16px 6px;font-size:10px;font-weight:700;color:var(--mid-grey);text-transform:uppercase;letter-spacing:.08em">User Manual &mdash; v2.1.0</div>
+            ${navItems}
+            <div style="padding:14px 14px 6px;border-top:1px solid var(--border);margin-top:10px">
+              <button class="btn btn-ghost" style="font-size:11px;width:100%" onclick="App.navigate('help')">&#8592; Back to Help</button>
+            </div>
+          </div>
+          <div style="flex:1;overflow-y:auto;padding:24px 32px" id="manual-content"></div>
+        </div>
+        <style>
+          .manual-table{width:100%;border-collapse:collapse;font-size:12px;margin:12px 0 18px}
+          .manual-table th{background:rgba(0,196,160,.12);color:var(--teal);font-weight:700;padding:8px 10px;text-align:left;border:1px solid var(--border)}
+          .manual-table td{padding:7px 10px;border:1px solid var(--border);color:var(--mid-grey);vertical-align:top;line-height:1.7}
+          .manual-table tr:nth-child(even) td{background:rgba(255,255,255,.025)}
+          .manual-list{padding-left:18px;color:var(--mid-grey);font-size:12px;line-height:2}
+          #manual-content h3{color:var(--white);font-size:14px;font-weight:700;margin:18px 0 8px}
+          #manual-content p{color:var(--mid-grey);font-size:12px;line-height:1.8;margin:0 0 10px}
+          #manual-content strong{color:var(--white)}
+          #manual-content ol,#manual-content ul{color:var(--mid-grey);font-size:12px;line-height:1.9}
+        </style>
+      `;
+    };;

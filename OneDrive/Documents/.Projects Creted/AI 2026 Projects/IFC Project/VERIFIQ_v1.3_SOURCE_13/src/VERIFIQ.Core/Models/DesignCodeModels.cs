@@ -73,7 +73,35 @@ public enum DesignCodeCategory
     MalaysiaUBBL = 20,             // Malaysia-specific UBBL checks
     MalaysiaFireCode = 21,         // JBPM fire code checks
     MalaysiaAccessibility = 22,    // MS 1184 accessibility
-    MalaysiaGreenBuilding = 23     // GBI / Green Building Index
+    MalaysiaGreenBuilding = 23,    // GBI / Green Building Index
+    // Aliases for new rules categories
+    FireSafety                  = 3,  // alias for FireSafetyAndEscape
+    EnergyPerformance           = 8,  // alias for SustainabilityAndGreenMark
+    GrossFloorArea              = 6,  // alias for GrossFloorAreaRules
+    StructuralAdequacy          = 4,  // alias for StructuralAndConstrucitonal
+    ParkingAndTransport         = 7,  // alias for ParkingAndVehicularAccess
+    LandscapeAndGreenery        = 30, // NParks LUSH requirements
+    GeoreferencingAndSpatial    = 31, // SLA SVY21 georeferencing
+    GatewayCompliance           = 32, // G1/G2/G4 gateway requirements
+    VentilationAndAirQuality    = 5,  // alias for VentilationAndLighting
+    // New categories for HIGH/MEDIUM/LOWER priority rules
+    PlanningAndGFA              = 6,  // alias for GrossFloorAreaRules
+    SpaceUsageAndOccupancy      = 33, // SCDF SpaceName/OccupancyType
+    EnvironmentalAndSustainability = 8, // alias for SustainabilityAndGreenMark
+    CivilAndInfrastructure      = 34, // LTA, PUB civil works
+    StructuralAndFoundation     = 4,  // alias for StructuralAndConstrucitonal
+    WaterAndDrainage            = 9,  // alias for PlumbingAndDrainage
+    GeoreferencingAndSurvey     = 31, // alias for GeoreferencingAndSpatial
+    ModelQuality                = 35,  // COP 3.1 Model Quality Checklist
+    // Additional aliases to support comprehensive rule sets
+    FireSafetyAndEmergency      = 3,   // alias for FireSafetyAndEscape
+    SubmissionAndDocumentation  = 36,  // G4 gateway, documentation compliance
+    GeoReferencingAndSiteData   = 31,  // alias for GeoreferencingAndSpatial
+    MechanicalAndVentilation    = 5,   // alias for VentilationAndLighting
+    EnergyAndEnvironment        = 8,   // alias for SustainabilityAndGreenMark
+    LandscapeAndEnvironmental   = 30,  // alias for LandscapeAndGreenery
+    TransportAndParking         = 7,   // alias for ParkingAndVehicularAccess
+    UrbanPlanningAndGFA         = 6,   // alias for GrossFloorAreaRules
 }
 
 // ─── DESIGN CODE SESSION ──────────────────────────────────────────────────────
@@ -143,6 +171,21 @@ public sealed class DesignCodeRule
 
     // Formula description
     public string               FormulaDescription { get; set; } = string.Empty;
+
+    // Gateway at which this rule applies (Design/Piling/Construction/Completion)
+    public CorenetGateway       Gateway           { get; set; } = CorenetGateway.Construction;
+
+    // Whether this property is required (true) or recommended (false)
+    public bool                 IsRequired        { get; set; } = true;
+
+    // Enumeration validation - list of permitted values for text properties
+    public List<string>         PermittedValues   { get; set; } = new();
+
+    // Expected value for boolean/specific checks
+    public string               ExpectedValue     { get; set; } = string.Empty;
+
+    // Purpose group (SCDF) - for fire code rule filtering
+    public string               PurposeGroup      { get; set; } = string.Empty;
 }
 
 // ─── SPACE DIMENSIONS ────────────────────────────────────────────────────────

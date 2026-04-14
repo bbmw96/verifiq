@@ -197,6 +197,88 @@ const Bridge = (() => {
         })();
         break;
 
+      case 'rulesUpdateAvailable':
+        // COP rules update is available - show banner in Settings
+        (function() {
+          window._rulesUpdate = data;
+          var banner = document.getElementById('rules-update-banner');
+          if (banner) {
+            banner.style.display = 'block';
+            var msg = banner.querySelector('.rules-update-msg');
+            if (msg) msg.textContent = data.message || ('COP ' + data.copVersion + ' (' + data.copDate + ') rules update available.');
+          }
+        })();
+        break;
+
+      case 'rulesUpToDate':
+        (function() {
+          var btn = document.getElementById('rules-check-btn');
+          if (btn) {
+            btn.textContent = 'Rules Up to Date';
+            btn.disabled = true;
+            setTimeout(function() { btn.textContent = 'Check for Rules Update'; btn.disabled = false; }, 3000);
+          }
+          var status = document.getElementById('rules-update-status');
+          if (status) {
+            status.textContent = data.message || 'Rules are up to date.';
+            status.className = 'rules-status-ok';
+          }
+        })();
+        break;
+
+      case 'rulesUpdateProgress':
+        (function() {
+          var btn = document.getElementById('rules-check-btn');
+          if (btn) { btn.textContent = data.message || 'Checking...'; btn.disabled = true; }
+        })();
+        break;
+
+      case 'rulesUpdateComplete':
+        (function() {
+          var btn = document.getElementById('rules-check-btn');
+          if (btn) { btn.textContent = 'Rules Updated'; btn.disabled = false; }
+          var status = document.getElementById('rules-update-status');
+          if (status) {
+            status.textContent = data.message || ('Rules updated to COP ' + data.copVersion);
+            status.className = 'rules-status-ok';
+          }
+          var banner = document.getElementById('rules-update-banner');
+          if (banner) banner.style.display = 'none';
+          // Refresh the rules version display
+          VBridge.send('getRulesVersion', {});
+        })();
+        break;
+
+      case 'rulesUpdateError':
+        (function() {
+          var btn = document.getElementById('rules-check-btn');
+          if (btn) { btn.textContent = 'Check for Rules Update'; btn.disabled = false; }
+          var status = document.getElementById('rules-update-status');
+          if (status) {
+            status.textContent = data.message || 'Update check failed.';
+            status.className = 'rules-status-error';
+          }
+        })();
+        break;
+
+      case 'rulesVersion':
+        (function() {
+          var el = document.getElementById('rules-version-info');
+          if (!el) return;
+          el.innerHTML =
+            '<span class="rv-label">COP Version:</span> <span class="rv-val">' + (data.copVersion||'3.1') + '</span>' +
+            ' &nbsp;|&nbsp; ' +
+            '<span class="rv-label">Edition:</span> <span class="rv-val">' + (data.copEditionDate||'2025-12') + '</span>' +
+            ' &nbsp;|&nbsp; ' +
+            '<span class="rv-label">Codes:</span> <span class="rv-val">' + (data.totalCodes||'196') + '</span>' +
+            ' &nbsp;|&nbsp; ' +
+            '<span class="rv-label">Properties:</span> <span class="rv-val">' + (data.totalProperties||'946') + '</span>' +
+            ' &nbsp;|&nbsp; ' +
+            '<span class="rv-label">Source:</span> <span class="rv-src">' + (data.installedFrom||'embedded') + '</span>';
+        })();
+        break;
+
+
       case 'updateDeferred':
         (function() {
           const el = document.getElementById('update-banner');

@@ -18,6 +18,7 @@ using VERIFIQ.Rules;
 using VERIFIQ.Rules.Common;
 using VERIFIQ.Reports;
 using VERIFIQ.Security;
+using VERIFIQ.Desktop.Services;
 using JsonSerializer      = System.Text.Json.JsonSerializer;
 // UseWindowsForms=true brings System.Windows.Forms into scope - disambiguate WPF types explicitly.
 using Application         = System.Windows.Application;
@@ -1121,6 +1122,62 @@ public partial class MainWindow : Window
                 _deferredUpdateOnClose = true;
                 SendToFrontend("updateDeferred", new { message = "Update will be installed when you close VERIFIQ." });
                 break;
+
+            case "checkRulesUpdate":
+                _ = Task.Run(async () =>
+                {
+                    Dispatcher.Invoke(() => SendToFrontend("rulesUpdateProgress",
+                        new { status = "checking", message = "Connecting to info.corenet.gov.sg to check for COP updates..." }));
+                    var engine = new Services.CopRulesUpdateEngine();
+                    var result = await engine.ForceCheckAsync();
+                    Dispatcher.Invoke(() =>
+                    {
+                        if (result.HasError)
+                            SendToFrontend("rulesUpdateError", new { message = result.ErrorMessage });
+                        else if (result.UpdateApplied)
+                            SendToFrontend("rulesUpdateComplete", new {
+                                copVersion    = result.CopVersion,
+                                copDate       = result.CopEditionDate,
+                                newCodes      = result.NewCodesCount,
+                                updatedCodes  = result.UpdatedCodesCount,
+                                newProperties = result.NewPropertiesCount,
+                                message       = result.Message
+                            });
+                        else if (result.UpdateAvailable)
+                            SendToFrontend("rulesUpdateAvailable", new {
+                                copVersion = result.CopVersion,
+                                copDate    = result.CopEditionDate,
+                                message    = result.Message
+                            });
+                        else
+                            SendToFrontend("rulesUpToDate", new { message = result.Message });
+                    });
+                });
+                break;
+
+            case "getRulesVersion":
+            {
+                var appData  = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
+                var vPath    = Path.Combine(appData, "VERIFIQ", "RulesCache", "rules-version.json");
+                object vInfo;
+                if (File.Exists(vPath))
+                {
+                    var raw = File.ReadAllText(vPath);
+                    vInfo = System.Text.Json.JsonSerializer.Deserialize<object>(raw) ?? new { };
+                }
+                else
+                {
+                    vInfo = new {
+                        copVersion      = "3.1",
+                        copEditionDate  = "2025-12",
+                        totalCodes      = 196,
+                        totalProperties = 946,
+                        installedFrom   = "embedded (shipped with VERIFIQ v2.0.0)"
+                    };
+                }
+                SendToFrontend("rulesVersion", vInfo);
+                break;
+            }
 
             case "checkForUpdates":
                 _ = Task.Run(async () =>
