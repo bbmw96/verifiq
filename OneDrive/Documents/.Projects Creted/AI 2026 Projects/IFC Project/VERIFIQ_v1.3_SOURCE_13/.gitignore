@@ -1,19 +1,19 @@
-﻿# Ignore everything outside the project
-../../../../../../*
-../../../../../*
-../../../../*
-../../../*
-../../*
-../*
-
-# Build output
+﻿# Build outputs
 **/bin/
 **/obj/
 
-# Visual Studio
-.vs/
+# User-specific files
 *.user
+.vs/
 
-# Temp/personal files
-*.tmp
-*.log
+# Ignore everything outside the project folder
+../
+../../
+../../../
+
+# Personal files that may appear in relative paths
+*.pdf
+*.eml
+*.rdp
+NTUSER*
+ntuser*
