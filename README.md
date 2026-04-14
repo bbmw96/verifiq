@@ -83,9 +83,9 @@ VERIFIQ runs **20 sequential check levels** on every element and produces findin
 | L15 | Storey Elevations | Warning | IfcBuildingStorey elevations non-zero and ascending |
 | L16 | IDS Compliance | Variable | Elements checked against loaded IDS specification |
 | L17 | BCF Cross-Reference | Info | BCF issues linked to referenced elements |
-| L18 | Design Code | Variable | 192 SG + 52 MY rules — dimensions, fire ratings, WELS, accessibility, parking |
+| L18 | Design Code | Variable | 192 SG + 52 MY rules dimensions, fire ratings, WELS, accessibility, parking |
 | L19 | IFC Schema Version | Error | IFC4 ADD2 TC1 or later required for CORENET-X |
-| L20 | Model Quality | Warning | COP 3.1 Model Quality Checklist — GFA consistency, space adjacency, cadastral lots |
+| L20 | Model Quality | Warning | COP 3.1 Model Quality Checklist GFA consistency, space adjacency, cadastral lots |
 
 ---
 
