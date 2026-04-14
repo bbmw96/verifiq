@@ -25,10 +25,10 @@ VERIFIQ answers two questions before every BIM submission:
 
 | Question | What it checks |
 |----------|----------------|
-| **Is the IFC model complete?** | Every element has the correct entity class, classification code, all mandatory Pset_ and SGPset_ properties, and correct values — checked against all 9 Singapore regulatory agencies simultaneously |
-| **Is the classification chain complete?** | When a classification code is present, all linked SGPset_ property sets and required values are also present — 196 COP 3.1 codes, per agency, per gateway |
+| **Is the IFC model complete?** | Every element has the correct entity class, classification code, all mandatory Pset_ and SGPset_ properties, and correct values   checked against all 9 Singapore regulatory agencies simultaneously |
+| **Is the classification chain complete?** | When a classification code is present, all linked SGPset_ property sets and required values are also present 196 COP 3.1 codes, per agency, per gateway |
 
-VERIFIQ runs **20 sequential check levels** on every element and produces findings with specific regulation clause references and remediation guidance. It is 100% offline — your IFC files never leave your machine.
+VERIFIQ runs **20 sequential check levels** on every element and produces findings with specific regulation clause references and remediation guidance. It is 100% offline your IFC files never leave your machine.
 
 ---
 
@@ -51,7 +51,7 @@ VERIFIQ runs **20 sequential check levels** on every element and produces findin
 | Item | Count | Source |
 |------|-------|--------|
 | Classification codes | 206 (SG: 117, CX: 68, MY: 21) | COP 3.1 + NBeS 2024 |
-| IFC+SG property rules | 970 | COP 3.1 Section 4 — all 62 Identified Components |
+| IFC+SG property rules | 970 | COP 3.1 Section 4   all 62 Identified Components |
 | IFC entity types | 39 with 122 subtypes | COP 3.1 |
 | Singapore design rules | 192 | SCDF / URA / BCA / NEA / PUB / SLA / LTA / NParks / JTC |
 | Malaysia design rules | 52 | UBBL / MS 1184 / JBPM / GBI / MSMA / CIDB NBeS |
@@ -73,7 +73,7 @@ VERIFIQ runs **20 sequential check levels** on every element and produces findin
 | L5 | Classification Edition | Error | Edition matches current approved mapping |
 | L6 | Mandatory Pset_ | Critical/Error | All standard IFC4 property sets present |
 | L7 | SGPset_ / NBeS Pset_ | Critical | All Singapore or Malaysia property sets present |
-| L8 | Classification-to-Property Chain | Critical/Error | All SGPset_ linked to the code are present — 196 codes |
+| L8 | Classification-to-Property Chain | Critical/Error | All SGPset_ linked to the code are present   196 codes |
 | L9 | Property Values | Error | Required values populated (not blank/null) |
 | L10 | Enumeration Values | Error | Text properties contain only approved enumeration values |
 | L11 | Data Types | Error | Values match declared data types |
@@ -89,7 +89,7 @@ VERIFIQ runs **20 sequential check levels** on every element and produces findin
 
 ---
 
-## Singapore Coverage — 9 Agencies
+## Singapore Coverage   9 Agencies
 
 | Agency | What VERIFIQ checks |
 |--------|---------------------|
@@ -105,7 +105,7 @@ VERIFIQ runs **20 sequential check levels** on every element and produces findin
 
 ---
 
-## Malaysia Coverage — NBeS 2024
+## Malaysia Coverage   NBeS 2024
 
 | Code | VERIFIQ checks |
 |------|----------------|
@@ -127,7 +127,7 @@ VERIFIQ runs **20 sequential check levels** on every element and produces findin
 | WebView2 Runtime | Microsoft Edge WebView2 (installed automatically) |
 | RAM | 4 GB minimum; 8 GB recommended for models >200 MB |
 | Disk | 250 MB installation |
-| Internet | Not required for validation — optional for rules auto-update |
+| Internet | Not required for validation   optional for rules auto-update |
 
 ---
 
@@ -166,5 +166,5 @@ Trial key: `VRFQ-TRIAL-DEMO0-0000-00000001`
 ---
 
 <div align="center">
-<sub>VERIFIQ is not affiliated with BCA, GovTech, CORENET-X, URA, SCDF, NEA, PUB, SLA, LTA, NParks, JTC, CIDB, JBPM, or any Singapore or Malaysia government agency. CORENET-X and NBeS are trademarks of their respective owners. All regulatory values are cited by clause reference only — full regulation text belongs to the issuing authorities.</sub>
+<sub>VERIFIQ is not affiliated with BCA, GovTech, CORENET-X, URA, SCDF, NEA, PUB, SLA, LTA, NParks, JTC, CIDB, JBPM, or any Singapore or Malaysia government agency. CORENET-X and NBeS are trademarks of their respective owners. All regulatory values are cited by clause reference only   full regulation text belongs to the issuing authorities.</sub>
 </div>
