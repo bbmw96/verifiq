@@ -80,6 +80,7 @@ public enum SgAgency
     // Malaysia regulatory agencies
     CIDB   = 10,   // Construction Industry Development Board / Local Authority (PBT)
     JBPM   = 11,   // Jabatan Bomba dan Penyelamat Malaysia (Fire & Rescue)
+    JTC    = 9,   // Jurong Town Corporation
     All    = 99
 }
 
